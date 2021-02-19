@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
-args = commandArgs(trailingOnly=TRUE)
+args=commandArgs(trailingOnly=TRUE)
 
-# test if there is at least one argument: if not, return an error
+#Test if there are two arguments: if not, return an error
 if (length(args)<2) {
   stop("Two arguments must be supplied: a tree first and an outgroup string second", call.=FALSE)
 } 

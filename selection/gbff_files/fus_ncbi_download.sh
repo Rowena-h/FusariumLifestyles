@@ -1,12 +1,17 @@
 #!/bin/bash
 #$ -cwd
 #$ -j y
-#$ -l h_rt=1:00:00               #genomes to download
+#$ -l h_rt=1:00:00
+#$ -t 1-56		#number of taxa to download
 
-LINK=$(cat links)
+#Read ftp link for gbff into variable
+LINK=$(sed -n ${SGE_TASK_ID}p ../../fus_ncbi_genomic)
 
-for i in $LINK
-do
-	wget $i
-done 
+#Download from the ncbi ftp server
+wget $LINK
 
+#Read taxon name into variable
+FILE=$(echo $LINK | sed 's/^.*\(GCA.*\.gbff\).*$/\1/')
+
+#Extract file
+gunzip ${FILE}.gz
