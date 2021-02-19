@@ -17,6 +17,6 @@ cat own_fus_transcripts.fa Ilysp1_GeneCatalog_transcripts_20121116.nt.fasta | se
 mkdir alignments
 mkdir alignments/for_paml
 
-dos2unix orthogroups_selection_of.csv
+dos2unix orthogroups_selection.csv
 
 qsub selection.sh

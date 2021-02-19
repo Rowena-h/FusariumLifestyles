@@ -6,7 +6,7 @@
 #$ -t 18
 #$ -j y
 
-ORTHO=$(cat ../orthogroups_selection_of.csv | sed -n ${SGE_TASK_ID}p)
+ORTHO=$(cat ../orthogroups_selection.csv | sed -n ${SGE_TASK_ID}p)
 
 perl /data/home/btx494/Scripts/Fasta2Phylip.pl ${ORTHO}_aln_nuc.fa ${ORTHO}_aln_nuc.phy
 

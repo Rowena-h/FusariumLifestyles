@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ORTHO=$(cat ../orthogroups_selection_of.csv)
+ORTHO=$(cat ../orthogroups_selection.csv)
 
 module load emboss
 
@@ -10,4 +10,4 @@ do
 	sed -i 's/_1$//' ../alignments/${i}_aln_nuc.translated
 done
 
-#qsub aBSREL.sh MEME.sh MEME_gene.sh
+qsub aBSREL.sh MEME.sh MEME_gene.sh

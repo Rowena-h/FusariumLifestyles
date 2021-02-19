@@ -7,7 +7,7 @@
 #$ -o /dev/null
 #$ -j y
 
-ORTHO=$(cat orthogroups_selection_of.csv | sed -n ${SGE_TASK_ID}p)
+ORTHO=$(cat orthogroups_selection.csv | sed -n ${SGE_TASK_ID}p)
 
 module load mafft
 

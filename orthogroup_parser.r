@@ -3,12 +3,12 @@
 library(dplyr)
 
 #Read in orthogroups from OrthoFinder
-orthogroups <- read.csv("orthofinder/Orthofinder/Results_Oct21/Orthogroups/Orthogroups.tsv", row.names=1, sep="\t", check.names=FALSE)
+orthogroups <- read.csv("orthofinder/OrthoFinder/Results_Oct21/Orthogroups/Orthogroups.tsv", row.names=1, sep="\t", check.names=FALSE)
 
 #For each sample...
+print("Reading in candidate effectors")
 for (i in colnames(orthogroups)) {
   
-  print(i)
   #Read in the list of candidate effectors
   effectors <- scan(paste0(i, ".faa_candidate_effectors"), character(), quote="")
   #Replace pipes (|) with hyphens
@@ -121,7 +121,8 @@ effector.count.SC <- effector.count[apply(effector.count[3:29] < 2, 1, all),]
 #Filter for single-copy, SP-only orthogroups
 effector.count.SC.SP <- effector.count.SC[effector.count.SC$mixed == "SP-only",]
 
-
 #List of core 'effector' SP-only single-copy orthogroups to check for positive selection
 write.table(rownames(effector.count.SC.SP[effector.count.SC.SP$secretome == "core",]),
-            file=paste0("orthogroups_selection", ".csv"), col.names=FALSE, row.names=FALSE, quote=FALSE)
+            file="selection/orthogroups_selection.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
+
+print("Core effector orthogroups saved in selection/orthogroups_selection.csv")
