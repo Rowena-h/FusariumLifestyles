@@ -5,6 +5,12 @@ library(dplyr)
 #Read in orthogroups from OrthoFinder
 orthogroups <- read.csv("orthofinder/OrthoFinder/Results_Oct21/Orthogroups/Orthogroups.tsv", row.names=1, sep="\t", check.names=FALSE)
 
+#Read in 'unassigned genes' i.e. species specific genes and combines with orthogroups dataframe
+unassigned <- read.csv("orthofinder/OrthoFinder/Results_Oct21/Orthogroups/Orthogroups_UnassignedGenes.tsv",
+                     row.names=1, sep="\t", check.names=FALSE)
+
+orthogroups <- rbind(orthogroups, unassigned)
+
 #For each sample...
 print("Reading in candidate effectors")
 for (i in colnames(orthogroups)) {
@@ -116,13 +122,24 @@ effector.count <- effector.count %>% select(secretome, mixed, everything())
 
 #Filter out non SP orthogroups
 effector.count <- effector.count[effector.count$secretome != "",]
+#Filter SP-only orthogroups
+effector.count.SP <- effector.count[effector.count$mixed == "SP-only",]
 #Filter for single-copy orthogroups
-effector.count.SC <- effector.count[apply(effector.count[3:29] < 2, 1, all),]
+effector.count.SC <- effector.count[apply(effector.count[3:length(colnames(effector.count))] < 2, 1, all),]
 #Filter for single-copy, SP-only orthogroups
 effector.count.SC.SP <- effector.count.SC[effector.count.SC$mixed == "SP-only",]
 
-#List of core 'effector' SP-only single-copy orthogroups to check for positive selection
-write.table(rownames(effector.count.SC.SP[effector.count.SC.SP$secretome == "core",]),
+
+#List of core SP-only single-copy orthogroups to check for positive selection
+selection <- rownames(effector.count.SC.SP[effector.count.SC.SP$secretome == "core",])
+#List of core SP-only multi-copy orthogroups to check for positive selection
+selection.multi <- rownames(effector.count.SP[effector.count.SP$secretome == "core",])
+selection.multi <- setdiff(selection.multi, selection)
+         
+write.table(selection,
             file="selection/orthogroups_selection.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
+write.table(selection.multi,
+            file="selection/orthogroups_selection_multi.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
+
 
 print("Core effector orthogroups saved in selection/orthogroups_selection.csv")
