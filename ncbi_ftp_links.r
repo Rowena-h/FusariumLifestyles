@@ -23,3 +23,6 @@ write(genomic.ftp, file="fus_ncbi_genomic")
 protein.ftp <- paste0(assembly.sum$ftp_path, "/", assembly.sum$X..assembly_accession, "_", assembly.sum$asm_name, "_protein.faa.gz")
 protein.ftp <- gsub(" ", "_", protein.ftp)
 write(protein.ftp, file="fus_ncbi_proteins")
+
+#Write file with metadata
+write.csv(ncbi.filtered, "ncbi_metadata.csv")
