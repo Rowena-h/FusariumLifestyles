@@ -1,7 +1,9 @@
 #!/bin/sh
 
-DIR=$1
-SAMPLES=$2
+#Directory containing protein fasta files (MUST END IN FORWARD SLASH)
+DIR=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/orthofinder/blah/
+#File listing the protein file names
+SAMPLES=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/todo2
 
 qsub phobius/phobius.sh $DIR $SAMPLES
 qsub prosite/ps_scan.sh $DIR $SAMPLES

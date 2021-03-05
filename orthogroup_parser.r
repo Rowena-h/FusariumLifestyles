@@ -1,12 +1,22 @@
+#!/usr/bin/env Rscript
 ##Script to parse OrthoFinder and SPfilter results into a matrix of effector counts for each taxon##
 
 library(dplyr)
 
+args=commandArgs(trailingOnly=TRUE)
+
+#Test if there is one argument: if not, return an error
+if (length(args) != 1) {
+  stop("One argument must be supplied: the OrthoFinder results directory (ending in a forward slash)", call.=FALSE)
+} 
+
+dir <- args[1]
+
 #Read in orthogroups from OrthoFinder
-orthogroups <- read.csv("orthofinder/OrthoFinder/Results_Oct21/Orthogroups/Orthogroups.tsv", row.names=1, sep="\t", check.names=FALSE)
+orthogroups <- read.csv(paste0(dir, "Orthogroups/Orthogroups.tsv"), row.names=1, sep="\t", check.names=FALSE)
 
 #Read in 'unassigned genes' i.e. species specific genes and combines with orthogroups dataframe
-unassigned <- read.csv("orthofinder/OrthoFinder/Results_Oct21/Orthogroups/Orthogroups_UnassignedGenes.tsv",
+unassigned <- read.csv(paste0(dir, "Orthogroups/Orthogroups_UnassignedGenes.tsv"),
                      row.names=1, sep="\t", check.names=FALSE)
 
 orthogroups <- rbind(orthogroups, unassigned)
