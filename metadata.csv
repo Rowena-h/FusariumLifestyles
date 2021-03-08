@@ -2,9 +2,9 @@ name,old name,speciescomplex,speciescomplex.abb,tip,new,file,coverage,lifestyle.
 Fusarium beomiforme,,burgessii,FBRSC,GCA_002980475_2_ASM298047v2_protein,,,50,ambiguous,sap/path,
 Fusarium austroafricanum,,concolor,FCOSC,GCA_012932025_1_ASM1293202v1_protein,,,50,endophyte,,
 Albonectria rigidiuscula,Fusarium decemcellulare,Albonectria,Albonectria,GCA_013266205_1_ASM1326620v1_protein,,,,plant pathogen,,
-Fusarium acutatum,,fujikuroi,FFSC,GCA_012932015_1_ASM1293201v1_protein,,,50,,,
+Fusarium acutatum,,fujikuroi,FFSC,GCA_012932015_1_ASM1293201v1_protein,,,50,plant pathogen,,
 Fusarium agapanthi,,fujikuroi,FFSC,GCA_001654555_2_ASM165455v2_protein,,,50,plant pathogen,,
-Fusarium anthophilum,,fujikuroi,FFSC,GCA_013364935_1_ASM1336493v1_protein,,,,,,
+Fusarium anthophilum,,fujikuroi,FFSC,GCA_013364935_1_ASM1336493v1_protein,,,,plant pathogen,,
 Fusarium bulbicola,,fujikuroi,FFSC,GCA_013758895_1_ASM1375889v1_protein,,,,endophyte,,
 Fusarium circinatum,,fujikuroi,FFSC,GCA_013396185_1_ASM1339618v1_protein,,,,plant pathogen,,
 Fusarium coicis,,fujikuroi,FFSC,GCA_013781345_1_ASM1378134v1_protein,,,,endophyte,,
@@ -14,7 +14,7 @@ Fusarium globosum,,fujikuroi,FFSC,GCA_013396165_1_ASM1339616v1_protein,,,,plant 
 Fusarium mangiferae,,fujikuroi,FFSC,GCA_900044065_1_Genome_assembly_version_1_protein,,GCA_900044065.1_Genome_assembly_version_1_protein,104,plant pathogen,plant pathogen,plant pathogen
 Fusarium mexicanum,,fujikuroi,FFSC,GCA_013396015_1_ASM1339601v1_protein,,,,plant pathogen,,
 Fusarium mundagurra,,fujikuroi,FFSC,GCA_013396205_1_ASM1339620v1_protein,,,,saprotroph/endophyte,,
-Fusarium napiforme,,fujikuroi,FFSC,GCA_013396005_1_ASM1339600v1_protein,,,,,,
+Fusarium napiforme,,fujikuroi,FFSC,GCA_013396005_1_ASM1339600v1_protein,,,,endophyte,,
 Fusarium nygamai,,fujikuroi,FFSC,GCA_002894225_1_CS10214v1_protein,,,90,,,
 Fusarium phyllophilum,,fujikuroi,FFSC,GCA_013396025_1_ASM1339602v1_protein,,,,,,
 Fusarium proliferatum ET1,,fujikuroi,FFSC,GCA_900067095_1_F__proliferatum_ET1_version_1_protein,,GCA_900067095.1_F._proliferatum_ET1_version_1_protein,100,endophyte,endophyte,endophyte
