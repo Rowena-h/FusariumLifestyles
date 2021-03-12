@@ -3,6 +3,7 @@
 #$ -pe smp 4		# Request 1 core
 #$ -l h_rt=48:0:0 	# Request 24 hour runtime
 #$ -l h_vmem=5G   	# Request 1GB RAM
+#$ -j y
 #$ -m bea
 #$ -t 1-5
 
@@ -16,7 +17,7 @@ do
 	#Index assembly	
 	bwa index ../denovo_assembly/${ASSEMBLER}/fusotu${STRAIN}/fusotu${STRAIN}-contigs.fa
 	#Align reads to assembly and sort by readname
-	bwa mem ../denovo_assembly/${ASSEMBLER}/fusotu${STRAIN}/fusotu${STRAIN}-contigs.fa ../FUS_OTU${STRAIN}_1_trimmedpaired.fastq.gz ../FUS_OTU${STRAIN}_2_trimmedpaired.fastq.gz -t ${NSLOTS} | samtools sort -@ ${NSLOTS} -n -o fusotu${STRAIN}_${ASSEMBLER}_mapped_sorted.bam -
+	bwa mem ../denovo_assembly/${ASSEMBLER}/fusotu${STRAIN}/fusotu${STRAIN}-contigs.fa ../reads/FUS_OTU${STRAIN}_1_trimmedpaired.fastq.gz ../reads/FUS_OTU${STRAIN}_2_trimmedpaired.fastq.gz -t ${NSLOTS} | samtools sort -@ ${NSLOTS} -n -o fusotu${STRAIN}_${ASSEMBLER}_mapped_sorted.bam -
 	#Coordinate sort and mark duplicates
 	samtools fixmate -m -@ ${NSLOTS} fusotu${STRAIN}_${ASSEMBLER}_mapped_sorted.bam - | samtools sort -@ ${NSLOTS} - | samtools markdup -@ ${NSLOTS} - fusotu${STRAIN}_${ASSEMBLER}_mapped_sorted_dups.bam
 	#Calculate statistics

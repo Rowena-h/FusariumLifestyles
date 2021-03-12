@@ -6,10 +6,12 @@
 #$ -m bea
 #$ -t 120-128	#kmer sizes to check
 
+STRAINS=$(cat ../strains)
+
 module load abyss
 
-for STRAIN in 1 3 5 6 7
+for STRAIN in $STRAINS
 do
 	mkdir abyss/fusotu${STRAIN}/k${SGE_TASK_ID}
-	abyss-pe -C abyss/fusotu${STRAIN}/k${SGE_TASK_ID} name=fusotu${STRAIN} in='FUS_OTU${STRAIN}_1_trimmedpaired.fastq.gz FUS_OTU${STRAIN}_2_trimmedpaired.fastq.gz' np=$NSLOTS
+	abyss-pe -C abyss/fusotu${STRAIN}/k${SGE_TASK_ID} name=fusotu${STRAIN} in='../reads/FUS_OTU${STRAIN}_1_trimmedpaired.fastq.gz ../reads/FUS_OTU${STRAIN}_2_trimmedpaired.fastq.gz' np=${NSLOTS}
 done
