@@ -1,0 +1,21 @@
+#!/bin/sh
+
+#Directory containing protein fasta files (MUST END IN FORWARD SLASH)
+DIR=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/orthology_inference/
+#File listing the protein file names
+SAMPLES=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/effector_prediction/todo
+#Number of samples
+NUM=$(cat $SAMPLES | wc -l)
+
+qsub phobius/phobius.sh $DIR $SAMPLES
+qsub prosite/ps_scan.sh $DIR $SAMPLES
+
+for i in $(cat $SAMPLES)
+do
+	mkdir targetp/tmp_${i}
+done
+
+qsub -t 1-${NUM} targetp/targetp.sh $DIR $SAMPLES
+qsub tmhmm/tmhmm.sh $DIR $SAMPLES
+qsub /data/home/btx494/Programmes/nucpred-1.1/nucpred.sh $DIR $SAMPLES
+qsub /data/home/btx494/Programmes/signalp-5.0b/bin/signalp.sh $DIR $SAMPLES
