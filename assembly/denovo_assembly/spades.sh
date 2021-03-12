@@ -7,8 +7,14 @@
 #$ -m bea
 #$ -t 1-5
 
-STRAIN=$(cat ../strains | sed -n ${SGE_TASK_ID}p)
+STRAIN=$(sed -n ${SGE_TASK_ID}p ../strains)
 
 module load spades
 
-spades.py -1 FUS_OTU${STRAIN}_1_trimmedpaired.fastq.gz -2 FUS_OTU${STRAIN}_2_trimmedpaired.fastq.gz --careful -o spades/fusotu${STRAIN} -t ${NSLOTS}
+spades.py 	-1 FUS_OTU${STRAIN}_1_trimmedpaired.fastq.gz \
+		-2 FUS_OTU${STRAIN}_2_trimmedpaired.fastq.gz \
+		--careful \
+		-o spades/fusotu${STRAIN} \
+		-t ${NSLOTS}
+
+mv spades/fusotu${STRAIN}/contigs.fasta spades/fusotu${STRAIN}/fusotu${STRAIN}-contigs.fa
