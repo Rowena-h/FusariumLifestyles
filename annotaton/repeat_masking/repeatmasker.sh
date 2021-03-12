@@ -6,10 +6,10 @@
 #$ -m bea
 #$ -t 1-5
 
-STRAIN=$(cat ../strains | sed -n ${SGE_TASK_ID}p)
+STRAIN=$(sed -n ${SGE_TASK_ID}p ../strains)
 
 module load anaconda3
 conda activate repeatmasker
 
 mkdir fusotu${STRAIN}abyss_masked
-RepeatMasker -e ncbi -lib RM*/consensi.fa -pa ${NSLOTS} -xsmall -dir fusotu${STRAIN}abyss_masked ../../assembly/polishing/fusotu${STRAIN}_abyss_pilon.fasta
+RepeatMasker -e ncbi -lib fusotu${STRAIN}/RM*/consensi.fa -pa ${NSLOTS} -xsmall -dir fusotu${STRAIN}abyss_masked ../../assembly/polishing/fusotu${STRAIN}_abyss_pilon.fasta
