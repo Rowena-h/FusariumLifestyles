@@ -1,3 +1,6 @@
-FILE=$1
+FILES=$(ls *.faa)
 
-sed -i "s/>/>${FILE}_/g" $FILE
+for FILE in $FILES
+do
+	sed -i "s/>${FILE}_/>/g" ${FILE}
+done

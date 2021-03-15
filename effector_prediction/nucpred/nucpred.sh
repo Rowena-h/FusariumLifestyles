@@ -15,5 +15,5 @@ for i in $SAMPLES
 do
 	/data/home/btx494/Programmes/nucpred-1.1/nucpred-rh.pl ${DIR}${i} > ${i}_nucpred
 	cat ${i}_nucpred | awk '$NF>=0.8 {print $1}' > ${i}_nucpred_list
-	#mv ${i}_nucpred* /data/SBCS-BuggsLab/RowenaHill/fus_comparison/effector_prediction/nucpred/
+	mv ${i}_nucpred* /data/SBCS-BuggsLab/RowenaHill/fus_comparison/effector_prediction/nucpred/
 done
