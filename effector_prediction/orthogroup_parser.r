@@ -147,9 +147,12 @@ selection.multi <- rownames(effector.count.SP[effector.count.SP$secretome == "co
 selection.multi <- setdiff(selection.multi, selection)
          
 write.table(selection,
-            file="selection/orthogroups_selection.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
+            file="../selection/orthogroups_selection.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
 write.table(selection.multi,
-            file="selection/orthogroups_selection_multi.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
+            file="../selection/orthogroups_selection_multi.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
 
 
 print("Core effector orthogroups saved in selection/orthogroups_selection.csv")
+
+print(paste0("Workspace saved in effector-matrices-", Sys.Date(), ".RData"))
+save.image(file=paste0("effector-matrices-", Sys.Date(), ".RData"))

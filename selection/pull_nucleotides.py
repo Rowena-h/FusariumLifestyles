@@ -38,6 +38,5 @@ with open(sys.argv[1] + "_nucl.fa", "w") as nt_output:
 
         if not found_feature:
             print("Error: could not find feature")
-            exit(1)
 
 print("Done")
