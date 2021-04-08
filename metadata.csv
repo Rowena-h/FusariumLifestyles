@@ -1,63 +1,63 @@
-name,old name,speciescomplex,speciescomplex.abb,tip,new,file,coverage,lifestyle.hyp1,lifestyle.hyp2,lifestyle.hyp3
-Fusarium beomiforme,,burgessii,FBRSC,GCA_002980475_2_ASM298047v2_protein,,,50,ambiguous,sap/path,
-Fusarium austroafricanum,,concolor,FCOSC,GCA_012932025_1_ASM1293202v1_protein,,,50,endophyte,,
-Albonectria rigidiuscula,Fusarium decemcellulare,Albonectria,Albonectria,GCA_013266205_1_ASM1326620v1_protein,,,,plant pathogen,,
-Fusarium acutatum,,fujikuroi,FFSC,GCA_012932015_1_ASM1293201v1_protein,,,50,plant pathogen,,
-Fusarium agapanthi,,fujikuroi,FFSC,GCA_001654555_2_ASM165455v2_protein,,,50,plant pathogen,,
-Fusarium anthophilum,,fujikuroi,FFSC,GCA_013364935_1_ASM1336493v1_protein,,,,plant pathogen,,
-Fusarium bulbicola,,fujikuroi,FFSC,GCA_013758895_1_ASM1375889v1_protein,,,,endophyte,,
-Fusarium circinatum,,fujikuroi,FFSC,GCA_013396185_1_ASM1339618v1_protein,,,,plant pathogen,,
-Fusarium coicis,,fujikuroi,FFSC,GCA_013781345_1_ASM1378134v1_protein,,,,endophyte,,
-Fusarium denticulatum,,fujikuroi,FFSC,GCA_013396175_1_ASM1339617v1_protein,,,,plant pathogen,,
-Fusarium fujikuroi,,fujikuroi,FFSC,GCA_900079805_1_Fusarium_fujikuroi_IMI58289_V2_protein,,GCA_900079805.1_Fusarium_fujikuroi_IMI58289_V2_protein,19,plant pathogen,plant pathogen,plant pathogen
-Fusarium globosum,,fujikuroi,FFSC,GCA_013396165_1_ASM1339616v1_protein,,,,plant pathogen,,
-Fusarium mangiferae,,fujikuroi,FFSC,GCA_900044065_1_Genome_assembly_version_1_protein,,GCA_900044065.1_Genome_assembly_version_1_protein,104,plant pathogen,plant pathogen,plant pathogen
-Fusarium mexicanum,,fujikuroi,FFSC,GCA_013396015_1_ASM1339601v1_protein,,,,plant pathogen,,
-Fusarium mundagurra,,fujikuroi,FFSC,GCA_013396205_1_ASM1339620v1_protein,,,,saprotroph/endophyte,,
-Fusarium napiforme,,fujikuroi,FFSC,GCA_013396005_1_ASM1339600v1_protein,,,,endophyte,,
-Fusarium nygamai,,fujikuroi,FFSC,GCA_002894225_1_CS10214v1_protein,,,90,,,
-Fusarium phyllophilum,,fujikuroi,FFSC,GCA_013396025_1_ASM1339602v1_protein,,,,,,
-Fusarium proliferatum ET1,,fujikuroi,FFSC,GCA_900067095_1_F__proliferatum_ET1_version_1_protein,,GCA_900067095.1_F._proliferatum_ET1_version_1_protein,100,endophyte,endophyte,endophyte
-Fusarium proliferatum Fp A8,,fujikuroi,FFSC,GCA_003615215_1_Fp_A8_v1_protein,,GCA_003615215.1_Fp_A8_v1_protein,30,plant pathogen,plant pathogen,plant pathogen
-Fusarium pseudoanthophilum,,fujikuroi,FFSC,GCA_013395995_1_ASM1339599v1_protein,,,,plant pathogen,,
-Fusarium pseudocircinatum,,fujikuroi,FFSC,GCA_013396035_1_ASM1339603v1_protein,,,,plant pathogen,,
-Fusarium sp. 1,,fujikuroi,FFSC,fusotu1_abyss50_rnd3_all_maker_proteins,Y,fusotu1_abyss50_rnd3.all.maker.proteins,299,endophyte,endophyte,endophyte
-Fusarium sp. 3,,fujikuroi,FFSC,fusotu3_abyss50_rnd3_all_maker_proteins,Y,fusotu3_abyss50_rnd3.all.maker.proteins,319,endophyte,endophyte,endophyte
-Fusarium sp. 5,,fujikuroi,FFSC,fusotu5_abyss50_rnd3_all_maker_proteins,Y,fusotu5_abyss50_rnd3.all.maker.proteins,335,endophyte,endophyte,endophyte
-Fusarium sp. 7,,fujikuroi,FFSC,fusotu7_abyss50_rnd3_all_maker_proteins,Y,fusotu7_abyss50_rnd3.all.maker.proteins,337,endophyte,endophyte,endophyte
-Fusarium subglutinans,,fujikuroi,FFSC,GCA_013396075_1_ASM1339607v1_protein,,,,,,
-Fusarium tjaetaba,,fujikuroi,FFSC,GCA_013396195_1_ASM1339619v1_protein,,,,endophyte,,
-Fusarium verticillioides,,fujikuroi,FFSC,GCA_000149555_1_ASM14955v1_protein,,GCA_000149555.1_ASM14955v1_protein,,plant pathogen,plant pathogen,plant pathogen
-Fusarium heterosporum,,heterosporum,FHSC,GCA_013396295_1_ASM1339629v1_protein,,,,endophyte,,
-Fusarium coffeatum,,incarnatum-equiseti,FIESC,GCA_003316985_1_ASM331698v1_protein,,GCA_003316985.1_ASM331698v1_protein,100,plant pathogen,plant pathogen,plant pathogen
-Fusarium flagelliforme,,incarnatum-equiseti,FIESC,GCA_003012295_1_FIESC_12_NRRL13405_FIE12Z_contigs_protein,,,50,,,
-Fusarium sp. 6,,incarnatum-equiseti,FIESC,fusotu6_abyss50_rnd3_all_maker_proteins,Y,fusotu6_abyss50_rnd3.all.maker.proteins,318,endophyte,endophyte,endophyte
-Fusarium sarcochroum,,lateritium,FLSC,GCA_013266185_1_ASM1326618v1_protein,,,50,plant pathogen,,
-Fusarium gaditjirri,,nisikadoi,FNSC,GCA_013266175_1_ASM1326617v1_protein,,,50,endophyte,,
-Fusarium odoratissimum,,oxysporum,FOSC,GCA_000350365_1_Foc4_1_0_protein,,,87,plant pathogen,,
-Fusarium oxysporum f. sp. cepae,,oxysporum,FOSC,GCA_003615085_1_FoC_Fus2_v1_protein,,,214,plant pathogen,,
-Fusarium oxysporum f. sp. conglutinans,,oxysporum,FOSC,GCA_014154955_1_SMRT_HiC_Fo5176_protein,,,,plant pathogen,,
-Fusarium oxysporum f. sp. cubense TR4,,oxysporum,FOSC,GCA_000260195_2_FO_II5_V1_protein,,GCA_000260195.2_FO_II5_V1_protein,208,plant pathogen,plant pathogen,plant pathogen
-Fusarium oxysporum f. sp. lycopersici 4287,,oxysporum,FOSC,GCA_000149955_2_ASM14995v2_protein,,GCA_000149955.2_ASM14995v2_protein,66,plant pathogen,plant pathogen,plant pathogen
-Fusarium oxysporum f. sp. radicis-lycopersici,,oxysporum,FOSC,GCA_000260155_3_FO_CL57_V1_protein,,,188,plant pathogen,,
-Fusarium austroamericanum,,sambucinum,FSAMSC,GCA_013364965_1_ASM1336496v1_protein,,,,,,
-Fusarium culmorum,,sambucinum,FSAMSC,GCA_003033665_1_FusCulm_01_protein,,,115,plant pathogen,,
-Fusarium graminearum,,sambucinum,FSAMSC,GCA_000240135_3_ASM24013v3_protein,,GCA_000240135.3_ASM24013v3_protein,,plant pathogen,plant pathogen,plant pathogen
-Fusarium langsethiae,,sambucinum,FSAMSC,GCA_001292635_1_ASM129263v1_protein,,GCA_001292635.1_ASM129263v1_protein,,plant pathogen,plant pathogen,plant pathogen
-Fusarium longipes,,sambucinum,FSAMSC,GCA_003012285_1_Fusarium_longipes_NRRL20695_FLONG3_contigs_protein,,GCA_003012285.1_Fusarium_longipes_NRRL20695_FLONG3_contigs_protein,,saprotroph,endophyte,plant pathogen
-Fusarium poae,,sambucinum,FSAMSC,GCA_001675295_1_FPOA1_0_protein,,GCA_001675295.1_FPOA1.0_protein,,plant pathogen,plant pathogen,plant pathogen
-Fusarium pseudograminearum,,sambucinum,FSAMSC,GCA_000303195_2_FP7_protein,,GCA_000303195.2_FP7_protein,,plant pathogen,plant pathogen,plant pathogen
-Fusarium sporotrichioides,,sambucinum,FSAMSC,GCA_003012315_1_Fusarium_sporotrichioides_NRRL3299_FSPOR_contigs_protein,,GCA_003012315.1_Fusarium_sporotrichioides_NRRL3299_FSPOR_contigs_protein,,plant pathogen,plant pathogen,plant pathogen
-Fusarium venenatum,,sambucinum,FSAMSC,GCA_900007375_1_ASM90000737v1_protein,,GCA_900007375.1_ASM90000737v1_protein,,saprotroph,saprotroph,saprotroph
-Neocosmospora ambrosia,Fusarium ambrosium,solani,Neocosmospora (=FSSC),GCA_003947045_1_NRRL20438v1_protein,,GCA_003947045.1_NRRL20438v1_protein,,insect-mutualist,insect-mutualist,insect-mutualist
-Neocosmospora euwallaceae ,Fusarium euwallaceae,solani,Neocosmospora (=FSSC),GCA_003957675_1_FeuwUCR1854v2_protein,,,80,insect-mutualist,,
-Neocosmospora floridana,Fusarium floridanum,solani,Neocosmospora (=FSSC),GCA_003947005_1_NRRL62606_SPAdes_protein,,GCA_003947005.1_NRRL62606.SPAdes_protein,,insect-mutualist,insect-mutualist,insect-mutualist
-Neocosmospora kuroshia,Fusarium kuroshium,solani,Neocosmospora (=FSSC),GCA_003698175_1_Fus_sp_AF_12_v1_0_protein,,GCA_003698175.1_Fus_sp_AF-12_v1.0_protein,,insect-mutualist,insect-mutualist,insect-mutualist
-Fusarium sp. AF-4,,solani,Neocosmospora (=FSSC),GCA_003946995_1_NRRL62579_SPAdes_protein,,GCA_003946995.1_NRRL62579.SPAdes_protein,,insect-mutualist,insect-mutualist,insect-mutualist
-Fusarium sp. AF-6,,solani,Neocosmospora (=FSSC),GCA_003947015_1_NRRL62590_SPAdes_protein,,GCA_003947015.1_NRRL62590.SPAdes_protein,,insect-mutualist,insect-mutualist,insect-mutualist
-Fusarium sp. AF-8,,solani,Neocosmospora (=FSSC),GCA_003946985_1_NRRL62584_SPAdes_protein,,GCA_003946985.1_NRRL62584.SPAdes_protein,,insect-mutualist,insect-mutualist,insect-mutualist
-Neocosmospora pisi ,Fusarium vanettenii,solani,Neocosmospora (=FSSC),GCA_000151355_1_v2_0_protein,,,,ambiguous,pathogen/saptroph,
-Fusarium avenaceum,,tricinctum,FTSC,GCA_000769215_1_Fave_05001_protein,,,21.6,plant pathogen,,
-Albonectria albosuccinea,Fusarium albosuccineum,Albonectria,Albonectria,GCA_012931995_1_ASM1293199v1_protein,,,50,,,
-Geejayessia zealandica,Fusarium zealandicum,Geejayessia,Geejayessia,GCA_013266195_1_ASM1326619v1_protein,,,50,,,
-Ilyonectria sp.,,outgroup,outgroup,Ilysp1_GeneCatalog_proteins_20121116,,Ilysp1_GeneCatalog_proteins_20121116,,NA,NA,NA
+name,old name,speciescomplex,speciescomplex.abb,tip,new,file,coverage,lifestyle
+Albonectria albosuccinea,Fusarium albosuccineum,Albonectria,Albonectria,GCA_012931995_1_ASM1293199v1_protein,,GCA_012931995.1_ASM1293199v1_protein,50,NA
+Albonectria rigidiuscula,Fusarium decemcellulare,Albonectria,Albonectria,GCA_013266205_1_ASM1326620v1_protein,,GCA_013266205.1_ASM1326620v1_protein,,plant pathogen
+Fusarium acutatum,,fujikuroi,FFSC,GCA_012932015_1_ASM1293201v1_protein,,GCA_012932015.1_ASM1293201v1_protein,50,plant pathogen
+Fusarium agapanthi,,fujikuroi,FFSC,GCA_001654555_2_ASM165455v2_protein,,GCA_001654555.2_ASM165455v2_protein,50,plant pathogen
+Fusarium anthophilum,,fujikuroi,FFSC,GCA_013364935_1_ASM1336493v1_protein,,GCA_013364935.1_ASM1336493v1_protein,,NA
+Fusarium austroafricanum,,concolor,FCOSC,GCA_012932025_1_ASM1293202v1_protein,,GCA_012932025.1_ASM1293202v1_protein,50,saprotroph
+Fusarium austroamericanum,,sambucinum,FSAMSC,GCA_013364965_1_ASM1336496v1_protein,,GCA_013364965.1_ASM1336496v1_protein,,NA
+Fusarium avenaceum,,tricinctum,FTSC,GCA_000769215_1_Fave_05001_protein,,GCA_000769215.1_Fave_05001_protein,21.6,plant pathogen
+Fusarium beomiforme,,burgessii,FBRSC,GCA_002980475_2_ASM298047v2_protein,,GCA_002980475.2_ASM298047v2_protein,50,saprotroph
+Fusarium bulbicola,,fujikuroi,FFSC,GCA_013758895_1_ASM1375889v1_protein,,GCA_013758895.1_ASM1375889v1_protein,,endophyte
+Fusarium circinatum,,fujikuroi,FFSC,GCA_013396185_1_ASM1339618v1_protein,,GCA_013396185.1_ASM1339618v1_protein,,plant pathogen
+Fusarium coffeatum,,incarnatum-equiseti,FIESC,GCA_003316985_1_ASM331698v1_protein,,GCA_003316985.1_ASM331698v1_protein,100,plant pathogen
+Fusarium coicis,,fujikuroi,FFSC,GCA_013781345_1_ASM1378134v1_protein,,GCA_013781345.1_ASM1378134v1_protein,,endophyte
+Fusarium culmorum,,sambucinum,FSAMSC,GCA_003033665_1_FusCulm_01_protein,,GCA_003033665.1_FusCulm_01_protein,115,saprotroph
+Fusarium denticulatum,,fujikuroi,FFSC,GCA_013396175_1_ASM1339617v1_protein,,GCA_013396175.1_ASM1339617v1_protein,,plant pathogen
+Fusarium flagelliforme,,incarnatum-equiseti,FIESC,GCA_003012295_1_FIESC_12_NRRL13405_FIE12Z_contigs_protein,,GCA_003012295.1_FIESC_12_NRRL13405_FIE12Z_contigs_protein,50,plant pathogen
+Fusarium fujikuroi,,fujikuroi,FFSC,GCA_900079805_1_Fusarium_fujikuroi_IMI58289_V2_protein,,GCA_900079805.1_Fusarium_fujikuroi_IMI58289_V2_protein,19,plant pathogen
+Fusarium gaditjirri,,nisikadoi,FNSC,GCA_013266175_1_ASM1326617v1_protein,,GCA_013266175.1_ASM1326617v1_protein,50,endophyte
+Fusarium globosum,,fujikuroi,FFSC,GCA_013396165_1_ASM1339616v1_protein,,GCA_013396165.1_ASM1339616v1_protein,,endophyte
+Fusarium graminearum,,sambucinum,FSAMSC,GCA_000240135_3_ASM24013v3_protein,,GCA_000240135.3_ASM24013v3_protein,,plant pathogen
+Fusarium heterosporum,,heterosporum,FHSC,GCA_013396295_1_ASM1339629v1_protein,,GCA_013396295.1_ASM1339629v1_protein,,mycoparasite
+Fusarium langsethiae,,sambucinum,FSAMSC,GCA_001292635_1_ASM129263v1_protein,,GCA_001292635.1_ASM129263v1_protein,,plant pathogen
+Fusarium longipes,,sambucinum,FSAMSC,GCA_003012285_1_Fusarium_longipes_NRRL20695_FLONG3_contigs_protein,,GCA_003012285.1_Fusarium_longipes_NRRL20695_FLONG3_contigs_protein,,mycoparasite
+Fusarium mangiferae,,fujikuroi,FFSC,GCA_900044065_1_Genome_assembly_version_1_protein,,GCA_900044065.1_Genome_assembly_version_1_protein,104,plant pathogen
+Fusarium mexicanum,,fujikuroi,FFSC,GCA_013396015_1_ASM1339601v1_protein,,GCA_013396015.1_ASM1339601v1_protein,,plant pathogen
+Fusarium mundagurra,,fujikuroi,FFSC,GCA_013396205_1_ASM1339620v1_protein,,GCA_013396205.1_ASM1339620v1_protein,,saprotroph
+Fusarium napiforme,,fujikuroi,FFSC,GCA_013396005_1_ASM1339600v1_protein,,GCA_013396005.1_ASM1339600v1_protein,,endophyte
+Fusarium nygamai,,fujikuroi,FFSC,GCA_002894225_1_CS10214v1_protein,,GCA_002894225.1_CS10214v1_protein,90,endophyte
+Fusarium odoratissimum,,oxysporum,FOSC,GCA_000350365_1_Foc4_1_0_protein,,GCA_000350365.1_Foc4_1.0_protein,87,plant pathogen 
+Fusarium oxysporum f. sp. cepae,,oxysporum,FOSC,GCA_003615085_1_FoC_Fus2_v1_protein,,GCA_003615085.1_FoC_Fus2_v1_protein,214,plant pathogen
+Fusarium oxysporum f. sp. conglutinans,,oxysporum,FOSC,GCA_014154955_1_SMRT_HiC_Fo5176_protein,,GCA_014154955.1_SMRT_HiC_Fo5176_protein,,plant pathogen 
+Fusarium oxysporum f. sp. cubense TR4,,oxysporum,FOSC,GCA_000260195_2_FO_II5_V1_protein,,GCA_000260195.2_FO_II5_V1_protein,208,plant pathogen 
+Fusarium oxysporum f. sp. lycopersici 4287,,oxysporum,FOSC,GCA_000149955_2_ASM14995v2_protein,,GCA_000149955.2_ASM14995v2_protein,66,plant pathogen 
+Fusarium oxysporum f. sp. radicis-lycopersici,,oxysporum,FOSC,GCA_000260155_3_FO_CL57_V1_protein,,GCA_000260155.3_FO_CL57_V1_protein,188,plant pathogen 
+Fusarium phyllophilum,,fujikuroi,FFSC,GCA_013396025_1_ASM1339602v1_protein,,GCA_013396025.1_ASM1339602v1_protein,,plant pathogen
+Fusarium poae,,sambucinum,FSAMSC,GCA_001675295_1_FPOA1_0_protein,,GCA_001675295.1_FPOA1.0_protein,,plant pathogen
+Fusarium proliferatum ET1,,fujikuroi,FFSC,GCA_900067095_1_F__proliferatum_ET1_version_1_protein,,GCA_900067095.1_F._proliferatum_ET1_version_1_protein,100,endophyte
+Fusarium proliferatum Fp A8,,fujikuroi,FFSC,GCA_003615215_1_Fp_A8_v1_protein,,GCA_003615215.1_Fp_A8_v1_protein,30,plant pathogen
+Fusarium pseudoanthophilum,,fujikuroi,FFSC,GCA_013395995_1_ASM1339599v1_protein,,GCA_013395995.1_ASM1339599v1_protein,,endophyte
+Fusarium pseudocircinatum,,fujikuroi,FFSC,GCA_013396035_1_ASM1339603v1_protein,,GCA_013396035.1_ASM1339603v1_protein,,NA
+Fusarium pseudograminearum,,sambucinum,FSAMSC,GCA_000303195_2_FP7_protein,,GCA_000303195.2_FP7_protein,,plant pathogen
+Fusarium sarcochroum,,lateritium,FLSC,GCA_013266185_1_ASM1326618v1_protein,,GCA_013266185.1_ASM1326618v1_protein,50,plant pathogen
+Fusarium sp. 1,,fujikuroi,FFSC,fusotu1_abyss_rnd3_all_maker_proteins,Y,fusotu1_abyss_rnd3.all.maker.proteins,299,endophyte
+Fusarium sp. 3,,fujikuroi,FFSC,fusotu3_abyss_rnd3_all_maker_proteins,Y,fusotu3_abyss_rnd3.all.maker.proteins,319,endophyte
+Fusarium sp. 5,,fujikuroi,FFSC,fusotu5_abyss_rnd3_all_maker_proteins,Y,fusotu5_abyss_rnd3.all.maker.proteins,335,endophyte
+Fusarium sp. 6,,incarnatum-equiseti,FIESC,fusotu6_abyss_rnd3_all_maker_proteins,Y,fusotu6_abyss_rnd3.all.maker.proteins,318,endophyte
+Fusarium sp. 7,,fujikuroi,FFSC,fusotu7_abyss_rnd3_all_maker_proteins,Y,fusotu7_abyss_rnd3.all.maker.proteins,337,endophyte
+Fusarium sp. AF-4,,solani,Neocosmospora (=FSSC),GCA_003946995_1_NRRL62579_SPAdes_protein,,GCA_003946995.1_NRRL62579.SPAdes_protein,,insect-mutualist
+Fusarium sp. AF-6,,solani,Neocosmospora (=FSSC),GCA_003947015_1_NRRL62590_SPAdes_protein,,GCA_003947015.1_NRRL62590.SPAdes_protein,,insect-mutualist
+Fusarium sp. AF-8,,solani,Neocosmospora (=FSSC),GCA_003946985_1_NRRL62584_SPAdes_protein,,GCA_003946985.1_NRRL62584.SPAdes_protein,,insect-mutualist
+Fusarium sporotrichioides,,sambucinum,FSAMSC,GCA_003012315_1_Fusarium_sporotrichioides_NRRL3299_FSPOR_contigs_protein,,GCA_003012315.1_Fusarium_sporotrichioides_NRRL3299_FSPOR_contigs_protein,,plant pathogen
+Fusarium subglutinans,,fujikuroi,FFSC,GCA_013396075_1_ASM1339607v1_protein,,GCA_013396075.1_ASM1339607v1_protein,,NA
+Fusarium tjaetaba,,fujikuroi,FFSC,GCA_013396195_1_ASM1339619v1_protein,,GCA_013396195.1_ASM1339619v1_protein,,endophyte
+Fusarium venenatum,,sambucinum,FSAMSC,GCA_900007375_1_ASM90000737v1_protein,,GCA_900007375.1_ASM90000737v1_protein,,saprotroph 
+Fusarium verticillioides,,fujikuroi,FFSC,GCA_000149555_1_ASM14955v1_protein,,GCA_000149555.1_ASM14955v1_protein,,plant pathogen
+Geejayessia zealandica,Fusarium zealandicum,Geejayessia,Geejayessia,GCA_013266195_1_ASM1326619v1_protein,,GCA_013266195.1_ASM1326619v1_protein,50,endophyte
+Ilyonectria sp.,,outgroup,outgroup,Ilysp1_GeneCatalog_proteins_20121116,,Ilysp1_GeneCatalog_proteins_20121116,,endophyte
+Neocosmospora ambrosia,Fusarium ambrosium,solani,Neocosmospora (=FSSC),GCA_003947045_1_NRRL20438v1_protein,,GCA_003947045.1_NRRL20438v1_protein,,insect-mutualist
+Neocosmospora euwallaceae ,Fusarium euwallaceae,solani,Neocosmospora (=FSSC),GCA_003957675_1_FeuwUCR1854v2_protein,,GCA_003957675.1_FeuwUCR1854v2_protein,80,insect-mutualist
+Neocosmospora floridana,Fusarium floridanum,solani,Neocosmospora (=FSSC),GCA_003947005_1_NRRL62606_SPAdes_protein,,GCA_003947005.1_NRRL62606.SPAdes_protein,,insect-mutualist
+Neocosmospora kuroshia,Fusarium kuroshium,solani,Neocosmospora (=FSSC),GCA_003698175_1_Fus_sp_AF_12_v1_0_protein,,GCA_003698175.1_Fus_sp_AF-12_v1.0_protein,,insect-mutualist
+Neocosmospora pisi ,Fusarium vanettenii,solani,Neocosmospora (=FSSC),GCA_000151355_1_v2_0_protein,,GCA_000151355.1_v2.0_protein,,plant pathogen
