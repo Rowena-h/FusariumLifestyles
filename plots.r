@@ -1,4 +1,4 @@
-setwd("D:/Documents/Kew/Ascomycota/Musa Fusaria/Comparative genomics/Secretome/")
+setwd("D:/Documents/GitHub/FusariumEndophytes/")
 
 library(dplyr)
 library(stringr)
@@ -22,28 +22,28 @@ library(patchwork)
 library(seqmagick)
 library(ggmsa)
 library(multcompView)
+library(ggstance)
 
 #Colour palette
 scales::show_col(colorblind_pal()(8))
 
 #ADD read in effector count dataframe from parser script
 
-specific.df <- data.frame(species=rep(colnames(effector.count)[3:29], 2),
-                          copy=rep(c("single", "multi"), each=length(colnames(effector.count)[3:29])),
+specific.df <- data.frame(species=rep(colnames(effector.count)[-c(1,2)], 2),
+                          copy=rep(c("single", "multi"), each=length(colnames(effector.count)[-c(1,2)])),
                           num=NA)
 
 for (i in 1:length(unique(specific.df$species))) {
   specific.df[specific.df$species == specific.df$species[i] & specific.df$copy == "single", "num"] <- length(which(effector.count.SP[,specific.df$species[i]] == 1))
-  specifics.df[specific.df$species == specific.df$species[i] & specific.df$copy == "multi", "num"] <- length(which(effector.count.SP[,specific.df$species[i]] > 1))
+  specific.df[specific.df$species == specific.df$species[i] & specific.df$copy == "multi", "num"] <- length(which(effector.count.SP[,specific.df$species[i]] > 1))
 }
-
 
 #Read in sample metadata
 metadata <- read.csv("metadata.csv")
 
 
 specific.df$lifestyle <- metadata$lifestyle.hyp1[match(specific.df$species, metadata$file)]
-specific.df <- specific.df[-which(is.na(specific.df$lifestyle)),]
+specific.df <- specific.df[-which(specific.df$lifestyle == ""),]
 
 #Tukey significance testing
 tukey <- TukeyHSD(aov(lm(num ~ lifestyle, data=specific.df[specific.df$copy == "single",])))
@@ -61,12 +61,17 @@ ggplot(specific.df, aes(x=lifestyle, y=num, fill=lifestyle)) +
             angle=90,
             size=3)
 
+
+effector.count.SC.SP$secretome
+
+
+
 #TANGLEGRAM
 
 library(ape)
 library(dendextend)
 
-astral <- read.tree("orthofinder/OrthoFinder/Results_Feb19/Single_Copy_Orthologue_Sequences/trees/fus_astral_proteins_62T.tre")
+astral <- read.tree("phylogenomics/species_tree/astral/fus_astral_proteins_62T.tre")
 astral$edge.length <- rep(1, length(astral$edge.length))
 raxml <- read.tree("RAxML/RAxML_bipartitions.fus_proteins_27T_bsadd")
 
@@ -175,6 +180,96 @@ for (i in c("effectors", "orthogroups")){
   
   assign(paste0("permanova.", i), permanova)
 }
+
+##CORE ACCESSORY SPECIFIC BARGRAPH
+
+#Assess which orthogroups are in all species (core), one species (specific), or some species (accessory)
+secretome <- vector(mode="character", length=length(rownames(orthogroups.copies)))
+
+print("Assigning orthogroups as core, accessory or specific")
+#Create bar to show progress
+progress.bar <- txtProgressBar(1, length(rownames(orthogroups.copies)), initial=0, char="=", style=3)
+for (j in 1:length(rownames(orthogroups.copies))) {
+  
+  #Update progress bar
+  setTxtProgressBar(progress.bar, j)
+  
+  if (length(which(orthogroups.copies[j,] == 0)) == (length(colnames(orthogroups.copies)) - 1)) {
+    secretome[j] <- "specific"
+  }
+  if (length(which(orthogroups.copies[j,] == 0)) == 0) {
+    secretome[j] <- "core"
+  }
+  if (length(which(orthogroups.copies[j,] == 0)) < (length(colnames(orthogroups.copies)) - 1) && length(which(orthogroups.copies[j,] == 0)) > 0) {
+    secretome[j] <- "accessory"
+  }
+}
+close(progress.bar)
+
+#Add column to effector count dataframe with whether orthogroup is SP-only or SP-mixed
+orthogroups.copies$mixed <- NA
+
+for (j in 1:length(rownames(orthogroups.copies))) {
+  if(grepl("SP-mixed", mixed[j]) == TRUE) {
+    orthogroups.copies$mixed[j] <- "SP-mixed"
+  } else {
+    orthogroups.copies$mixed[j] <- "SP-only"
+  }
+}
+
+#Add column to effector count dataframe with whether orthogroup core, specific or accessory
+orthogroups.copies$secretome <- secretome
+#Reorder dataframe columns
+orthogroups.copies <- orthogroups.copies %>% select(secretome, mixed, everything())
+
+orthogroups.df <- data.frame(taxon=rep(colnames(orthogroups.copies)[-c(1,2)], each=3), 
+                             secretome=rep(c("specific", "accessory", "core"), length(colnames(effector.count)[-c(1,2)])),
+                             count=NA)
+
+for (i in unique(orthogroups.df$taxon)) {
+  for (j in unique(orthogroups.df$secretome)) {
+    orthogroups.df$count[intersect(which(orthogroups.df$taxon == i), which(orthogroups.df$secretome == j))] <- table(orthogroups.copies$secretome[orthogroups.copies[i] > 0])[j]
+  }
+}
+
+orthogroups.df$taxon <- metadata$name[match(orthogroups.df$taxon, metadata$file)]
+orthogroups.df$secretome <- factor(orthogroups.df$secretome, levels=c("specific", "accessory", "core"))
+
+
+secretome.df <- data.frame(taxon=rep(colnames(effector.count)[-c(1,2)], each=3), 
+                 secretome=rep(c("specific", "accessory", "core"), length(colnames(effector.count)[-c(1,2)])),
+                 count=NA)
+
+
+for (i in unique(secretome.df$taxon)) {
+  for (j in unique(secretome.df$secretome)) {
+    secretome.df$count[intersect(which(secretome.df$taxon == i), which(secretome.df$secretome == j))] <- table(effector.count$secretome[effector.count[i] > 0])[j]
+  }
+}
+
+secretome.df$taxon <- metadata$name[match(secretome.df$taxon, metadata$file)]
+secretome.df$secretome <- factor(secretome.df$secretome, levels=c("specific", "accessory", "core"))
+
+ggplot(secretome.df, aes(y=taxon, x=count, fill=secretome)) +
+  geom_bar(stat="identity")
+
+test <- ggtree(astral) + geom_tiplab()
+test1 <- facet_plot(test + xlim_tree(50),
+           panel="Effectors",
+           data=secretome.df,
+           geom=geom_barh,
+           aes(x=count, fill=secretome),
+           stat='identity')
+
+test2 <- facet_plot(test1,
+             panel="Orthogroups",
+             data=orthogroups.df,
+             geom=geom_barh,
+             aes(x=count, fill=secretome),
+             stat='identity') +
+  theme(axis.text.x=element_text(),
+        axis.line.x=element_line(),
+        axis.ticks.x=element_line())
 
 
 ##UPSET PLOT
