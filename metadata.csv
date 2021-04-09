@@ -1,11 +1,11 @@
 name,old name,speciescomplex,speciescomplex.abb,tip,new,file,coverage,lifestyle
-Albonectria albosuccinea,Fusarium albosuccineum,Albonectria,Albonectria,GCA_012931995_1_ASM1293199v1_protein,,GCA_012931995.1_ASM1293199v1_protein,50,NA
+Albonectria albosuccinea,Fusarium albosuccineum,Albonectria,Albonectria,GCA_012931995_1_ASM1293199v1_protein,,GCA_012931995.1_ASM1293199v1_protein,50,plant associated
 Albonectria rigidiuscula,Fusarium decemcellulare,Albonectria,Albonectria,GCA_013266205_1_ASM1326620v1_protein,,GCA_013266205.1_ASM1326620v1_protein,,plant pathogen
 Fusarium acutatum,,fujikuroi,FFSC,GCA_012932015_1_ASM1293201v1_protein,,GCA_012932015.1_ASM1293201v1_protein,50,plant pathogen
 Fusarium agapanthi,,fujikuroi,FFSC,GCA_001654555_2_ASM165455v2_protein,,GCA_001654555.2_ASM165455v2_protein,50,plant pathogen
-Fusarium anthophilum,,fujikuroi,FFSC,GCA_013364935_1_ASM1336493v1_protein,,GCA_013364935.1_ASM1336493v1_protein,,NA
+Fusarium anthophilum,,fujikuroi,FFSC,GCA_013364935_1_ASM1336493v1_protein,,GCA_013364935.1_ASM1336493v1_protein,,plant associated
 Fusarium austroafricanum,,concolor,FCOSC,GCA_012932025_1_ASM1293202v1_protein,,GCA_012932025.1_ASM1293202v1_protein,50,saprotroph
-Fusarium austroamericanum,,sambucinum,FSAMSC,GCA_013364965_1_ASM1336496v1_protein,,GCA_013364965.1_ASM1336496v1_protein,,NA
+Fusarium austroamericanum,,sambucinum,FSAMSC,GCA_013364965_1_ASM1336496v1_protein,,GCA_013364965.1_ASM1336496v1_protein,,mycoparasite
 Fusarium avenaceum,,tricinctum,FTSC,GCA_000769215_1_Fave_05001_protein,,GCA_000769215.1_Fave_05001_protein,21.6,plant pathogen
 Fusarium beomiforme,,burgessii,FBRSC,GCA_002980475_2_ASM298047v2_protein,,GCA_002980475.2_ASM298047v2_protein,50,saprotroph
 Fusarium bulbicola,,fujikuroi,FFSC,GCA_013758895_1_ASM1375889v1_protein,,GCA_013758895.1_ASM1375889v1_protein,,endophyte
@@ -38,7 +38,7 @@ Fusarium poae,,sambucinum,FSAMSC,GCA_001675295_1_FPOA1_0_protein,,GCA_001675295.
 Fusarium proliferatum ET1,,fujikuroi,FFSC,GCA_900067095_1_F__proliferatum_ET1_version_1_protein,,GCA_900067095.1_F._proliferatum_ET1_version_1_protein,100,endophyte
 Fusarium proliferatum Fp A8,,fujikuroi,FFSC,GCA_003615215_1_Fp_A8_v1_protein,,GCA_003615215.1_Fp_A8_v1_protein,30,plant pathogen
 Fusarium pseudoanthophilum,,fujikuroi,FFSC,GCA_013395995_1_ASM1339599v1_protein,,GCA_013395995.1_ASM1339599v1_protein,,endophyte
-Fusarium pseudocircinatum,,fujikuroi,FFSC,GCA_013396035_1_ASM1339603v1_protein,,GCA_013396035.1_ASM1339603v1_protein,,NA
+Fusarium pseudocircinatum,,fujikuroi,FFSC,GCA_013396035_1_ASM1339603v1_protein,,GCA_013396035.1_ASM1339603v1_protein,,plant pathogen
 Fusarium pseudograminearum,,sambucinum,FSAMSC,GCA_000303195_2_FP7_protein,,GCA_000303195.2_FP7_protein,,plant pathogen
 Fusarium sarcochroum,,lateritium,FLSC,GCA_013266185_1_ASM1326618v1_protein,,GCA_013266185.1_ASM1326618v1_protein,50,plant pathogen
 Fusarium sp. 1,,fujikuroi,FFSC,fusotu1_abyss_rnd3_all_maker_proteins,Y,fusotu1_abyss_rnd3.all.maker.proteins,299,endophyte
@@ -50,7 +50,7 @@ Fusarium sp. AF-4,,solani,Neocosmospora (=FSSC),GCA_003946995_1_NRRL62579_SPAdes
 Fusarium sp. AF-6,,solani,Neocosmospora (=FSSC),GCA_003947015_1_NRRL62590_SPAdes_protein,,GCA_003947015.1_NRRL62590.SPAdes_protein,,insect-mutualist
 Fusarium sp. AF-8,,solani,Neocosmospora (=FSSC),GCA_003946985_1_NRRL62584_SPAdes_protein,,GCA_003946985.1_NRRL62584.SPAdes_protein,,insect-mutualist
 Fusarium sporotrichioides,,sambucinum,FSAMSC,GCA_003012315_1_Fusarium_sporotrichioides_NRRL3299_FSPOR_contigs_protein,,GCA_003012315.1_Fusarium_sporotrichioides_NRRL3299_FSPOR_contigs_protein,,plant pathogen
-Fusarium subglutinans,,fujikuroi,FFSC,GCA_013396075_1_ASM1339607v1_protein,,GCA_013396075.1_ASM1339607v1_protein,,NA
+Fusarium subglutinans,,fujikuroi,FFSC,GCA_013396075_1_ASM1339607v1_protein,,GCA_013396075.1_ASM1339607v1_protein,,plant pathogen
 Fusarium tjaetaba,,fujikuroi,FFSC,GCA_013396195_1_ASM1339619v1_protein,,GCA_013396195.1_ASM1339619v1_protein,,endophyte
 Fusarium venenatum,,sambucinum,FSAMSC,GCA_900007375_1_ASM90000737v1_protein,,GCA_900007375.1_ASM90000737v1_protein,,saprotroph 
 Fusarium verticillioides,,fujikuroi,FFSC,GCA_000149555_1_ASM14955v1_protein,,GCA_000149555.1_ASM14955v1_protein,,plant pathogen
