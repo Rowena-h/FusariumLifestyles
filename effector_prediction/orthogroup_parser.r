@@ -71,88 +71,113 @@ for (i in 1:length(colnames(effector.count))) {
 }
 print(paste0("Counting number of effectors in each orthogroup: ", i, "/", length(colnames(effector.count)), " taxa"))
 
-#Assess which orthogroups contain only SPs (SP-only) or both SPs and other genes (SP-mixed) 
-mixed <- list()
+#Read in sample metadata
+metadata <- read.csv("../metadata.csv")
 
-#For each sample...
-for (i in 1:length(colnames(orthogroups.copies))) {
+for (ingroup in c(1, 2)) {
   
-  #Print progress
-  cat("Assigning orthogroups as SP-only or SP-mixed: ", (i - 1), "/", length(colnames(orthogroups.copies)), " taxa", "\r")
+  if (ingroup == 1) {
+    
+    orthogroups.copies.ingroup <- orthogroups.copies[which(!is.na(match(colnames(orthogroups.copies), metadata$file2[metadata$ingroup == ingroup])))]
+    effector.count.ingroup <- effector.count[which(!is.na(match(colnames(effector.count), metadata$file2[metadata$ingroup == ingroup])))]
+    
+  } else {
+    
+    orthogroups.copies.ingroup <- orthogroups.copies[which(!is.na(match(colnames(orthogroups.copies), metadata$file2[metadata$ingroup != "outgroup"])))]
+    effector.count.ingroup <- effector.count[which(!is.na(match(colnames(effector.count), metadata$file2[metadata$ingroup != "outgroup"])))]
+    
+  }
+
+  orthogroups.stats <- data.frame(orthogroup=rownames(orthogroups.copies.ingroup),
+                                  copy_number="multi",
+                                  secretome=NA,
+                                  effector=NA,
+                                  stringsAsFactors=FALSE)
   
-  for (j in 1:length(rownames(orthogroups.copies))) {
-    if (orthogroups.copies[j,i] == effector.count[j,i]) {
-      mixed[[rownames(orthogroups.copies)[j]]][i] <- "SP-only"
-    } else {
-      mixed[[rownames(orthogroups.copies)[j]]][i] <- "SP-mixed"
+  #Single copy
+  orthogroups.stats$copy_number[match(rownames(orthogroups.copies.ingroup[apply(orthogroups.copies.ingroup < 2, 1, all),]), orthogroups.stats$orthogroup)] <- "single"
+  
+  #Secretome type
+  
+  print("Assigning orthogroups as core, accessory or specific")
+  #Create bar to show progress
+  progress.bar <- txtProgressBar(1, length(rownames(orthogroups.copies.ingroup)), initial=0, char="=", style=3)
+  for (j in 1:length(rownames(orthogroups.copies.ingroup))) {
+    
+    #Update progress bar
+    setTxtProgressBar(progress.bar, j)
+    
+    if (length(which(orthogroups.copies.ingroup[j,] == 0)) == (length(colnames(orthogroups.copies.ingroup)) - 1)) {
+      orthogroups.stats$secretome[orthogroups.stats$orthogroup == rownames(orthogroups.copies.ingroup)[j]] <- "specific"
+    }
+    if (length(which(orthogroups.copies.ingroup[j,] == 0)) == 0) {
+      orthogroups.stats$secretome[orthogroups.stats$orthogroup == rownames(orthogroups.copies.ingroup)[j]] <- "core"
+    }
+    if (length(which(orthogroups.copies.ingroup[j,] == 0)) < (length(colnames(orthogroups.copies.ingroup)) - 1) && length(which(orthogroups.copies.ingroup[j,] == 0)) > 0) {
+      orthogroups.stats$secretome[orthogroups.stats$orthogroup == rownames(orthogroups.copies.ingroup)[j]] <- "accessory"
     }
   }
+  close(progress.bar)
+  
+  #Effectors
+  
+  #Assess which orthogroups contain only effectors (SP-only) or both effectors and other genes (SP-mixed) 
+  effectors <- names(which(rowSums(effector.count.ingroup) > 0))
+  
+  effector.type <- list()
+  
+  #For each sample...
+  for (i in 1:length(colnames(orthogroups.copies.ingroup))) {
+    
+    #Print progress
+    cat("Assigning effector orthogroups as effector-only or effector-mixed: ", (i - 1), "/", length(colnames(orthogroups.copies.ingroup)), " taxa", "\r")
+    
+    for (j in effectors) {
+      if (orthogroups.copies.ingroup[j,i] == effector.count.ingroup[j,i]) {
+        effector.type[[j]][i] <- "effector"
+      } else {
+        effector.type[[j]][i] <- "mixed"
+      }
+    }
+    
+  }
+  print(paste0("Assigning effector orthogroups as effector-only or effector-mixed: ", i, "/", length(colnames(orthogroups.copies.ingroup)), " taxa"))
+  
+  for (j in effectors) {
+    if(grepl("mixed", effector.type[j]) == TRUE) {
+      orthogroups.stats$effector[orthogroups.stats$orthogroup == j] <- "mixed"
+    } else {
+      orthogroups.stats$effector[orthogroups.stats$orthogroup == j] <- "effector"
+    }
+  }
+
+  assign(paste0("orthogroups.stats.ingroup", ingroup), orthogroups.stats)
+  assign(paste0("orthogroups.copies.ingroup", ingroup), orthogroups.copies.ingroup)
+  assign(paste0("effector.count.ingroup", ingroup), effector.count.ingroup)
+  
+  #print(paste0("Summary of orthogroups saved in orthogroups_stats-", Sys.Date(), ".csv"))
+  #write.csv(orthogroups.stats,
+  #          file=paste0("orthogroups_stats-", Sys.Date(), ".csv"), row.names=FALSE, quote=FALSE)
   
 }
-print(paste0("Assigning orthogroups as SP-only or SP-mixed: ", i, "/", length(colnames(orthogroups.copies)), " taxa"))
 
-#Assess which orthogroups are in all species (core), one species (specific), or some species (accessory)
-secretome <- vector(mode="character", length=length(rownames(effector.count)))
+#Lists of orthogroups for selection analyses
+#Core, single-copy effectors (for aBSREL and MEME)
+core.SC.effectors <- Reduce(intersect,
+                            list(orthogroups.stats.ingroup1$orthogroup[which(orthogroups.stats.ingroup1$copy_number == "single")],
+                                 orthogroups.stats.ingroup1$orthogroup[which(orthogroups.stats.ingroup1$secretome == "core")],
+                                 orthogroups.stats.ingroup1$orthogroup[which(orthogroups.stats.ingroup1$effector == "effector")]))
+#Core and accessory (in >=3 taxa), single-copy orthogroups (for BUSTED)
+accessory.core.SC <- Reduce(intersect, list(names(which(rowSums(orthogroups.copies > 0) >= 3)),
+                                            orthogroups.stats.ingroup1$orthogroup[which(orthogroups.stats.ingroup1$copy_number == "single")]))
 
-print("Assigning orthogroups as core, accessory or specific")
-#Create bar to show progress
-progress.bar <- txtProgressBar(1, length(rownames(effector.count)), initial=0, char="=", style=3)
-for (j in 1:length(rownames(effector.count))) {
-  
-  #Update progress bar
-  setTxtProgressBar(progress.bar, j)
-  
-  if (length(which(effector.count[j,] == 0)) == (length(colnames(effector.count)) - 1)) {
-    secretome[j] <- "specific"
-  }
-  if (length(which(effector.count[j,] == 0)) == 0) {
-    secretome[j] <- "core"
-  }
-  if (length(which(effector.count[j,] == 0)) < (length(colnames(effector.count)) - 1) && length(which(effector.count[j,] == 0)) > 0) {
-    secretome[j] <- "accessory"
-  }
-}
-close(progress.bar)
-
-#Add column to effector count dataframe with whether orthogroup is SP-only or SP-mixed
-effector.count$mixed <- NA
-
-for (j in 1:length(rownames(effector.count))) {
-  if(grepl("SP-mixed", mixed[j]) == TRUE) {
-    effector.count$mixed[j] <- "SP-mixed"
-  } else {
-    effector.count$mixed[j] <- "SP-only"
-  }
-}
-
-#Add column to effector count dataframe with whether orthogroup core, specific or accessory
-effector.count$secretome <- secretome
-#Reorder dataframe columns
-effector.count <- effector.count %>% select(secretome, mixed, everything())
-
-#Filter out non SP orthogroups
-effector.count <- effector.count[effector.count$secretome != "",]
-#Filter SP-only orthogroups
-effector.count.SP <- effector.count[effector.count$mixed == "SP-only",]
-#Filter for single-copy orthogroups
-effector.count.SC <- effector.count[apply(effector.count[3:length(colnames(effector.count))] < 2, 1, all),]
-#Filter for single-copy, SP-only orthogroups
-effector.count.SC.SP <- effector.count.SC[effector.count.SC$mixed == "SP-only",]
+write.table(accessory.core.SC,
+            file="../selection/orthogroups_busted.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
+write.table(core.SC.effectors,
+            file="../selection/orthogroups_absrel_meme.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
 
 
-#List of core SP-only single-copy orthogroups to check for positive selection
-selection <- rownames(effector.count.SC.SP[effector.count.SC.SP$secretome == "core",])
-#List of core SP-only multi-copy orthogroups to check for positive selection
-selection.multi <- rownames(effector.count.SP[effector.count.SP$secretome == "core",])
-selection.multi <- setdiff(selection.multi, selection)
-         
-write.table(selection,
-            file="../selection/orthogroups_selection.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
-write.table(selection.multi,
-            file="../selection/orthogroups_selection_multi.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
-
-
-print("Core effector orthogroups saved in selection/orthogroups_selection.csv")
+print("Orthogroups for selection analyses saved in selection directory")
 
 print(paste0("Workspace saved in effector-matrices-", Sys.Date(), ".RData"))
 save.image(file=paste0("effector-matrices-", Sys.Date(), ".RData"))
