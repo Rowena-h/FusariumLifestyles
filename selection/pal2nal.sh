@@ -5,8 +5,7 @@
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -j y
 
-#ORTHO=$(ls -1 ../phylogenomics/gene_trees/*_aln.fa | sed 's#\.\./phylogenomics/gene_trees/##' | sed 's/_aln\.fa//' | sed -n ${SGE_TASK_ID}p)
-ORTHO=$(cat torepeat | sed -n ${SGE_TASK_ID}p)
+ORTHO=$(ls -1 ../phylogenomics/gene_trees/*_aln.fa | sed 's#\.\./phylogenomics/gene_trees/##' | sed 's/_aln\.fa//' | sed -n ${SGE_TASK_ID}p)
 
 #Remove jgi prefixes
 sed 's/jgi|*|.*|//' ../phylogenomics/gene_trees/${ORTHO}_aln.fa > alignments/${ORTHO}_aln.fa
@@ -38,3 +37,5 @@ module load R
 
 #Reroot gene trees
 Rscript reroot.r ../phylogenomics/gene_trees/RAxML/RAxML_bipartitions.${ORTHO} "Ilysp1_GeneCatalog_proteins_20121116" /data/SBCS-BuggsLab/RowenaHill/fus_comparison/selection/trees/
+#Label foreground branches for HyPhy
+sed -i -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/'trees/RAxML_bipartitions.${ORTHO}_rooted

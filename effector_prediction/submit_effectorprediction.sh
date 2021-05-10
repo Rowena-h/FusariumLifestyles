@@ -17,5 +17,6 @@ NUM=$(cat $SAMPLES | wc -l)
 
 #qsub -t 1-${NUM} targetp/targetp.sh $DIR $SAMPLES
 #qsub tmhmm/tmhmm.sh $DIR $SAMPLES
-qsub nucpred/nucpred.sh $DIR $SAMPLES
+qsub -t 1-${NUM} effectorp/effectorp.sh $DIR $SAMPLES
+#qsub nucpred/nucpred.sh $DIR $SAMPLES
 #qsub signalp/signalp.sh $DIR $SAMPLES

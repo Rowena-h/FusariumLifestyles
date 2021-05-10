@@ -1,8 +1,7 @@
 #!/bin/sh
 
 #Number of samples
-#NUM_ORTHO=$(ls -1 ../phylogenomics/gene_trees/*_aln.fa | sed 's#\.\./phylogenomics/gene_trees/##' | sed 's/_aln\.fa//' | wc -l)
-NUM_ORTHO=$(cat torepeat | wc -l)
+NUM_ORTHO=$(ls -1 ../phylogenomics/gene_trees/*_aln.fa | wc -l)
 
 cat gbff_files/GCA* > gbff_files/concat.gbff
 
