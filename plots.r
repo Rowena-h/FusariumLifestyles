@@ -98,21 +98,21 @@ SPfilter.df$programme <- factor(SPfilter.df$programme, levels=c("Total", "Signal
 
 gg.spfilter <- ggplot(SPfilter.df,
                       aes(x=programme, y=value, stratum=variable, alluvium=variable, fill=variable)) +
-  geom_stratum(colour="dimgrey") +
-  geom_flow(colour="lightgrey") +
+  geom_stratum(colour="dimgrey", size=0.2) +
+  geom_flow(colour="lightgrey", size=0.2) +
   geom_segment(data=SPfilter.labels,
-               aes(x=arrow.x, xend=arrow.xend, y=-150000, yend=-150000),
+               aes(x=arrow.x, xend=arrow.xend, y=-120000, yend=-120000),
                arrow=arrow(length=unit(0.2, "cm"), type="closed"),
                inherit.aes=FALSE) +
   geom_label(data=SPfilter.labels,
-            aes(x=rev(c(1:length(rownames(SPfilter.labels)))), y=-150000, label=range),
+            aes(x=rev(c(1:length(rownames(SPfilter.labels)))), y=-120000, label=range),
             label.size=NA,
             inherit.aes=FALSE) +
   geom_label(data=SPfilter.labels[SPfilter.labels$programme != "",],
-             aes(x=x, y=-150000, label=programme),
+             aes(x=x, y=-120000, label=programme),
              size=3,
              inherit.aes=FALSE) +
-  geom_text(aes(x=10.5, y=-150000, label="Number of proteins")) +
+  annotate("text", x=10.5, y=-120000, label="Number of proteins") +
   #annotation_custom(brackets) +
   scale_x_discrete(limits=rev(c("Blank", "Total", "SignalP", "TargetP", "Phobius", "TMHMM", "Phobius2", "Prosite", "NucPred", "PredGPI", "EffectorP")),
                    labels=rev(c("", "Predicted\nproteomes", "Predicted\nsecretomes", "", "", "", "", "", "", "", "CSEPs")),
@@ -160,7 +160,7 @@ gg.lengths <- ggplot(lengths.df, aes(x=group, y=values)) +
 
 gg.lengths
 
-tiff(file=paste0("effector-prediction-plot-", Sys.Date(), ".tiff"), width=10, height=5, units="in", res=300)
+tiff(file=paste0("effector-prediction-plot-", Sys.Date(), ".tiff"), width=8, height=5, units="in", res=300)
 gg.spfilter + 
   annotation_custom(ggplotGrob(gg.lengths), ymin=300000, ymax=800000, xmin=2, xmax=8)
 dev.off()
