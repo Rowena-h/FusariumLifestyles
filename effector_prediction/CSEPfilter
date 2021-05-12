@@ -1,0 +1,97 @@
+#!/bin/bash
+#Script to filter protein set for candidate effectors
+
+display_usage() {
+	echo "USAGE: $0 sample_prefix"
+    exit
+}
+
+if [ -z "$1" ]
+then
+    display_usage
+    exit
+fi
+
+#Function to check file endings
+check_file() {
+	FILE=$1
+
+	if dos2unix < $FILE | cmp - $FILE; then
+		:
+	else
+		echo "Provided file $FILE has wrong line endings" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+		dos2unix ${FILE} 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+	fi
+}
+
+#Function to filter main list of names by another list
+filter_out() {
+	FILTER_LIST=$1
+	MAIN_LIST=$2
+	OUT_LIST=$3
+
+	awk 'NR==FNR{a[$0]=1;next}!a[$0]' $FILTER_LIST $MAIN_LIST > $OUT_LIST
+}
+
+#Function to find common names between two lists
+find_common() {
+	SECOND_LIST=$1
+	MAIN_LIST=$2
+	OUT_LIST=$3
+
+	comm -12 <(sort $SECOND_LIST) <(sort $MAIN_LIST) > $OUT_LIST
+}
+
+SAMPLE=$1
+echo "--------------------------------------------------"
+echo "Running sample ${SAMPLE}" 2>&1 | tee CSEPfilter_${SAMPLE}.log
+
+check_file signalp/${SAMPLE}_signalp_SPlist
+echo "Total number of proteins: `grep "^[^#;]" signalp/${SAMPLE}_signalp_summary.signalp5 | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+echo "SignalP number of signal peptide proteins: `cat signalp/${SAMPLE}_signalp_SPlist | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+echo "--------------------------------------------------"
+
+echo ""
+echo "Cross-checking signal peptide prediction with TargetP and Phobius" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+echo "-----------------------------------------------------------------"
+check_file targetp/${SAMPLE}_targetp_SPlist
+find_common targetp/${SAMPLE}_targetp_SPlist signalp/${SAMPLE}_signalp_SPlist filter1
+echo "TargetP also SP: `cat filter1 | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+check_file phobius/${SAMPLE}_phobius_SPlist
+find_common phobius/${SAMPLE}_phobius_SPlist filter1 filter1.2
+echo "Phobius also SP: `cat filter1.2 | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+
+echo ""
+echo "Removing proteins with >1 transmembrane domains" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+echo "-----------------------------------------------"
+check_file tmhmm/${SAMPLE}_tmhmm_TMlist
+filter_out tmhmm/${SAMPLE}_tmhmm_TMlist filter1.2 filter2
+echo "TMHMM >1 TMs removed: `cat filter2 | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+check_file phobius/${SAMPLE}_phobius_TMlist
+filter_out phobius/${SAMPLE}_phobius_TMlist filter2 filter2.2
+echo "Phobius >1 TMs removed: `cat filter2.2 | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+
+echo ""
+echo "Removing proteins with cellular localisation contradicting secretion" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+echo "--------------------------------------------------------------------"
+check_file prosite/${SAMPLE}_psscan_ERlist
+filter_out prosite/${SAMPLE}_psscan_ERlist filter2.2 filter3
+echo "Prosite ER localised removed: `cat filter3 | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+check_file nucpred/${SAMPLE}_nucpred_list
+filter_out nucpred/${SAMPLE}_nucpred_list filter3 filter3.2
+echo "NucPred nucleus localised removed: `cat filter3.2 | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+check_file predgpi/${SAMPLE}_predgpi_GPlist
+filter_out predgpi/${SAMPLE}_predgpi_GPlist filter3.2 filter3.3
+echo "PredGPI GPI anchored removed: `cat filter3.3 | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+
+echo ""
+echo "Cross-checking effector prediction with EffectorP" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+echo "-----------------------------------------------------------------"
+check_file effectorp/${SAMPLE}_effectorlist
+find_common effectorp/${SAMPLE}_effectorlist filter3.3 ${SAMPLE}_candidate_effectors
+echo "EffectorP also effectors: `cat ${SAMPLE}_candidate_effectors | wc -l`" 2>&1 | tee -a CSEPfilter_${SAMPLE}.log
+echo ""
+
+echo "Final set of `cat ${SAMPLE}_candidate_effectors | wc -l` potential effectors listed in file ${SAMPLE}_candidate_effectors"
+
+rm filter1 filter1.2 filter2 filter2.2 filter3 filter3.2 filter3.3
