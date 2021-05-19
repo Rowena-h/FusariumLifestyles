@@ -9,7 +9,7 @@ sed -i 's/^/PROT, /' fus_proteins_62T_partition.txt
 
 #split -l 100 --numeric-suffixes=1 fus_proteins_62T_partition.txt fus_proteins_62T_partition.num
 #rename num0 num *.num*
-rm fus_proteins_62T_partition.txt
+#rm fus_proteins_62T_partition.txt
 
 #NUM=$(ls fus_proteins_62T_partition.num* | wc -l)
 

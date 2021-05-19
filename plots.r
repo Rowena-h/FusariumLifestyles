@@ -24,6 +24,8 @@ library(Biostrings)
 library(dendextend)
 library(matrixStats)
 library(seqinr)
+library(grid)
+library(pbrackets)
 
 #Colour palette
 show_col(colorblind_pal()(8))
@@ -42,16 +44,16 @@ for (i in metadata$file2[metadata$ingroup != "outgroup"]) {
   
   #print(i)
   
-  #Read in SPfilter log
-  SPfilter <- read.csv(paste0("effector_prediction/SPfilter_", i, ".faa.log"), sep=":", row.names=NULL, header=FALSE)
-  SPfilter <- SPfilter[!is.na(SPfilter$V2),]
-  SPfilter$V1 <- word(SPfilter$V1, 1)
-  SPfilter$V1[max(grep("Phobius", SPfilter$V1))] <- "Phobius2"
-  rownames(SPfilter) <-SPfilter$V1
-  SPfilter <- subset(SPfilter, select="V2")
-  colnames(SPfilter) <- metadata$name[metadata$file2 == i]
+  #Read in CSEPfilter log
+  CSEPfilter <- read.csv(paste0("effector_prediction/CSEPfilter_", i, ".faa.log"), sep=":", row.names=NULL, header=FALSE)
+  CSEPfilter <- CSEPfilter[!is.na(CSEPfilter$V2),]
+  CSEPfilter$V1 <- word(CSEPfilter$V1, 1)
+  CSEPfilter$V1[max(grep("Phobius", CSEPfilter$V1))] <- "Phobius2"
+  rownames(CSEPfilter) <-CSEPfilter$V1
+  CSEPfilter <- subset(CSEPfilter, select="V2")
+  colnames(CSEPfilter) <- metadata$name[metadata$file2 == i]
   
-  assign(paste0(i, ".SPfilter"), SPfilter)
+  assign(paste0(i, ".CSEPfilter"), CSEPfilter)
   
   #Protein length stuff
   
@@ -79,57 +81,94 @@ for (i in metadata$file2[metadata$ingroup != "outgroup"]) {
   
 }
 
-SPfilter.df <- bind_cols(mget(paste0(metadata$file2[metadata$ingroup != "outgroup"], ".SPfilter")))
-SPfilter.labels <- data.frame(programme=c("", "SignalP v5.0b", "TargetP v2.0", "Phobius v1.01", "TMHMM v2.0c", "Phobius v1.01", "ps_scan v1.86", "NucPred v1.1",  "PredGPI", "EffectorP v3.0"),
-                              x=rev(seq(1.5, length(rownames(SPfilter.df)) + 1)),
-                              mean=round(rowMeans(SPfilter.df)),
-                              range=paste0(prettyNum(rowMins(as.matrix(SPfilter.df)), big.mark=","),
+CSEPfilter.df <- bind_cols(mget(paste0(metadata$file2[metadata$ingroup != "outgroup"], ".CSEPfilter")))
+CSEPfilter.labels <- data.frame(programme=c("", "SignalP v5.0b", "TargetP v2.0", "Phobius v1.01", "TMHMM v2.0c", "Phobius v1.01", "ps_scan v1.86", "NucPred v1.1",  "PredGPI", "EffectorP v3.0"),
+                              x=rev(seq(1.55, length(rownames(CSEPfilter.df)) + 1)),
+                              mean=round(rowMeans(CSEPfilter.df)),
+                              range=paste0(prettyNum(rowMins(as.matrix(CSEPfilter.df)), big.mark=","),
                                            " - ", 
-                                           prettyNum(rowMaxs(as.matrix(SPfilter.df)), big.mark=",")),
-                              sum=rowSums(SPfilter.df),
+                                           prettyNum(rowMaxs(as.matrix(CSEPfilter.df)), big.mark=",")),
+                              sum=rowSums(CSEPfilter.df),
                               arrow.x=c(seq(2, 10), NA),
                               arrow.xend=c(seq(1.2, 9.2), NA),
-                              face=c("bold", "bold", "plain", "plain", "plain", "plain", "plain", "plain", "plain", "bold"))
-#SPfilter.df[1,] <- SPfilter.df[1,] / 5
+                              face=c("bold", "plain", "plain", "bold", "plain", "plain", "plain", "plain", "plain", "bold"))
+#CSEPfilter.df[1,] <- CSEPfilter.df[1,] / 5
 
-SPfilter.df$programme <- rownames(SPfilter.df)
-SPfilter.df <- melt(SPfilter.df)
-SPfilter.df$programme <- factor(SPfilter.df$programme, levels=c("Total", "SignalP", "TargetP", "Phobius", "TMHMM", "Phobius2", "Prosite", "NucPred", "PredGPI", "EffectorP"))
+CSEPfilter.df$programme <- rownames(CSEPfilter.df)
+CSEPfilter.df <- melt(CSEPfilter.df)
+CSEPfilter.df$programme <- factor(CSEPfilter.df$programme, levels=c("Total", "SignalP", "TargetP", "Phobius", "TMHMM", "Phobius2", "Prosite", "NucPred", "PredGPI", "EffectorP"))
 
-gg.spfilter <- ggplot(SPfilter.df,
+gg.CSEPfilter <- ggplot(CSEPfilter.df,
                       aes(x=programme, y=value, stratum=variable, alluvium=variable, fill=variable)) +
-  geom_stratum(colour="dimgrey", size=0.2) +
-  geom_flow(colour="lightgrey", size=0.2) +
-  geom_segment(data=SPfilter.labels,
-               aes(x=arrow.x, xend=arrow.xend, y=-120000, yend=-120000),
-               arrow=arrow(length=unit(0.2, "cm"), type="closed"),
+  geom_stratum(colour=NA, size=0.2) +
+  geom_flow(size=0.2) +
+  geom_segment(data=CSEPfilter.labels,
+               aes(x=arrow.x, xend=arrow.xend, y=-130000, yend=-130000),
+               arrow=arrow(length=unit(0.1, "cm"), type="closed"),
+               size=0.15,
                inherit.aes=FALSE) +
-  geom_label(data=SPfilter.labels,
-            aes(x=rev(c(1:length(rownames(SPfilter.labels)))), y=-120000, label=range),
-            label.size=NA,
+  geom_label(data=CSEPfilter.labels,
+            aes(x=rev(c(1:length(rownames(CSEPfilter.labels)))), y=-130000, label=range),
+            size=2.5,
             inherit.aes=FALSE) +
-  geom_label(data=SPfilter.labels[SPfilter.labels$programme != "",],
-             aes(x=x, y=-120000, label=programme),
-             size=3,
+  geom_label(data=CSEPfilter.labels[CSEPfilter.labels$programme != "",],
+             aes(x=x, y=-130000, label=programme),
+             label.padding=unit(0.15, "lines"),
+             label.size=NA,
+             size=2,
              inherit.aes=FALSE) +
-  annotate("text", x=10.5, y=-120000, label="Number of proteins") +
-  #annotation_custom(brackets) +
-  scale_x_discrete(limits=rev(c("Blank", "Total", "SignalP", "TargetP", "Phobius", "TMHMM", "Phobius2", "Prosite", "NucPred", "PredGPI", "EffectorP")),
-                   labels=rev(c("", "Predicted\nproteomes", "Predicted\nsecretomes", "", "", "", "", "", "", "", "CSEPs")),
+  annotate("text", x=10.5, y=-130000, label="Number of proteins", size=3) +
+  scale_x_discrete(limits=rev(c("Blank",
+                                "Total",
+                                "SignalP",
+                                "TargetP",
+                                "Phobius",
+                                "TMHMM",
+                                "Phobius2",
+                                "Prosite",
+                                "NucPred",
+                                "PredGPI",
+                                "EffectorP")),
+                   labels=rev(c("",
+                                "Predicted\nproteomes",
+                                "Predicted\nsignal peptide",
+                                "",
+                                "Predicted\nsecretomes",
+                                "TM helices\n<=1",
+                                "",
+                                "No ER retention",
+                                "Not nuclear\nlocalised",
+                                "Not\nGPI-anchored",
+                                "CSEPs")),
                    expand=c(0, 0)) +
-  #scale_y_continuous(expand=c(1000, 0)) +
-  scale_fill_manual(values=rep(c("dimgrey", "white"), length.out=length(metadata$file2))) +
-  coord_flip() +
+  scale_fill_manual(values=rep(c("dimgrey", "grey"), length.out=length(metadata$file2))) +
+  coord_flip(ylim=c(-200000, sum(CSEPfilter.df$value[CSEPfilter.df$programme == "Total"]))) +
   theme(legend.position="none",
         panel.grid.major=element_blank(), 
         panel.grid.minor=element_blank(),
         panel.background=element_blank(),
         axis.ticks=element_blank(),
-        axis.text.y=element_text(size=15, face=SPfilter.labels$face),
+        axis.text.y=element_text(size=13, face=rev(CSEPfilter.labels$face)),
         axis.text.x=element_blank(),
         axis.title=element_blank())
 
-gg.spfilter
+#https://stackoverflow.com/questions/35633239/add-curly-braces-to-ggplot2-and-then-use-ggsave
+bracketsGrob <- function(...){
+  l <- list(...)
+  e <- new.env()
+  e$l <- l
+  grid:::recordGrob(  {
+    do.call(grid.brackets, l)
+  }, e)
+}
+
+b1 <- bracketsGrob(0.025, 0.68, 0.025, 0.83, lwd=1.5, ticks=0.8, col="dimgrey", h=0.02)
+b2 <- bracketsGrob(0.025, 0.38, 0.025, 0.53, lwd=1.5, ticks=0.8, col="dimgrey", h=0.02)
+
+gg.CSEPfilter <- gg.CSEPfilter +
+  annotation_custom(b1) +
+  annotation_custom(b2)
+
 
 lengths.df <- stack(protein.lengths)
 
@@ -143,27 +182,41 @@ lengths.labels$mean <- t.test(lengths.df$values[lengths.df$group == "effector"],
 lengths.labels$label <- paste0("n=", prettyNum(lengths.labels$Freq, big.mark=","))
 
 gg.lengths <- ggplot(lengths.df, aes(x=group, y=values)) +
-  #geom_hline(yintercept=300, lty="dashed") +
-  geom_violin() +
-  geom_boxplot(width=0.2) +
-  geom_text(data=lengths.labels, aes(x=Var1, y=mean, label=label), nudge_x=0.1, inherit.aes=FALSE) +
-  coord_cartesian(ylim=c(0,2000)) +
-  scale_x_discrete(labels=c("CSEP", "Other")) +
+  geom_hline(yintercept=300, lty="dashed") +
+  geom_violin(size=0.3) +
+  geom_boxplot(width=0.2, size=0.3, outlier.size=0.3) +
+  geom_text(data=lengths.labels, aes(x=Var1, y=mean, label=label),
+            nudge_y=500, nudge_x=0.3, size=1.5, inherit.aes=FALSE) +
+  scale_x_discrete(labels=c("CSEP", "Other"),
+                   limits=c("effector", "other")) +
+  scale_y_continuous(labels=comma, sec.axis=dup_axis(),
+                     breaks=c(300, 5000, 10000),
+                     #expand=c(0, 100),
+                     minor_breaks=seq(0, round_any(max(lengths.df$values), 1000, f=ceiling), 1000)) +
   labs(y="Protein length") +
   theme_minimal() +
   theme(panel.grid.major.x=element_blank(),
         axis.title.x=element_blank(),
         axis.text.x=element_text(size=15),
-        axis.title.y=element_text(size=15),
-        axis.text.y=element_text(size=10),
-        panel.border=element_rect(colour="black", fill=NA, size=2))
+        axis.title.y.left=element_text(size=15),
+        axis.title.y.right=element_blank(),
+        axis.text.y.left=element_blank(),
+        axis.text.y.right=element_text(size=10),
+        panel.border=element_rect(colour="black", fill=NA, size=1.5))
 
-gg.lengths
-
-tiff(file=paste0("effector-prediction-plot-", Sys.Date(), ".tiff"), width=8, height=5, units="in", res=300)
-gg.spfilter + 
-  annotation_custom(ggplotGrob(gg.lengths), ymin=300000, ymax=800000, xmin=2, xmax=8)
+tiff(file=paste0("CSEP-prediction-plot-", Sys.Date(), ".tiff"), width=8, height=5, units="in", res=300)
+gg.CSEPfilter + 
+  annotation_custom(ggplotGrob(gg.lengths), ymin=200000, ymax=900000, xmin=2, xmax=8)
 dev.off()
+
+
+#ENDOPHYTE DETERMINANTS
+
+enriched.df <- read.csv("endophyte_determinants_test/retainedOGs.csv")
+
+orthogroups.stats[match(enriched.df$ogs[enriched.df$enrichedInEndophytes == "True"], orthogroups.stats$orthogroup),]
+
+
 
 
 #TANGLEGRAM
@@ -211,13 +264,25 @@ tanglegram(dend,
 
 dev.off()
 
-ggtree(astral) %<+% metadata +
-  xlim(0,25) +
-  geom_tiplab() +
-  geom_tippoint(aes(colour=lifestyle), size=2) +
-  scale_colour_manual(values=col.df$colour[order(col.df$lifestyle)],
-                      labels=col.df$lifestyle,
+gg.lifestyles <- ggtree(astral) %<+% metadata +
+  xlim(0,40) +
+  geom_tiplab(offset=4) +
+  geom_tippoint(aes(colour=lifestyle), size=2, show.legend=FALSE, shape="square") +
+  scale_colour_manual(values=col.df$colour[na.omit(match(sort(unique(metadata$lifestyle[match(astral$tip.label, metadata$name)])), col.df$lifestyle))],
+                      labels=col.df$colour[na.omit(match(sort(unique(metadata$lifestyle[match(astral$tip.label, metadata$name)])), col.df$lifestyle))],
                       na.translate=FALSE)
+
+gg.lifestyles
+
+blah <- metadata[c(12:18)]
+rownames(blah) <- metadata$name
+
+##Fix colours
+
+gheatmap(gg.lifestyles, blah, offset=0.5, width=0.15, font.size=3, 
+         colnames=FALSE, hjust=0, color="grey") +
+  scale_fill_manual(values=col.df$colour[order(col.df$lifestyle)],
+                    na.translate=FALSE)
 
 
 #For effectors and orthogroups...
@@ -299,8 +364,8 @@ ggplot() +
 ##UPSET PLOT
 
 #Make dataframe of lifestyle colours
-col.df <- data.frame(lifestyle=c("endophyte", "insect-mutualist", "plant pathogen", "saprotroph", "mycoparasite", "plant associated"),
-                     colour=c("#009E73", "#56B4E9", "dimgrey", "#0072B2", "#D55E00", "#000000"))
+col.df <- data.frame(lifestyle=c("endophyte", "human pathogen", "insect-mutualist", "plant associated", "plant pathogen", "saprotroph", "mycoparasite"),
+                     colour=c("#009E73", "#000000", "#56B4E9", "#9AE324", "dimgrey", "#0072B2", "#D55E00"))
 
 for (ingroup in c(1, 2)) {
   
@@ -478,35 +543,38 @@ for (ingroup in c(1, 2)) {
   #secretome.df <- melt(secretome.df)
   
   gg.secretome.orthogroups <- ggplot(secretome.df, aes(y=taxon, x=orthogroups, fill=secretome)) +
-    geom_bar(stat="identity") +
+    geom_bar(stat="identity", colour="black", size=0.5, width=1) +
     scale_x_reverse(expand=c(0, 0),
                     position="top") +
+    scale_fill_manual(values=c("dimgrey", "darkgrey", "lightgrey"),
+                      labels=c("Specific", "Accessory", "Core")) +
     theme_minimal() +
     theme(axis.title=element_blank(),
           axis.ticks.y=element_blank(), 
           axis.text.y=element_blank(),
           panel.grid.major.y=element_blank(),
           legend.position="top",
-          legend.text=element_text(size=5),
-          legend.key.size=unit(0.5, "cm"),
+          legend.text=element_text(size=10),
+          legend.key.size=unit(0.3, "cm"),
+          legend.spacing.x=unit(0.4, "cm"),
           legend.title=element_blank())
   
   gg.secretome.effectors <- ggplot(secretome.df, aes(y=taxon, x=effectors, fill=secretome)) +
-    geom_bar(stat="identity") +
+    geom_bar(stat="identity", colour="black", size=0.5, width=1) +
     scale_x_reverse(expand=c(0, 0),
                     position="top") +
+    scale_fill_manual(values=c("dimgrey", "darkgrey", "lightgrey"),
+                      labels=c("Specific", "Accessory", "Core")) +
     theme_minimal() +
     theme(axis.title=element_blank(),
           axis.ticks.y=element_blank(), 
           axis.text.y=element_blank(),
           panel.grid.major.y=element_blank(),
           legend.position="top",
-          legend.text=element_text(size=5),
-          legend.key.size=unit(0.5, "cm"),
+          legend.text=element_text(size=10),
+          legend.key.size=unit(0.3, "cm"),
+          legend.spacing.x=unit(0.4, "cm"),
           legend.title=element_blank())
-  
-  gg.secretome.orthogroups
-  gg.secretome.effectors
   
   assign(paste0("gg.secretome.orthogroups.ingroup", ingroup), gg.secretome.orthogroups)
   assign(paste0("gg.secretome.effectors.ingroup", ingroup), gg.secretome.effectors)
@@ -516,20 +584,20 @@ for (ingroup in c(1, 2)) {
 
 tiff(file=paste0("upset-plot-effectors1-", Sys.Date(), ".tiff"), width=15, height=10, units="in", res=300)
 cowplot::plot_grid(
-  cowplot::plot_grid(NULL, gg.secretome.effectors.ingroup1 + theme(plot.margin=unit(c(1, -5, -5, 1), "pt")),
-                     ncol=1, rel_heights=c(1, 9)),
+  cowplot::plot_grid(NULL, gg.secretome.effectors.ingroup1 + theme(plot.margin=unit(c(1, 2, 1.5, 1), "pt")),
+                     ncol=1, rel_heights=c(1, 8)),
   gg.upset.effectors.ingroup1,
-  cowplot::plot_grid(NULL, gg.tree.upset.ingroup1 + theme(plot.margin=unit(c(1, -5, -5, 1), "pt")),
+  cowplot::plot_grid(NULL, gg.tree.upset.ingroup1 + theme(plot.margin=unit(c(1, 2, 1.5, 1), "pt")),
                      ncol=1, rel_heights=c(1, 12)),
   nrow=1, rel_widths=c(2, 3, 1))
 dev.off()
 
-tiff(file=paste0("upset-plot-effectors2-", Sys.Date(), ".tiff"), width=15, height=10, units="in", res=300)
+tiff(file=paste0("upset-plot-effectors2-", Sys.Date(), ".tiff"), width=15, height=12, units="in", res=300)
 cowplot::plot_grid(
-  cowplot::plot_grid(NULL, gg.secretome.effectors.ingroup2 + theme(plot.margin=unit(c(1, -5, -5, 1), "pt")),
-                     ncol=1, rel_heights=c(1, 9)),
+  cowplot::plot_grid(NULL, gg.secretome.effectors.ingroup2 + theme(plot.margin=unit(c(1, 2, 1.5, 1), "pt")),
+                     ncol=1, rel_heights=c(1, 8.2)),
   gg.upset.effectors.ingroup2,
-  cowplot::plot_grid(NULL, gg.tree.upset.ingroup2 + theme(plot.margin=unit(c(1, -5, -5, 1), "pt")),
+  cowplot::plot_grid(NULL, gg.tree.upset.ingroup2 + theme(plot.margin=unit(c(1, 2, 1.5, 1), "pt")),
                      ncol=1, rel_heights=c(1, 12)),
   nrow=1, rel_widths=c(2, 3, 1))
 dev.off()
@@ -537,20 +605,20 @@ dev.off()
 
 tiff(file=paste0("upset-plot-orthogroups1-", Sys.Date(), ".tiff"), width=15, height=10, units="in", res=300)
 cowplot::plot_grid(
-  cowplot::plot_grid(NULL, gg.secretome.orthogroups.ingroup1 + theme(plot.margin=unit(c(1, -5, -5, 1), "pt")),
-                     ncol=1, rel_heights=c(1, 9)),
+  cowplot::plot_grid(NULL, gg.secretome.orthogroups.ingroup1 + theme(plot.margin=unit(c(1, 2, 1.5, 1), "pt")),
+                     ncol=1, rel_heights=c(1, 8)),
   gg.upset.orthogroups.ingroup1,
-  cowplot::plot_grid(NULL, gg.tree.upset.ingroup1 + theme(plot.margin=unit(c(1, -5, -5, 1), "pt")),
+  cowplot::plot_grid(NULL, gg.tree.upset.ingroup1 + theme(plot.margin=unit(c(1, 2, 1.5, 1), "pt")),
                      ncol=1, rel_heights=c(1, 12)),
   nrow=1, rel_widths=c(2, 3, 1))
 dev.off()
 
 tiff(file=paste0("upset-plot-effectors2-", Sys.Date(), ".tiff"), width=15, height=12, units="in", res=300)
 cowplot::plot_grid(
-  cowplot::plot_grid(NULL, gg.secretome.effectors.ingroup2 + theme(plot.margin=unit(c(1, -5, -5, 1), "pt")),
-                     ncol=1, rel_heights=c(1, 9)),
+  cowplot::plot_grid(NULL, gg.secretome.effectors.ingroup2 + theme(plot.margin=unit(c(1, 2, 1.5, 1), "pt")),
+                     ncol=1, rel_heights=c(1, 8.2)),
   gg.upset.effectors.ingroup2,
-  cowplot::plot_grid(NULL, gg.tree.upset.ingroup2 + theme(plot.margin=unit(c(1, -5, -5, 1), "pt")),
+  cowplot::plot_grid(NULL, gg.tree.upset.ingroup2 + theme(plot.margin=unit(c(1, 2, 1.5, 1), "pt")),
                      ncol=1, rel_heights=c(1, 12)),
   nrow=1, rel_widths=c(2, 3, 1))
 dev.off()
@@ -589,7 +657,7 @@ for (i in colnames(effector.count.specific)) {
   specific.df$num[specific.df$species == i] <- length(which(effector.count.specific[,i] > 0))
 }
 
-specific.df$lifestyle <- metadata$lifestyle[match(specific.df$species, metadata$file)]
+specific.df$lifestyle <- metadata$lifestyle[match(specific.df$species, metadata$file2)]
 specific.df$lifestyle <- sub("-", " ", specific.df$lifestyle)
 
 #Tukey significance testing
