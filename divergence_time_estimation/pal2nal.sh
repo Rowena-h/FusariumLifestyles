@@ -35,7 +35,7 @@ fi
 
 module load R
 
-#Reroot gene trees
-Rscript reroot.r ../phylogenomics/gene_trees/RAxML/RAxML_bipartitions.${ORTHO} "Ilysp1_GeneCatalog_proteins_20121116" /data/SBCS-BuggsLab/RowenaHill/fus_comparison/selection/trees/
+#Reroot gene trees for SortaDate
+Rscript reroot.r ../phylogenomics/gene_trees/RAxML/RAxML_bipartitions.${ORTHO} "Ilysp1_GeneCatalog_proteins_20121116" trees/
 #Label foreground branches for HyPhy
-sed -i -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/'trees/RAxML_bipartitions.${ORTHO}_rooted
+#sed -i -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/'trees/RAxML_bipartitions.${ORTHO}_rooted

@@ -5,9 +5,10 @@
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -j y
 
-ORTHO=$(cat ../orthogroups_selection.csv | sed -n ${SGE_TASK_ID}p)
+ORTHO=$(ls -1 ../alignments/codon/*_aln_nuc.fa | sed 's#\.\./alignments/codon/##' | sed 's/_aln_nuc\.fa//' | sed -n ${SGE_TASK_ID}p)
+#ORTHO=$(cat ../orthogroups_absrel_meme.csv | sed -n ${SGE_TASK_ID}p)
 
 module load anaconda3
 conda activate hyphy-2.5.30
 
-hyphy absrel --alignment ../alignments/codon/${ORTHO}_aln_nuc.fa --tree ../../phylogenomics/species_tree/astral/fus_astral_proteins_62T.tre --output absrel/${ORTHO}_aBSREL.json --branches FOREGROUND
+hyphy absrel --alignment ../alignments/codon/${ORTHO}_aln_nuc.fa --tree absrel/fus_proteins_62T_iqtree_genepart.contree_rooted --output absrel/${ORTHO}_aBSREL.json --branches FOREGROUND

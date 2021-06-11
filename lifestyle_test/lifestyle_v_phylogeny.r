@@ -3,14 +3,14 @@
 library(ape)
 library(dplyr)
 
-load("../effector_prediction/effector-matrices-2021-03-17.RData")
+load("../effector_prediction/effector-matrices-2021-05-25.RData")
 
 ##LIFESTYLE VERSUS PHYLOGENY TEST
 
 metadata <- read.csv("../metadata.csv")
 
 #Read in tree
-phy <- read.tree("../phylogenomics/species_tree/astral/fus_astral_proteins_62T.tre")
+phy <- read.tree("../phylogenomics/species_tree/iqtree/gene_partitions/fus_proteins_62T_iqtree_genepart.contree")
 #Root tree
 outgroup <- "Ilysp1_GeneCatalog_proteins_20121116"
 phy <- root(phy, outgroup, resolve.root=TRUE, edgelabel=TRUE)
@@ -20,7 +20,7 @@ write.tree(phy.ingroup, "species_tree_ingroup.tre")
 
 #Effectors
 #Transpose count dataframe (excluding outgroup)
-lifestyle.test.effectors <- as.data.frame(t(effector.count.SC.SP[-c(1, 2, which(colnames(effector.count.SC.SP) == outgroup))]))
+lifestyle.test.effectors <- as.data.frame(t(effector.count[-which(rowSums(effector.count) == 0),][-which(colnames(effector.count) == outgroup)]))
 #Add column with names
 lifestyle.test.effectors$genome <- rownames(lifestyle.test.effectors)
 #Add column with lifestyle
@@ -46,4 +46,4 @@ lifestyle.test.orthogroups <- lifestyle.test.orthogroups %>% select(genome, life
 
 write.csv(lifestyle.test.orthogroups, "lifestyle-test-orthogroups.csv", row.names=FALSE, quote=FALSE)
 
-#system("./lifestyle-test.sh")
+system("qsub lifestyle-test.sh")
