@@ -30,14 +30,21 @@ library(pBrackets)
 library(reshape2)
 library(MCMCtreeR)
 library(deeptime)
+library(phytools)
+library(ggrepel)
 
 #Colour palette
 show_col(colorblind_pal()(8))
 
 #Read in orthogroup data
 load("effector_prediction/effector-matrices-2021-05-25.RData")
+
 #Read in sample metadata
 metadata <- read.csv("metadata.csv")
+
+#Make dataframe of lifestyle colours
+col.df <- data.frame(lifestyle=c("endophyte", "coral associated", "human pathogen", "insect associated", "plant associated", "plant pathogen", "saprotroph", "mycoparasite"),
+                     colour=c("#009E73", "#FFE983", "#000000", "#56B4E9", "#9AE324", "dimgrey", "#0072B2", "#D55E00"))
 
 
 ##EFFECTOR PREDICTION SANKEY
@@ -224,7 +231,7 @@ orthogroups.stats[match(enriched.df$ogs[enriched.df$enrichedInEndophytes == "Tru
 
 
 
-#TANGLEGRAM
+##TANGLEGRAM - SUPPLEMENTARY FIG 1##
 
 astral <- read.tree("phylogenomics/species_tree/astral/fus_astral_proteins_62T.tre")
 astral$edge.length <- rep(1, length(astral$edge.length))
@@ -268,181 +275,322 @@ tanglegram(dend,
 dev.off()
 
 
+## MAIN TREE PLOT ##
 
-##LIFESTYLE GRID
+#Root IQ-TREE ML tree
+species.tree <- root(iqtree, "Ilysp1_GeneCatalog_proteins_20121116", resolve.root=TRUE, edgelabel=TRUE)
+#Edit tip names
+species.tree$tip.label <- metadata$name[match(species.tree$tip.label, metadata$tip)]
+#Proportion of supported branches (ultrafast bootstrap > 95)
+suppressWarnings(length(which(as.numeric(species.tree$node.label) > 95)) / length(na.omit(as.numeric(species.tree$node.label))))
 
-#Make dataframe of lifestyle colours
-col.df <- data.frame(lifestyle=c("endophyte", "coral associated", "human pathogen", "insect associated", "plant associated", "plant pathogen", "saprotroph", "mycoparasite"),
-                     colour=c("#009E73", "#FFE983", "#000000", "#56B4E9", "#9AE324", "dimgrey", "#0072B2", "#D55E00"))
-
-dated.tree <- readMCMCtree("divergence_time_estimation/mcmctree/run1_independent/FigTree.tre", 
-                           forceUltrametric=TRUE)
-
-dated.tree$nodeAges <- dated.tree$nodeAges * 100
-dated.tree$apePhy$edge.length <- dated.tree$apePhy$edge.length * 100
-
-dated.tree$apePhy$tip.label <- metadata$name[match(dated.tree$apePhy$tip.label, metadata$short.tip)]
-
-gg.datedtree <- ggtree(dated.tree$apePhy) %<+% metadata
-
-#Create vector with the order of the tree tips for plotting
-gg.tree.data.dated <- gg.datedtree[["data"]] %>%
+#Plot ML tree
+gg.iq <- ggtree(species.tree, branch.length="none") %<+% metadata
+#Capture ML data structure
+gg.tree.data.iq <- gg.iq[["data"]] %>%
   arrange(y)
-tip.order.datedtree <- rev(gg.tree.data.dated$label[gg.tree.data.dated$isTip == "TRUE"])
-#Create vector of fontface for new genomes in this study
-label.face.datedtree <- rev(metadata$new[match(tip.order.datedtree, metadata$name)])
-for (i in 1:length(label.face.datedtree)){
-  if (label.face.datedtree[i] == "Y") {
-    label.face.datedtree[i] <- "bold.italic"
-  } else {
-    label.face.datedtree[i] <- "italic"
-  }
-}
-#Fontface vector
-tiplabel.face.datedtree <- rep("italic", length(dated.tree$apePhy$tip.label))
-tiplabel.face.datedtree[which(metadata$new[match(dated.tree$apePhy$tip.label, metadata$name)] == "Y")] <- "bold.italic"
 
-new.tiplabels.dated <- dated.tree$apePhy$tip.label
-
-for (i in 1:length(new.tiplabels.dated)) {
-  if (metadata$old.name[match(new.tiplabels.dated, metadata$name)][i] != "") {
-    new.tiplabels.dated[i] <- paste0(new.tiplabels.dated[i], " (=", metadata$old.name[match(new.tiplabels.dated, metadata$name)][i], ")")
-  }
-}
-
-new.tiplabels.dated <- sub("Fusarium", "F.", new.tiplabels.dated)
-
-
-gg.datedtree <- gg.datedtree +
-  coord_geo(clip="off", xlim=c(max(dated.tree$nodeAges[,3]) * -1, 70), ylim=c(-2,Ntip(dated.tree$apePhy)),
-            dat=list("epochs", "periods"),
-            pos=list("bottom", "bottom"),
-            size=list(2,3),
-            height=list(unit(0.5, "line"), unit(1, "line")),
-            abbrv=list(TRUE, FALSE),
-            lwd=0, alpha=0.5, neg=TRUE, expand=FALSE) +
-  scale_x_continuous(breaks=seq(round(max(dated.tree$nodeAges[,3])) * -1, 0, 10), labels=rev(seq(0, round(max(dated.tree$nodeAges[,3])), 10)), name="Million years") +
-  theme(plot.margin=unit(c(1, 0, 0, 2), "cm"),
-        axis.text.x.bottom=element_text(),
-        axis.title.x.bottom=element_text(size=8))
-
-gg.datedtree <- revts(gg.datedtree)
-
-
-
-#Make dataframe of species complex nodes
-sc.df.dated <- data.frame(sc=names(table(metadata$speciescomplex.abb[match(dated.tree$apePhy$tip.label, metadata$name)]))[table(metadata$speciescomplex.abb[match(dated.tree$apePhy$tip.label, metadata$name)]) > 1],
-                    node=NA)
-
-#Get nodes for each species complex
-for (i in 1:length(sc.df.dated$sc)) {
-  sc.df.dated$node[i] <- getMRCA(dated.tree$apePhy, metadata$name[metadata$speciescomplex.abb == sc.df.dated$sc[i]])
-}
-
-sc.df.dated2 <- data.frame(sc=unique(metadata$speciescomplex.abb)[is.na(match(unique(metadata$speciescomplex.abb), sc.df.dated$sc))],
-                     node=NA)
-
-sc.df.dated2$node <- gg.tree.data.dated$node[match(sc.df.dated2$sc, gg.tree.data.dated$speciescomplex.abb)]
-
-sc.df.dated <- rbind(sc.df.dated, sc.df.dated2)
-sc.df.dated <- sc.df.dated[match(na.omit(unique(gg.tree.data.dated$speciescomplex.abb)), sc.df.dated$sc),]
-sc.df.dated$box <- rep(c(0,1), length.out=length(sc.df.dated$sc))
-
-for (i in 1:length(sc.df.dated$sc)) {
+#For analyses from both relaxed molecular clock methods...
+for (clock in c("independent", "correlated")) {
   
-  if (sc.df.dated$box[i] == 1) {
-    
-    gg.datedtree <- gg.datedtree +
-      geom_highlight(node=sc.df.dated$node[sc.df.dated$sc == sc.df.dated$sc[i]],
-                     fill="#000000", alpha=0.05, extend=55)
-    
-  } else {
-    
-    gg.datedtree <- gg.datedtree +
-      geom_highlight(node=sc.df.dated$node[sc.df.dated$sc == sc.df.dated$sc[i]],
-                     fill="#000000", alpha=0.1, extend=55)
-    
+  #Read in MCMCTree tree
+  dated.tree <- readMCMCtree(paste0("divergence_time_estimation/mcmctree/run1_", clock, "/FigTree.tre"),
+                             forceUltrametric=TRUE)
+  
+  #Convert branch length unit to 1MY
+  dated.tree$apePhy$edge.length <- dated.tree$apePhy$edge.length * 100
+  #Replace tip labels with names
+  dated.tree$apePhy$tip.label <- metadata$name[match(dated.tree$apePhy$tip.label, metadata$short.tip)]
+  #Add ultrafast bootstrap support values from IQ-Tree to correct nodes
+  nodes <- matchNodes(species.tree, dated.tree$apePhy)
+  dated.tree$apePhy$node.labels <- gg.tree.data.iq$label[match(matchNodes(species.tree, dated.tree$apePhy)[,1], gg.tree.data.iq$node)][order(nodes[,2])]
+  #Mark unsupported nodes with asterisk
+  dated.tree$apePhy$node.labels[which(suppressWarnings(as.numeric(dated.tree$apePhy$node.labels) < 95))] <- "*"
+  dated.tree$apePhy$node.labels[dated.tree$apePhy$node.labels != "*"] <- NA
+  
+  #Plot tree
+  gg.datedtree <- ggtree(dated.tree$apePhy) %<+% metadata
+  
+  #Create vector with the order of the tree tips for plotting
+  gg.tree.data.dated <- gg.datedtree[["data"]] %>%
+    arrange(y)
+  tip.order.datedtree <- rev(gg.tree.data.dated$label[gg.tree.data.dated$isTip == "TRUE"])
+  
+  #Create vector of fontface for new genomes in this study
+  label.face.datedtree <- rev(metadata$new[match(tip.order.datedtree, metadata$name)])
+  
+  for (i in 1:length(label.face.datedtree)){
+    if (label.face.datedtree[i] == "Y") {
+      label.face.datedtree[i] <- "bold.italic"
+    } else {
+      label.face.datedtree[i] <- "italic"
+    }
   }
   
+  tiplabel.face.datedtree <- rep("italic", length(dated.tree$apePhy$tip.label))
+  tiplabel.face.datedtree[which(metadata$new[match(dated.tree$apePhy$tip.label, metadata$name)] == "Y")] <- "bold.italic"
+  
+  #Format tip labels with synonyms
+  new.tiplabels.dated <- dated.tree$apePhy$tip.label
+  
+  for (i in 1:length(new.tiplabels.dated)) {
+    if (metadata$old.name[match(new.tiplabels.dated, metadata$name)][i] != "") {
+      new.tiplabels.dated[i] <- paste0(new.tiplabels.dated[i], " (=", metadata$old.name[match(new.tiplabels.dated, metadata$name)][i], ")")
+    }
+  }
+  
+  new.tiplabels.dated <- sub("Fusarium", "F.", new.tiplabels.dated)
+  
+  #Make dataframe for plotting divergence time confidence intervals
+  confidence.intervals <- as.data.frame(dated.tree$nodeAges)
+  confidence.intervals <- confidence.intervals * 100
+  confidence.intervals$ymin <- gg.tree.data.dated$y[match(rownames(confidence.intervals), gg.tree.data.dated$node)] -0.2
+  confidence.intervals$ymax <- gg.tree.data.dated$y[match(rownames(confidence.intervals), gg.tree.data.dated$node)] +0.2
+  
+  #Add confidence intervals and time scale to tree plot
   gg.datedtree <- gg.datedtree +
-    geom_cladelabel(node=sc.df.dated$node[sc.df.dated$sc == sc.df.dated$sc[i]],
-                    label=sc.df.dated$sc[i], offset.text=2, offset=55, align=TRUE, fontsize=3)
+    geom_rect(data=confidence.intervals,
+              aes(xmin=`95%_lower` * -1, 
+                  xmax=`95%_upper` * -1,
+                  ymin=ymin,
+                  ymax=ymax),
+              alpha=0.1,
+              colour="grey",
+              inherit.aes=FALSE) +
+    geom_point(data=confidence.intervals,
+               aes(x=mean * -1,
+                   y=ymin + 0.2),
+               colour="grey",
+               inherit.aes=FALSE) +
+    coord_geo(clip="off",
+              xlim=c(max(confidence.intervals$`95%_upper`) * -1, 70),
+              ylim=c(0, Ntip(dated.tree$apePhy)),
+              dat=list("epochs", "periods"),
+              pos=list("bottom", "bottom"),
+              size=list(2,3),
+              height=list(unit(0.5, "line"), unit(1, "line")),
+              abbrv=list(TRUE, FALSE),
+              center_end_labels=TRUE,
+              lwd=0, alpha=0.5, neg=TRUE, expand=FALSE) +
+    scale_x_continuous(breaks=rev(seq(0, round(max(confidence.intervals$`95%_upper`)), 10)) * -1,
+                       labels=rev(seq(0, round(max(confidence.intervals$`95%_upper`)), 10)),
+                       expand=c(0, 0),
+                       name="Million years") +
+    theme(plot.margin=unit(c(1, 0, 0, 2), "cm"),
+          axis.text.x.bottom=element_text(),
+          axis.title.x.bottom=element_text(size=8))
+  
+  #Reverse the x axis
+  gg.datedtree <- revts(gg.datedtree)
+
+  #Make dataframe of species complex nodes
+  sc.df.dated <- data.frame(sc=names(table(metadata$speciescomplex.abb[match(dated.tree$apePhy$tip.label, metadata$name)]))[table(metadata$speciescomplex.abb[match(dated.tree$apePhy$tip.label, metadata$name)]) > 1],
+                            node=NA)
+  
+  #Get nodes for each species complex
+  for (i in 1:length(sc.df.dated$sc)) {
+    sc.df.dated$node[i] <- getMRCA(dated.tree$apePhy, metadata$name[metadata$speciescomplex.abb == sc.df.dated$sc[i]])
+  }
+  
+  #Make dataframe for species complexes with only one taxon represented
+  sc.df.dated2 <- data.frame(sc=unique(metadata$speciescomplex.abb)[is.na(match(unique(metadata$speciescomplex.abb), sc.df.dated$sc))],
+                             node=NA)
+  
+  sc.df.dated2$node <- gg.tree.data.dated$node[match(sc.df.dated2$sc, gg.tree.data.dated$speciescomplex.abb)]
+  
+  #Combine dataframes
+  sc.df.dated <- rbind(sc.df.dated, sc.df.dated2)
+  sc.df.dated <- sc.df.dated[match(na.omit(unique(gg.tree.data.dated$speciescomplex.abb)), sc.df.dated$sc),]
+  #Make alternated coding for highlights on tree
+  sc.df.dated$box <- rep(c(0,1), length.out=length(sc.df.dated$sc))
+  
+  #Add species complex highlights and labels to tree plot
+  for (i in 1:length(sc.df.dated$sc)) {
+    
+    if (sc.df.dated$box[i] == 1) {
+      
+      gg.datedtree <- gg.datedtree +
+        geom_highlight(node=sc.df.dated$node[sc.df.dated$sc == sc.df.dated$sc[i]],
+                       fill="#000000", alpha=0.05, extend=200)
+      
+    } else {
+      
+      gg.datedtree <- gg.datedtree +
+        geom_highlight(node=sc.df.dated$node[sc.df.dated$sc == sc.df.dated$sc[i]],
+                       fill="#000000", alpha=0.1, extend=200)
+      
+    }
+    
+    gg.datedtree <- gg.datedtree +
+      geom_cladelabel(node=sc.df.dated$node[sc.df.dated$sc == sc.df.dated$sc[i]],
+                      label=sc.df.dated$sc[i], offset.text=2, offset=60, align=TRUE, fontsize=3)
+    
+  }
+  
+  #Add final edits to tree plot
+  gg.datedtree <- gg.datedtree +
+    geom_vline(xintercept=epochs$max_age[which((epochs$max_age) < max(confidence.intervals$`95%_upper`))] * -1,
+               linetype="dashed", colour="grey") +
+    geom_nodelab(size=3, hjust=1.6, vjust=-0.05) +
+    geom_tiplab(label=new.tiplabels.dated, fontface=tiplabel.face.datedtree, size=3, offset=1) +
+    geom_tree() +
+    geom_tippoint(aes(colour=lifestyle), size=2.5, show.legend=FALSE) +
+    geom_nodepoint(aes(subset=(node %in% c(64, 66))),
+                   size=3, colour="black") +
+    geom_nodelab(aes(subset=(node %in% c(64, 66))),
+                 label=c("O'Donnell et\nal. 2020", "Lombard et\nal. 2015"),
+                 hjust=1.3,
+                 vjust=-0.8,
+                 size=3,
+                 colour="black") +
+    scale_colour_manual(values=col.df$colour[match(sort(unique(metadata$lifestyle[match(dated.tree$apePhy$tip.label,
+                                                                                        metadata$name)])),
+                                                   col.df$lifestyle)])
+  
+  #Write to file
+  #tiff(file=paste0("dated-tree-", clock, "-", Sys.Date(), ".tiff"),
+  #     height=8, width=12, unit="in", res=300, compression="lzw")
+  #plot(gg.datedtree)
+  #dev.off()
+  
+  assign(paste0("gg.datedtree.", clock), gg.datedtree)
   
 }
 
-gg.datedtree <- gg.datedtree +
-  geom_vline(xintercept=periods$max_age[which((periods$max_age) < max(dated.tree$nodeAges[,3]))] * -1,
-                       linetype="dashed", colour="grey") +
-  geom_tiplab(label=new.tiplabels.dated, fontface=tiplabel.face.datedtree, size=3, offset=1) +
-  geom_tree() +
-  geom_tippoint(aes(colour=lifestyle), size=2.5, show.legend=FALSE) +
-  scale_colour_manual(values=col.df$colour[na.omit(match(sort(unique(metadata$lifestyle[match(species.tree$tip.label, metadata$name)])), col.df$lifestyle))],
-                      na.translate=FALSE)
 
-tiff(file=paste0("dated-tree-", Sys.Date(), ".tiff"),
-     height=8, width=12, unit="in", res=300, compression="lzw")
-gg.datedtree
-dev.off()
+##CORE ACCESSORY SPECIFIC BARGRAPH
 
-tiff(file=paste0("dated-tree2-", Sys.Date(), ".tiff"),
-     height=8, width=12, unit="in", res=300, compression="lzw")
-gg.datedtree +
-  geom_nodepoint(aes(subset=(node %in% c(64, 66))),
-               size=3, colour="black") +
-  geom_nodelab(aes(subset=(node %in% c(64, 66))),
-               label=c("O'Donnell et\nal. 2020", "Lombard et\nal. 2015"),
-               hjust=1.3,
-               vjust=-0.8,
-               size=3,
-               colour="black")
-dev.off()
+orthogroups.copies <- get("orthogroups.copies.ingroup2")
+orthogroups.stats <- get("orthogroups.stats.ingroup2")
 
+secretome.df <- data.frame(taxon=rep(colnames(orthogroups.copies), each=3), 
+                           secretome=rep(c("specific", "accessory", "core"), length(colnames(orthogroups.copies))),
+                           orthogroups=NA,
+                           effectors=NA)
 
+for (i in unique(secretome.df$taxon)) {
+  for (j in unique(secretome.df$secretome)) {
+    
+    secretome.df$orthogroups[intersect(which(secretome.df$taxon == i), which(secretome.df$secretome == j))] <- table(orthogroups.stats$secretome[match(rownames(orthogroups.copies[orthogroups.copies[, i] > 0,]), orthogroups.stats$orthogroup)])[j]
+    
+    secretome.df$effectors[intersect(which(secretome.df$taxon == i), which(secretome.df$secretome == j))] <- table(orthogroups.stats$secretome[match(rownames(effector.count[effector.count[, i] > 0,]), orthogroups.stats$orthogroup)])[j]
+    
+  }
+}
+
+secretome.df$taxon <- metadata$name[match(secretome.df$taxon, metadata$file2)]
+secretome.df$secretome <- factor(secretome.df$secretome, levels=c("specific", "accessory", "core"))
+secretome.df$taxon <- factor(secretome.df$taxon, levels=rev(tip.order.datedtree))
+
+secretome.df$y <- as.numeric(factor(secretome.df$taxon))
 
 
+#secretome.df <- melt(secretome.df)
 
-gg.lifestyles <- gg.tree +
-  xlim(0,0.5) +
-  geom_tiplab(label=new.tiplabels, offset=0.05, fontface=tiplabel.face.speciestree, align=TRUE, linetype=NA, size=3) +
-  geom_tippoint(aes(colour=lifestyle), size=3, show.legend=FALSE, shape="square") +
-  scale_colour_manual(values=col.df$colour[na.omit(match(sort(unique(metadata$lifestyle[match(species.tree$tip.label, metadata$name)])), col.df$lifestyle))],
-                      na.translate=FALSE)
+gg.secretome.orthogroups <- ggplot(secretome.df, aes(y=taxon, x=orthogroups, fill=secretome)) +
+  geom_bar(stat="identity", size=0.5, width=0.6) +
+  labs(x="Orthogroups") +
+  scale_y_discrete(limits=rev(tip.order.datedtree),
+                   expand=expansion(0, 0)) +
+  coord_cartesian(clip="off",
+                  ylim=c(0, 62)) +
+  scale_x_continuous(expand=c(0, 0),
+                     position="top",
+                     labels=scales::comma) +
+  scale_fill_manual(values=c("dimgrey", "darkgrey", "lightgrey"),
+                    labels=c("Specific", "Accessory", "Core"),
+                    guide=FALSE) +
+  theme_minimal() +
+  theme(axis.title.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.title.x.top=element_text(size=12, margin=margin(0, 0, 3, 0)),
+        axis.text.x.top=element_text(size=5),
+        panel.grid.major.x=element_line(colour="white"),
+        panel.grid.minor.x=element_line(colour="white"),
+        panel.grid.major.y=element_blank(),
+        legend.text=element_text(size=10),
+        legend.key.size=unit(0.3, "cm"),
+        legend.spacing.x=unit(0.4, "cm"),
+        legend.title=element_blank())
 
-lifestyle.grid <- metadata[c(12:19)]
+gg.secretome.effectors <- ggplot(secretome.df, aes(y=taxon, x=effectors, fill=secretome)) +
+  geom_bar(stat="identity", size=0.5, width=0.6) +
+  labs(x="CSEPs") +
+  scale_y_discrete(limits=rev(tip.order.datedtree),
+                   expand=expansion(0, 0)) +
+  coord_cartesian(clip="off",
+                  ylim=c(0, 62)) +
+  guides(fill=guide_legend(nrow=1)) +
+  scale_x_continuous(expand=c(0, 0),
+                     position="top") +
+  scale_fill_manual(values=c("dimgrey", "darkgrey", "lightgrey"),
+                    labels=c("Specific", "Accessory", "Core")) +
+  theme_minimal() +
+  theme(axis.title.y=element_blank(),
+        axis.ticks.y=element_blank(), 
+        axis.text.y=element_blank(),
+        axis.title.x.top=element_text(size=12, margin=margin(0, 0, 3, 0)),
+        axis.text.x.top=element_text(size=5),
+        panel.grid.major.x=element_line(colour="white"),
+        panel.grid.minor.x=element_line(colour="white"),
+        panel.grid.major.y=element_blank(),
+        legend.position=c(0, -0.1),
+        legend.text=element_text(size=10),
+        legend.key.size=unit(0.3, "cm"),
+        legend.spacing.x=unit(0.4, "cm"),
+        legend.title=element_blank())
+
+
+lifestyle.grid <- metadata[c(13:20)]
 rownames(lifestyle.grid) <- metadata$name
 
 ##Fix colours
 
 col.df$lifestyle <- factor(col.df$lifestyle, levels=c("plant associated", "endophyte", "plant pathogen", "saprotroph", "insect associated", "mycoparasite", "human pathogen", "coral associated"))
 
-gg.lifestyles.grid <- gheatmap(gg.lifestyles,
+gg.lifestyles.grid <- gheatmap(gg.datedtree.correlated,
                                lifestyle.grid,
-                               offset=0.005,
+                               offset=73,
                                width=0.15,
                                font.size=3, 
                                colnames=FALSE,
                                hjust=0,
-                               color="grey") +
+                               color="white") +
+  scale_fill_manual(values=col.df$colour[match(levels(col.df$lifestyle), col.df$lifestyle)],
+                    breaks=levels(col.df$lifestyle),
+                    guide=FALSE) +
+  new_scale_fill() +
+  geom_point(data=col.df, aes(x=1, y=1, fill=lifestyle), colour=NA, size=2.5, alpha=0, inherit.aes=FALSE) +
   scale_fill_manual(values=col.df$colour[match(levels(col.df$lifestyle), col.df$lifestyle)],
                     breaks=levels(col.df$lifestyle),
                     labels=str_to_sentence(levels(col.df$lifestyle)),
-                    na.translate=FALSE,
-                    name=NULL) +
-  theme(legend.position=c(0.2, 0.75),
-        legend.text=element_text(size=14),
-        legend.key=element_rect(size=4))
+                    name="Lifestyle") +
+  guides(fill=guide_legend(direction="horizontal",
+                           title.position="left",
+                           label.position="bottom",
+                           nrow=1,
+                           title.hjust=0,
+                           override.aes=list(shape=21, alpha=1))) +
+  annotate("text", x=80, y=65, label="All reported\nlifestyles") +
+  theme(plot.margin=unit(c(0, 2, 0, 0), "cm"),
+        legend.position="top",
+        legend.text=element_text(size=8),
+        legend.title=element_text(face="bold", size=8))
+
 
 tiff(file=paste0("lifestyles-tree-", Sys.Date(), ".tiff"),
-     height=8, width=12, unit="in", res=300, compression="lzw")
-gg.lifestyles.grid
+     height=8, width=13, unit="in", res=300, compression="lzw")
+plot_grid(gg.lifestyles.grid, gg.secretome.orthogroups, gg.secretome.effectors,
+          nrow=1, rel_widths=c(5, 1, 1), align="h", axis="bt")
 dev.off()
 
 
 legend.tmp <- data.frame(col.df, x=1:8)
 
-tiff(file=paste0("lifestyle-legend-", Sys.Date(), ".tiff"),
-     height=3, width=5, unit="in", res=300, compression="lzw")
-ggplot(legend.tmp, aes(x=x, y=1, colour=lifestyle)) +
+#tiff(file=paste0("lifestyle-legend-", Sys.Date(), ".tiff"),
+#     height=3, width=5, unit="in", res=300, compression="lzw")
+gg.legend <- ggplot(legend.tmp, aes(x=x, y=1, colour=lifestyle)) +
   geom_point(size=5) +
   scale_colour_manual(values=col.df$colour[match(levels(col.df$lifestyle), col.df$lifestyle)],
                       breaks=levels(col.df$lifestyle),
@@ -452,11 +600,13 @@ ggplot(legend.tmp, aes(x=x, y=1, colour=lifestyle)) +
                                          title.position="top",
                                          ncol=2,
                                          title.hjust=0)) +
-  
   theme_minimal() +
   theme(legend.title=element_text(face="bold", size=14),
         legend.text=element_text(size=14))
-dev.off()
+#dev.off()
+
+legend.grob <- get_legend(gg.legend)
+
 
 
 
@@ -467,76 +617,81 @@ for (i in c("effectors", "orthogroups")){
   
   print(i)
   #Read in test results
-  pca.result <- read.csv(paste0("lifestyle_test/", i, "/metadata.csv"))
-  lifestyle.data <- read.csv(paste0("lifestyle_test/", i, "/data.csv"), row.names='genome')
+  phy.pca.result <- read.csv(paste0("lifestyle_test/", i, "/metadata.csv"))
+  lifestyle.data <- read.csv(paste0("lifestyle_test/", i, "/data.csv"), row.names="genome")
   #Make distance matrix
-  dist <- vegdist(lifestyle.data, method='jaccard')
+  dist <- vegdist(lifestyle.data, method="jaccard")
   #Do permanova
-  permanova <- adonis2(formula=dist ~ PC1 + PC2 + lifestyle, data=pca.result, permutations=9999)
+  permanova <- adonis2(formula=dist ~ PC1 + PC2 + lifestyle, data=phy.pca.result, permutations=9999)
   
   print(paste0("Phylogeny: ", round(sum(permanova$R2[1:2]) * 100), "%"))
   print(paste0("Lifestyle: ", round(sum(permanova$R2[3]) * 100), "%"))
   
+  pca.result <- read.csv(paste0("lifestyle_test/", i, "/pca.csv"))
+  pca.result$taxon <- metadata$name[match(pca.result$genome, metadata$tip)]
+  
+  gg.pca <- ggplot(pca.result, aes(x=PC1, y=PC2, colour=lifestyle)) +
+    geom_point() +
+    geom_text_repel(aes(label=sub("Fusarium", "F.", taxon)), size=2, max.overlaps=20) +
+    scale_colour_manual(values=col.df$colour[match(sort(unique(metadata$lifestyle)), col.df$lifestyle)],
+                        labels=sort(unique(metadata$lifestyle)),
+                        guide=FALSE) +
+    theme_void() +
+    theme(panel.border=element_rect(colour="black", size=2, fill=NA))
+  
   assign(paste0("permanova.", i), permanova)
+  assign(paste0("gg.pca.", i), gg.pca)
+  
 }
 
 
-adonis2(formula=vegdist(dist, method='jaccard'), ~ ingroup1 + ingroup2, data=orthogroups.copies.ingroup2, permutations=9999)
+pw.lifestyle.test <- rbind(data.frame(melt(as.matrix(read.csv("lifestyle_test/effectors/pairwiseComparisons.csv",
+                                                              row.names=1)), na.rm=TRUE), data="CSEPs"),
+                           data.frame(melt(as.matrix(read.csv("lifestyle_test/orthogroups/pairwiseComparisons.csv",
+                                                              row.names=1)), na.rm=TRUE), data="Orthogroups"))
 
-transposed <- as.data.frame(t(as.matrix(orthogroups.copies.ingroup2)))
+pw.lifestyle.test$value <- round(pw.lifestyle.test$value, digits=3)
+pw.lifestyle.test$Var2 <- sub("p.value.", "", pw.lifestyle.test$Var2)
 
-anova(betadisper(vegdist(transposed, method="bray"), metadata$ingroup[match(rownames(transposed), metadata$file2)]))
-anosim(transposed, metadata$ingroup[match(rownames(transposed), metadata$file2)], distance="bray", permutations=999)
-
-#Function to perform NMDS for 1-10 dimensions to pick optimal number of dimensions
-NMDS.scree <- function(x) {
-  plot(rep(1, 10), replicate(10, metaMDS(x, autotransform=F, k=1)$stress), xlim=c(1, 10),ylim=c(0, 0.30), xlab="# of Dimensions", ylab="Stress")
-  for (i in 1:10) {
-    points(rep(i + 1,10),replicate(10, metaMDS(x, autotransform=F, k=i + 1)$stress))
-  }
-}
-
-transposed <- transposed[,which(colSums(transposed) > 1)]
-#NMDS.scree(transposed)
-NMDS <- metaMDS(transposed, k=4, trymax=1000, trace=F)
-#Plot stressplot
-stressplot(NMDS)
-
-metadata.nmds <- as.data.frame(scores(NMDS))
-metadata.nmds$taxon <- metadata$name[match(rownames(metadata.nmds), metadata$file2)]
-#Add Musa species
-metadata.nmds$group <- metadata$ingroup[match(metadata.nmds$taxon, metadata$name)]
-
-ggplot() +
-  stat_ellipse(data=metadata.nmds,
-               aes(x=NMDS1, y=NMDS2, fill=group, colour=group),
-               alpha=0.15,
-               lty="dotted",
-               geom="polygon",
-               type='t',
-               size=0.4,
-               show.legend=FALSE) +
-  geom_point(data=metadata.nmds,
-             aes(x=NMDS1, y=NMDS2, colour=group),
-             size=2) +
-  geom_label_repel(data=metadata.nmds,
-                   aes(x=NMDS1, y=NMDS2, label=taxon, colour=group)) +
-  xlab("NMDS1") +
-  ylab("NMDS2") +
-  theme_bw() +
-  theme(legend.text.align=0,
-        axis.text=element_blank(),
-        axis.ticks=element_blank(),
-        aspect.ratio=1,
+#Plot grid
+gg.pwperm <- ggplot(pw.lifestyle.test, aes(Var2, Var1, fill=value>0.05)) +
+  facet_grid(. ~ data, switch="x") +
+  geom_tile(color="grey", size=2, show.legend=FALSE) +
+  geom_text(aes(label=value), size=3) +
+  scale_fill_manual(values=c("white", "darkgrey")) +
+  scale_x_discrete(position="top") + 
+  theme_minimal() + 
+  theme(axis.text.x=element_text(colour=c("#009E73","#56B4E9", "#D55E00", "#9AE324", "dimgrey"), size=4),
+        axis.text.y=element_text(colour=c("#56B4E9", "#D55E00", "#9AE324", "dimgrey", "#0072B2"),
+                                 angle=90, hjust=0.5, size=4),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        strip.text=element_text(face="bold", size=9),
         panel.grid=element_blank(),
-        legend.position="top",
-        legend.box="vertical",
-        plot.margin=margin(0, 5, 0, 5),
-        legend.margin=margin(0, 0, 0, 0),
-        legend.text=element_text(size=8),
-        legend.title=element_text(size=9),
-        plot.title.position="plot") +
+        plot.margin=unit(c(0, 10, 0, 10), "pt")) +
   coord_fixed()
+
+pw.lifestyle.test$Var1 <- as.character(pw.lifestyle.test$Var1)
+
+pw.lifestyle.test$value[pw.lifestyle.test$value <= 0.05] <- 0
+
+network.CSEP <- network(pw.lifestyle.test[pw.lifestyle.test$data == "CSEPs",], matrix.type="edgelist")
+
+network.CSEP %v% "lifestyle" = network.vertex.names(network.CSEP)
+
+cols <- col.df$colour[match(sort(unique(metadata$lifestyle)), col.df$lifestyle)]
+names(cols) <- sub(" ", "", sort(unique(metadata$lifestyle)))
+
+ggnet2(network.CSEP,
+       color="lifestyle",
+       palette=cols,
+       label=TRUE)
+
+tiff(file=paste0("pvalue-grid-", Sys.Date(), ".tiff"),
+     width=6, height=3, units="in", res=300, compression="lzw")
+gg.pwperm
+dev.off()
+
 
 
 ##UPSET PLOT
@@ -792,36 +947,6 @@ cowplot::plot_grid(
 dev.off()
 
 
-pw.lifestyle.test <- rbind(data.frame(melt(as.matrix(read.csv("lifestyle_test/effectors/pairwiseComparisons.csv",
-                                                              row.names=1)), na.rm=TRUE), data="CSEPs"),
-                           data.frame(melt(as.matrix(read.csv("lifestyle_test/orthogroups/pairwiseComparisons.csv",
-                                                              row.names=1)), na.rm=TRUE), data="Orthogroups"))
-
-pw.lifestyle.test$value <- round(pw.lifestyle.test$value, digits=3)
-pw.lifestyle.test$Var2 <- sub("p.value.", "", pw.lifestyle.test$Var2)
-
-#Plot grid
-gg.pwperm <- ggplot(pw.lifestyle.test, aes(Var2, Var1, fill=value>0.05)) +
-  facet_grid(. ~ data, switch="x") +
-  geom_tile(color="grey", size=2, show.legend=FALSE) +
-  geom_text(aes(label=value), size=3) +
-  scale_fill_manual(values=c("white", "darkgrey")) +
-  scale_x_discrete(position="top") + 
-  theme_minimal() + 
-  theme(axis.text.x=element_text(colour=c("#009E73","#56B4E9", "#D55E00", "#9AE324", "dimgrey"), size=4),
-        axis.text.y=element_text(colour=c("#56B4E9", "#D55E00", "#9AE324", "dimgrey", "#0072B2"),
-                                 angle=90, hjust=0.5, size=4),
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank(),
-        strip.text=element_text(face="bold", size=9),
-        panel.grid=element_blank(),
-        plot.margin=unit(c(0, 10, 0, 10), "pt")) +
-  coord_fixed()
-
-tiff(file=paste0("pvalue-grid-", Sys.Date(), ".tiff"),
-     width=6, height=3, units="in", res=300, compression="lzw")
-gg.pwperm
-dev.off()
 
 tiff(file=paste0("upset-plot-effectors1-", Sys.Date(), ".tiff"),
      width=15, height=10, units="in", res=300, compression="lzw")
@@ -863,6 +988,7 @@ egg::ggarrange(
 )
 
 dev.off()
+
 
 
 ##SPECIES SPECIFIC PLOT
@@ -1082,16 +1208,9 @@ absrel.df$orthos[match(names(absrel.p.names[grep(core.SC.mixed[which(core.SC.mix
 #absrel.df$orthos[absrel.df$orthos == ""] <- NA
 #absrel.df$orthos <- gsub('(?=(?:.{10})+$)', "\n", absrel.df$orthos, perl = TRUE)
 
-species.tree <- root(iqtree, "Ilysp1_GeneCatalog_proteins_20121116", resolve.root=TRUE, edgelabel=TRUE)
-species.tree$tip.label <- metadata$name[match(species.tree$tip.label, metadata$tip)]
-
-length(which(as.numeric(species.tree$node.label) > 95)) / length(na.omit(as.numeric(species.tree$node.label)))
-
 gg.selection <- ggtree(species.tree, branch.length="none") %<+% metadata
 
 #Create vector with the order of the tree tips for plotting
-gg.tree.data.iq <- gg.selection[["data"]] %>%
-  arrange(y)
 tip.order.speciestree <- rev(gg.tree.data.iq$label[gg.tree.data.iq$isTip == "TRUE"])
 #Create vector of fontface for new genomes in this study
 label.face.speciestree <- rev(metadata$new[match(tip.order.speciestree, metadata$name)])
