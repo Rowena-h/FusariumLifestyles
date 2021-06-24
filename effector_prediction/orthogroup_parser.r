@@ -74,17 +74,22 @@ print(paste0("Counting number of effectors in each orthogroup: ", i, "/", length
 #Read in sample metadata
 metadata <- read.csv("../metadata.csv")
 
-for (ingroup in c(1, 2)) {
+for (ingroup in c(0, 1, 2)) {
   
   if (ingroup == 1) {
     
     orthogroups.copies.ingroup <- orthogroups.copies[which(!is.na(match(colnames(orthogroups.copies), metadata$file2[metadata$ingroup == ingroup])))]
     effector.count.ingroup <- effector.count[which(!is.na(match(colnames(effector.count), metadata$file2[metadata$ingroup == ingroup])))]
     
-  } else {
+  } else if (ingroup == 2) {
     
     orthogroups.copies.ingroup <- orthogroups.copies[which(!is.na(match(colnames(orthogroups.copies), metadata$file2[metadata$ingroup != "outgroup"])))]
     effector.count.ingroup <- effector.count[which(!is.na(match(colnames(effector.count), metadata$file2[metadata$ingroup != "outgroup"])))]
+    
+  } else {
+    
+    orthogroups.copies.ingroup <- orthogroups.copies
+    effector.count.ingroup <- effector.count
     
   }
 
@@ -164,9 +169,9 @@ for (ingroup in c(1, 2)) {
 #Lists of orthogroups for selection analyses
 #Core, single-copy effectors (for aBSREL and MEME)
 core.SC.effectors <- Reduce(intersect,
-                            list(orthogroups.stats.ingroup1$orthogroup[which(orthogroups.stats.ingroup1$copy_number == "single")],
-                                 orthogroups.stats.ingroup1$orthogroup[which(orthogroups.stats.ingroup1$secretome == "core")],
-                                 orthogroups.stats.ingroup1$orthogroup[which(orthogroups.stats.ingroup1$effector == "effector")]))
+                            list(orthogroups.stats.ingroup0$orthogroup[which(orthogroups.stats.ingroup0$copy_number == "single")],
+                                 orthogroups.stats.ingroup0$orthogroup[which(orthogroups.stats.ingroup0$secretome == "core")],
+                                 orthogroups.stats.ingroup0$orthogroup[which(orthogroups.stats.ingroup0$effector == "effector")]))
 #Core and accessory (in >=3 taxa), single-copy orthogroups (for BUSTED)
 accessory.core.SC <- Reduce(intersect, list(names(which(rowSums(orthogroups.copies > 0) >= 3)),
                                             orthogroups.stats.ingroup1$orthogroup[which(orthogroups.stats.ingroup1$copy_number == "single")]))
@@ -174,7 +179,7 @@ accessory.core.SC <- Reduce(intersect, list(names(which(rowSums(orthogroups.copi
 write.table(accessory.core.SC,
             file="../selection/orthogroups_busted.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
 write.table(core.SC.effectors,
-            file="../selection/orthogroups_absrel_meme.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
+            file="../selection/orthogroups_meme.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
 
 
 print("Orthogroups for selection analyses saved in selection directory")
