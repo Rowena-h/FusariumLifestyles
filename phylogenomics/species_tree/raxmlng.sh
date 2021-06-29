@@ -19,6 +19,20 @@ done
 module load anaconda3
 conda activate raxml-ng
 
-raxml-ng --parse --msa fus_proteins_62T_concat.phy --model fus_proteins_62T_raxmlpartition.txt --prefix raxml-ng/fus_proteins_62T
+raxml-ng --parse \
+	 --msa fus_proteins_62T_concat.phy \
+	 --model fus_proteins_62T_raxmlpartition.txt \
+	 --prefix raxml-ng/fus_proteins_62T
 
-raxml-ng --all --msa fus_proteins_62T_concat.phy --model fus_proteins_62T_raxmlpartition.txt --prefix raxml-ng/fus_proteins_62T --seed 2 --threads ${NSLOTS} --bs-trees 100
+raxml-ng --all \
+	 --msa fus_proteins_62T_concat.phy \
+	 --model fus_proteins_62T_raxmlpartition.txt \
+	 --prefix raxml-ng/fus_proteins_62T \
+	 --seed 2 \
+	 --threads ${NSLOTS} \
+	 --bs-trees 100
+
+raxml-ng --bsconverge \
+	 --bs-trees raxml-ng/fus_proteins_62T.raxml.bootstraps \
+	 --prefix raxml-ng/fus_proteins_62T_convergence_test \
+	 --seed 2

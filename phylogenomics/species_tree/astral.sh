@@ -5,9 +5,9 @@
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -j y
 
-TREES=$(ls ../gene_trees/RAxML/RAxML_bestTree.* | wc -l)
+TREES=$(ls ../gene_trees/RAxML-NG/*bestTree | wc -l)
 
-cat ../gene_trees/RAxML/RAxML_bestTree.* > astral/${TREES}_fusortho_raxml_trees.tre
+cat ../gene_trees/RAxML-NG/*bestTree > astral/${TREES}_fusortho_raxmlng_trees.tre
 
-java -jar /data/home/btx494/Programmes/Astral/astral.5.7.3.jar 	-i astral/${TREES}_fusortho_raxml_trees.tre \
+java -jar /data/home/btx494/Programmes/Astral/astral.5.7.3.jar 	-i astral/${TREES}_fusortho_raxmlng_trees.tre \
 								-o astral/fus_astral_proteins_62T.tre

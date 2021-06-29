@@ -9,4 +9,9 @@
 module load anaconda3
 conda activate IQ-Tree
 
-iqtree -s fus_proteins_62T_concat.phy -spp fus_proteins_62T_iqtreepartition.txt -bb 1000 -nt ${NSLOTS} -pre iqtree/fus_proteins_62T_iqtree_genepart -m MFP
+iqtree 	-s fus_proteins_62T_concat.phy \
+	-spp fus_proteins_62T_iqtreepartition.txt \
+	-bb 1000 \
+	-nt ${NSLOTS} \
+	-pre iqtree/fus_proteins_62T_iqtree_genepart \
+	-m MFP
