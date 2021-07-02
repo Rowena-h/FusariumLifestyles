@@ -167,18 +167,16 @@ for (ingroup in c(0, 1, 2)) {
 }
 
 #Lists of orthogroups for selection analyses
-#Core, single-copy effectors (for aBSREL and MEME)
-core.SC.effectors <- Reduce(intersect,
-                            list(orthogroups.stats.ingroup0$orthogroup[which(orthogroups.stats.ingroup0$copy_number == "single")],
-                                 orthogroups.stats.ingroup0$orthogroup[which(orthogroups.stats.ingroup0$secretome == "core")],
-                                 orthogroups.stats.ingroup0$orthogroup[which(orthogroups.stats.ingroup0$effector == "effector")]))
-#Core and accessory (in >=3 taxa), single-copy orthogroups (for BUSTED)
-accessory.core.SC <- Reduce(intersect, list(names(which(rowSums(orthogroups.copies > 0) >= 3)),
-                                            orthogroups.stats.ingroup1$orthogroup[which(orthogroups.stats.ingroup1$copy_number == "single")]))
+#Core, single-copy effectors (for MEME)
+core.SC.mixed <- Reduce(intersect,
+                        list(orthogroups.stats.ingroup0$orthogroup[which(
+                          orthogroups.stats.ingroup0$copy_number == "single")],
+                          orthogroups.stats.ingroup0$orthogroup[which(
+                            orthogroups.stats.ingroup0$secretome == "core")],
+                          orthogroups.stats.ingroup0$orthogroup[which(
+                            orthogroups.stats.ingroup0$effector != "")]))
 
-write.table(accessory.core.SC,
-            file="../selection/orthogroups_busted.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
-write.table(core.SC.effectors,
+write.table(core.SC.mixed,
             file="../selection/orthogroups_meme.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
 
 

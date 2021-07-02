@@ -5,9 +5,9 @@
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -j y
 
-ORTHO=$(cat ../effector_meme.csv | sed -n ${SGE_TASK_ID}p)
+ORTHO=$(cat effector_meme.csv | sed -n ${SGE_TASK_ID}p)
 
 module load anaconda3
 conda activate hyphy-2.5.30
 
-hyphy meme --alignment ../alignments/codon/${ORTHO}_aln_nuc.fa --tree ../trees/RAxML_bipartitions.${ORTHO}_rooted --output meme/${ORTHO}_MEME.json --branches FOREGROUND
+hyphy meme --alignment ../divergence_time_estimation/alignments/codon/${ORTHO}_aln_nuc.fa --tree trees/RAxML_bipartitions.${ORTHO}_rooted --output hyphy/meme/${ORTHO}_MEME.json --branches FOREGROUND

@@ -6,7 +6,14 @@
 #$ -j y
 
 module load R
-Rscript ../reroot.r ../../phylogenomics/species_tree/iqtree/gene_partitions/fus_proteins_62T_iqtree_genepart.contree "Ilysp1_GeneCatalog_proteins_20121116" ../
+
+#Reroot gene trees for SortaDate
+#for ORTHO in $(cat ../../phylogenomics/aln_list | sed 's/\.fa//')
+#do
+#	Rscript ../reroot.r ../../phylogenomics/gene_trees/RAxML-NG/${ORTHO}.raxml.bestTree "Ilysp1_GeneCatalog_proteins_20121116" ../trees/
+#done
+
+#Rscript ../reroot.r ../../phylogenomics/species_tree/iqtree/fus_proteins_62T_iqtree_genepart.contree "Ilysp1_GeneCatalog_proteins_20121116" ../
 
 module load anaconda3
 conda activate phyx
