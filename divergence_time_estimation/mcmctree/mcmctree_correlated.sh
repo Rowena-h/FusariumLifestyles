@@ -7,7 +7,7 @@
 #$ -j y
 
 mkdir run${SGE_TASK_ID}_correlated
-cp {in.BV,fus_proteins_62T_iqtree_genepart.treefile_rooted_blank,fus_proteins_dating10_mcmctree_short.phy,mcmctree_step2_correlated.ctl} run${SGE_TASK_ID}_correlated
+cp {in.BV,fus_proteins_62T_iqtree_genepart.treefile_dating,fus_proteins_dating10_mcmctree_short.phy,mcmctree_step2_correlated.ctl} run${SGE_TASK_ID}_correlated
 
 cd run${SGE_TASK_ID}_correlated
 sed -i "s/mcmcfile = mcmc.txt/mcmcfile = mcmc_run${SGE_TASK_ID}_correlated.txt/" mcmctree_step2_correlated.ctl

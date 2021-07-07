@@ -24,4 +24,4 @@ python get_bp_genetrees.py ../trees/ ../fus_proteins_62T_iqtree_genepart.contree
 
 python combine_results.py var bp --outf comb
 
-python get_good_genes.py comb --max 10 --outf dating_orthogroups_nucl
+python get_good_genes.py comb --max 10 --outf dating_orthogroups
