@@ -5,9 +5,7 @@
 #$ -l h_vmem=1G         # Request 1GB RAM
 #$ -j y
 
-ORTHOS=$(cat ../SortaDate/dating_orthogroups | sed 's/^.*OG000/OG000/' | sed 's/_rooted.*//' | sed 's#^#\.\./\.\./gene_trees/#' | sed 's/$/_aln_edit_trimmed\.phy/')
-
-mkdir clock_testing
+ORTHOS=$(tail -n +2 ../sortadate/dating_orthogroups | sed 's/^.*OG000/OG000/' | sed 's/\.raxml\.bestTree_rooted.*//' | sed 's#^#\.\./\.\./phylogenomics/gene_trees/#' | sed 's/$/_aln_edit_trimmed\.phy/')
 
 module load anaconda3
 conda activate AMAS
@@ -19,7 +17,7 @@ sed -e 's/^\(.\{13\}\).*\( .*\)$/\1 \2/' fus_proteins_dating10_mcmctree.phy > fu
 
 module load R
 
-Rscript ../../../selection/reroot.r ../../species_tree/iqtree/gene_partitions/fus_proteins_62T_iqtree_genepart.treefile Ilysp1_GeneCatalog_proteins_20121116 ./
+Rscript ../reroot.r ../../phylogenomics/species_tree/iqtree/fus_proteins_62T_iqtree_genepart.treefile Ilysp1_GeneCatalog_proteins_20121116 ./
 Rscript blank_topology.r fus_proteins_62T_iqtree_genepart.treefile_rooted ./
 
 sed -i '1s/^/62 1\n/' fus_proteins_62T_iqtree_genepart.treefile_rooted_blank
@@ -43,8 +41,3 @@ do
 done	
 
 mv rst2 in.BV
-
-#module load anaconda3
-#source activate AMAS
-
-#AMAS.py concat -f phylip -d aa -i ${ORTHOS} -p fus_proteins_dating10_partition.txt -t fus_proteins_dating10.phy -u phylip

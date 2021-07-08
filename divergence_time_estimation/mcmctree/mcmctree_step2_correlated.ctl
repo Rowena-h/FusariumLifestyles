@@ -1,6 +1,6 @@
           seed = -1
        seqfile = fus_proteins_dating10_mcmctree_short.phy
-      treefile = fus_proteins_62T_iqtree_genepart.treefile_rooted_blank
+      treefile = fus_proteins_62T_iqtree_genepart.treefile_dating
       mcmcfile = mcmc.txt
        outfile = mcmctree_step2_out.txt
          ndata = 1

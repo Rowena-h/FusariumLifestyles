@@ -5,8 +5,8 @@
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -j y
 
-ORTHO=$(cat ../phylogenomics/aln_list | sed 's/\.fa//' | sed -n ${SGE_TASK_ID}p)
-#ORTHO=$(cat hyphy/torepeat2 | sed -n ${SGE_TASK_ID}p)
+#ORTHO=$(cat ../phylogenomics/aln_list | sed 's/\.fa//' | sed -n ${SGE_TASK_ID}p)
+ORTHO=$(cat hyphy/torepeat2 | sed -n ${SGE_TASK_ID}p)
 
 module load anaconda3
 conda activate hyphy-2.5.30

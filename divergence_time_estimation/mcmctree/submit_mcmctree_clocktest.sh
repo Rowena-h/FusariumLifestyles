@@ -5,7 +5,7 @@
 #$ -l h_vmem=1G         # Request 1GB RAM
 #$ -j y
 
-ORTHOS=$(cat ../sortadate/dating_orthogroups_nucl | sed 's/^.*OG000/OG000/' | sed 's/_rooted.*//' | sed 's#^#\.\./alignments/codon/#' | sed 's/$/_aln_nuc\.fa/') 
+ORTHOS=$(cat ../sortadate/dating_orthogroups | sed 's/^.*OG000/OG000/' | sed 's/_rooted.*//' | sed 's#^#\.\./alignments/codon/#' | sed 's/$/_aln_nuc\.fa/') 
 
 mkdir clock_testing clock_testing/independent clock_testing/correlated
 
