@@ -7,13 +7,13 @@ library(ape)
 metadata <- read.csv("../metadata.csv")
 
 #List of SC core gene trees
-trees <- list.files("../divergence_time_estimation/trees/", pattern=".bestTree_rooted$")
+trees <- list.files("trees/", pattern=".bestTree_rooted$")
 
 #For each tree...
 for (i in trees) {
   
   #Read in tree
-  tree <- read.tree(paste0("../divergence_time_estimation/trees/", i))
+  tree <- read.tree(paste0("trees/", i))
   
   #For each lifestyle...
   for (j in unique(metadata$lifestyle)) {

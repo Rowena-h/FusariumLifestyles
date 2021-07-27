@@ -5,15 +5,17 @@
 #$ -l h_vmem=1G         # Request 1GB RAM
 #$ -j y
 
+mkdir ../trees
+
 module load R
 
 #Reroot gene trees for SortaDate
-#for ORTHO in $(cat ../../phylogenomics/aln_list | sed 's/\.fa//')
-#do
-#	Rscript ../reroot.r ../../phylogenomics/gene_trees/RAxML-NG/${ORTHO}.raxml.bestTree "Ilysp1_GeneCatalog_proteins_20121116" ../trees/
-#done
+for ORTHO in $(cat ../../phylogenomics/aln_list | sed 's/\.fa//')
+do
+	Rscript ../reroot.r ../../phylogenomics/gene_trees/RAxML-NG/${ORTHO}.raxml.bestTree "Ilysp1_GeneCatalog_proteins_20121116" ../trees/
+done
 
-#Rscript ../reroot.r ../../phylogenomics/species_tree/iqtree/fus_proteins_62T_iqtree_genepart.contree "Ilysp1_GeneCatalog_proteins_20121116" ../
+Rscript ../reroot.r ../../phylogenomics/species_tree/iqtree/fus_proteins_62T_iqtree_genepart.contree "Ilysp1_GeneCatalog_proteins_20121116" ../
 
 module load anaconda3
 conda activate phyx

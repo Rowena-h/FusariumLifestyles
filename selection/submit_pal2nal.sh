@@ -18,11 +18,6 @@ sed -i 's/ .*//' own_fus_transcripts.fa
 
 cat own_fus_transcripts.fa Ilysp1_GeneCatalog_transcripts_20121116.nt.fasta | sed 's/.*|/\>Ilysp1_GeneCatalog_proteins_20121116.faa_/' > tmp && mv tmp own_fus_transcripts.fa
 
-mkdir alignments
-mkdir alignments/codon
-mkdir trees
-#mkdir alignments/for_paml
-
-#dos2unix orthogroups_selection.csv
+mkdir alignments alignments/codon trees
 
 qsub -t 1-${NUM_ORTHO} pal2nal.sh

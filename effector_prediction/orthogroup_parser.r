@@ -3,7 +3,7 @@
 
 library(dplyr)
 
-args=commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly=TRUE)
 
 #Test if there is one argument: if not, return an error
 if (length(args) != 1) {
@@ -160,27 +160,7 @@ for (ingroup in c(0, 1, 2)) {
   assign(paste0("orthogroups.copies.ingroup", ingroup), orthogroups.copies.ingroup)
   assign(paste0("effector.count.ingroup", ingroup), effector.count.ingroup)
   
-  #print(paste0("Summary of orthogroups saved in orthogroups_stats-", Sys.Date(), ".csv"))
-  #write.csv(orthogroups.stats,
-  #          file=paste0("orthogroups_stats-", Sys.Date(), ".csv"), row.names=FALSE, quote=FALSE)
-  
 }
 
-#Lists of orthogroups for selection analyses
-#Core, single-copy effectors (for MEME)
-core.SC.mixed <- Reduce(intersect,
-                        list(orthogroups.stats.ingroup0$orthogroup[which(
-                          orthogroups.stats.ingroup0$copy_number == "single")],
-                          orthogroups.stats.ingroup0$orthogroup[which(
-                            orthogroups.stats.ingroup0$secretome == "core")],
-                          orthogroups.stats.ingroup0$orthogroup[which(
-                            orthogroups.stats.ingroup0$effector != "")]))
-
-write.table(core.SC.mixed,
-            file="../selection/orthogroups_meme.csv", col.names=FALSE, row.names=FALSE, quote=FALSE)
-
-
-print("Orthogroups for selection analyses saved in selection directory")
-
-print(paste0("Workspace saved in effector-matrices-", Sys.Date(), ".RData"))
+print(paste0("Results saved in effector-matrices-", Sys.Date(), ".RData"))
 save.image(file=paste0("effector-matrices-", Sys.Date(), ".RData"))
