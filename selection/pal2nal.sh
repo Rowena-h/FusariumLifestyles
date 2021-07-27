@@ -35,5 +35,5 @@ fi
 
 module load R
 
-#Reroot gene trees for SortaDate
+#Reroot gene trees
 Rscript reroot.r ../phylogenomics/gene_trees/RAxML-NG/${ORTHO}.raxml.bestTree "Ilysp1_GeneCatalog_proteins_20121116" trees/

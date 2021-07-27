@@ -552,12 +552,20 @@ secretome.df <- data.frame(taxon=rep(colnames(orthogroups.copies), each=3),
                            orthogroups=NA,
                            effectors=NA)
 
+effector.orthogroups.tmp <- orthogroups.copies[match(rownames(effector.count)[which(rowSums(effector.count) > 0)],
+                                  rownames(orthogroups.copies)),]
+
 for (i in unique(secretome.df$taxon)) {
   for (j in unique(secretome.df$secretome)) {
     
-    secretome.df$orthogroups[intersect(which(secretome.df$taxon == i), which(secretome.df$secretome == j))] <- table(orthogroups.stats$secretome[match(rownames(orthogroups.copies[orthogroups.copies[, i] > 0,]), orthogroups.stats$orthogroup)])[j]
+    secretome.df$orthogroups[intersect(which(secretome.df$taxon == i), which(secretome.df$secretome == j))] <-
+      table(orthogroups.stats$secretome[match(rownames(orthogroups.copies[orthogroups.copies[, i] > 0,]),
+                                              orthogroups.stats$orthogroup)])[j]
     
-    secretome.df$effectors[intersect(which(secretome.df$taxon == i), which(secretome.df$secretome == j))] <- table(orthogroups.stats$secretome[match(rownames(effector.count[effector.count[, i] > 0,]), orthogroups.stats$orthogroup)])[j]
+
+    secretome.df$effectors[intersect(which(secretome.df$taxon == i), which(secretome.df$secretome == j))] <-
+      table(orthogroups.stats$secretome[match(rownames(effector.orthogroups.tmp[effector.orthogroups.tmp[, i] > 0,]),
+                                              orthogroups.stats$orthogroup)])[j]
     
   }
 }
@@ -573,7 +581,7 @@ secretome.df$y <- as.numeric(factor(secretome.df$taxon))
 
 gg.secretome.orthogroups <- ggplot(secretome.df, aes(y=taxon, x=orthogroups, fill=secretome)) +
   geom_bar(stat="identity", size=0.5, width=0.6) +
-  labs(x="All orthogroups") +
+  labs(x="All genes") +
   scale_y_discrete(limits=rev(tip.order.datedtree),
                    expand=expansion(0, 0)) +
   coord_cartesian(clip="off",
@@ -595,7 +603,7 @@ gg.secretome.orthogroups <- ggplot(secretome.df, aes(y=taxon, x=orthogroups, fil
         panel.grid.minor.x=element_line(colour="white"),
         panel.grid.major.y=element_blank(),
         legend.position=c(0, 0),
-        legend.text=element_text(size=5),
+        legend.text=element_text(size=5, margin=margin(0, 4, 0, 0)),
         legend.key.size=unit(0.2, "cm"),
         legend.spacing.x=unit(0.1, "cm"),
         legend.title=element_blank())
@@ -691,7 +699,7 @@ gg.lifestyles.grid <- gheatmap(gg.maintree,
 
 orthogroups.count.specific <- orthogroups.copies.ingroup2[which(orthogroups.stats.ingroup2$secretome == "specific"),]
 
-effector.count.specific <- effector.count.ingroup2[!is.na(match(rownames(effector.count.ingroup2), orthogroups.stats.ingroup2$orthogroup[orthogroups.stats.ingroup2$secretome == "specific"])),]
+effector.count.specific <- effector.orthogroups.tmp[!is.na(match(rownames(effector.orthogroups.tmp), orthogroups.stats.ingroup2$orthogroup[orthogroups.stats.ingroup2$secretome == "specific"])),]
 
 specific.df <- data.frame(species=colnames(effector.count.specific),
                           CSEPs=NA,
@@ -710,17 +718,17 @@ specific.df$lifestyle <- sub("-", " ", specific.df$lifestyle)
 tukey.effectors <- TukeyHSD(aov(lm(CSEPs ~ lifestyle, data=specific.df)))
 tukey.orthogroups <- TukeyHSD(aov(lm(Orthogroups ~ lifestyle, data=specific.df)))
 #Make dataframe for ggplot with tukey groups
-labels.df <- rbind(data.frame(tukey=multcompLetters(tukey.effectors[["lifestyle"]][,4])$Letters,
-                              variable="CSEPs",
-                              lifestyle=names(multcompLetters(tukey.effectors[["lifestyle"]][,4])$Letters)),
-                   data.frame(tukey=multcompLetters(tukey.orthogroups[["lifestyle"]][,4])$Letters,
-                              variable="Orthogroups",
-                              lifestyle=names(multcompLetters(tukey.orthogroups[["lifestyle"]][,4])$Letters)))
+boxlabels.df <- rbind(data.frame(tukey=multcompLetters(tukey.effectors[["lifestyle"]][,4])$Letters,
+                                 variable="CSEPs",
+                                 lifestyle=names(multcompLetters(tukey.effectors[["lifestyle"]][,4])$Letters)),
+                      data.frame(tukey=multcompLetters(tukey.orthogroups[["lifestyle"]][,4])$Letters,
+                                 variable="Orthogroups",
+                                 lifestyle=names(multcompLetters(tukey.orthogroups[["lifestyle"]][,4])$Letters)))
 
 #Add sample sizes for lifestyles
-labels.df$num <- NA
-for (i in unique(metadata$lifestyle)) {
-  labels.df$num[labels.df$lifestyle == i] <- table(metadata$lifestyle[metadata$speciescomplex != "outgroup"])
+boxlabels.df$num <- NA
+for (i in na.omit(unique(metadata$lifestyle))) {
+  boxlabels.df$num[boxlabels.df$lifestyle == i] <- paste0("n=", table(metadata$lifestyle[metadata$speciescomplex != "outgroup"])[names(table(metadata$lifestyle[metadata$speciescomplex != "outgroup"])) == i])
 }
 
 #Reformat dataframe
@@ -729,22 +737,29 @@ specific.df <- melt(specific.df)
 #Plot
 gg.boxplot <- ggplot(specific.df, aes(x=lifestyle, y=value, fill=lifestyle)) +
   facet_wrap(. ~ variable, scales="free",
-             labeller=labeller(variable=c(CSEPs="CSEPs", Orthogroups="All orthogroups"))) +
+             labeller=labeller(variable=c(CSEPs="CSEPs", Orthogroups="All genes"))) +
   geom_violin(fill="white", colour="grey", lty="dotted", size=0.3) +
   geom_boxplot(width=0.2, size=0.3, outlier.size=0.5) +
-  geom_text(data=labels.df,
+  geom_text(data=boxlabels.df,
             aes(x=lifestyle, y=Inf, label=tukey),
             family="mono",
             hjust=0.5,
             vjust=2,
             size=1,
             inherit.aes=FALSE) +
-  labs(y="Species specific orthogroups") +
+  geom_text(data=boxlabels.df,
+            aes(x=lifestyle, y=-Inf, label=num),
+            hjust=0.5,
+            vjust=2,
+            size=1.5,
+            inherit.aes=FALSE) +
+  labs(y="Strain specific genes") +
   scale_y_continuous(expand=expansion(mult=c(0, 0.2))) +
   scale_fill_manual(values=col.df$colour[match(sort(unique(specific.df$lifestyle)), col.df$lifestyle)],
                     labels=str_to_sentence(col.df$lifestyle[match(sort(unique(specific.df$lifestyle)),
                                                                   col.df$lifestyle)]),
                     name=NULL) +
+  coord_cartesian(clip="off") +
   guides(fill=guide_legend(direction="horizontal",
                            nrow=2)) +
   theme_minimal() +
@@ -759,8 +774,6 @@ gg.boxplot <- ggplot(specific.df, aes(x=lifestyle, y=value, fill=lifestyle)) +
         axis.text.y=element_text(size=4),
         strip.text=element_text(size=6, face="bold"),
         plot.margin=margin(10, 0, 0, 0, unit="pt"))
-
-
 
 
 
@@ -848,7 +861,7 @@ pw.lifestyle.test$Var2 <- sub(" ", "\n", pw.lifestyle.test$Var2)
 
 #Plot grid
 gg.pwperm <- ggplot(pw.lifestyle.test, aes(Var2, Var1, fill=value>0.05)) +
-  facet_grid(. ~ data, labeller=labeller(data=c(CSEPs="CSEPs", Orthogroups="All orthogroups"))) +
+  facet_grid(. ~ data, labeller=labeller(data=c(CSEPs="CSEPs", Orthogroups="All genes"))) +
   geom_tile(color="grey", size=1, alpha=0.5, show.legend=FALSE) +
   geom_text(aes(label=value, colour=value>0.05), size=1, show.legend=FALSE) +
   scale_fill_manual(values=c("#E69F00", "white")) +
@@ -867,6 +880,8 @@ gg.pwperm <- ggplot(pw.lifestyle.test, aes(Var2, Var1, fill=value>0.05)) +
         plot.margin=unit(c(0, 10, 0, 10), "pt")) +
   coord_fixed()
 
+
+####
 pw.lifestyle.test$Var1 <- as.character(pw.lifestyle.test$Var1)
 
 pw.lifestyle.test$value[pw.lifestyle.test$value <= 0.05] <- 0
@@ -883,10 +898,10 @@ ggnet2(network.CSEP,
        palette=cols,
        label=TRUE)
 
-tiff(file=paste0("pvalue-grid-", Sys.Date(), ".tiff"),
-     width=6, height=3, units="in", res=300, compression="lzw")
-gg.pwperm
-dev.off()
+#tiff(file=paste0("pvalue-grid-", Sys.Date(), ".tiff"),
+#     width=6, height=3, units="in", res=300, compression="lzw")
+#gg.pwperm
+#dev.off()
 
 
 tiff(file=paste0("Fig3-", Sys.Date(), ".tiff"),
@@ -909,6 +924,15 @@ core.SC.orthogroups <- Reduce(intersect,
                                 orthogroups.stats.ingroup0$copy_number == "single")],
                                 orthogroups.stats.ingroup0$orthogroup[which(
                                   orthogroups.stats.ingroup0$secretome == "core")]))
+
+#Core, single-copy CSEPs
+core.SC.mixed <- Reduce(intersect,
+                        list(orthogroups.stats.ingroup0$orthogroup[which(
+                          orthogroups.stats.ingroup0$copy_number == "single")],
+                          orthogroups.stats.ingroup0$orthogroup[which(
+                            orthogroups.stats.ingroup0$secretome == "core")],
+                          orthogroups.stats.ingroup0$orthogroup[which(
+                            orthogroups.stats.ingroup0$effector != "")]))
 
 #Make dataframe for selection test results
 selection.df <- data.frame(orthogroup=core.SC.orthogroups,
@@ -1007,10 +1031,8 @@ print(paste0(selection.mat.labels[["Total&BUSTED&aBSREL&CSEPs"]] + selection.mat
       "%"))
 
 selection.mat <- selection.mat.labels
-selection.mat[["Total&BUSTED&CSEPs"]] <- 9
-#selection.mat[["Total&aBSREL&CSEPs"]] <- 8
-#selection.mat.labels[["Total&BUSTED&aBSREL&CSEPs"]] <- 11
-selection.mat[["Total&CSEPs"]] <- 11
+selection.mat[["Total&BUSTED&CSEPs"]] <-selection.mat[["Total&aBSREL&CSEPs"]]
+selection.mat[["Total&CSEPs"]] <- selection.mat[["Total&BUSTED&aBSREL&CSEPs"]]
 
 #Create and plot euler diagram
 set.seed(1)
@@ -1018,9 +1040,9 @@ selection.euler <- euler(selection.mat, shape="ellipse")
 eulerr_options(padding=unit(0.5, "pt"))
 euler <- plot(selection.euler,
               fills=list(fill=c("white", "dimgrey", "dimgrey", "white", rep("", 6),
-                                "#E69F00", "grey", "grey", rep("", 1), "#E69F00"),
+                                "#56B4E9", "grey", "grey", rep("", 1), "#56B4E9"),
                          alpha=0.3),
-              labels=list(labels=c("Orthogroups",
+              labels=list(labels=c("Genes",
                                    "BUSTED",
                                    "aBSREL",
                                    "CSEPs"),
@@ -1033,7 +1055,7 @@ euler <- plot(selection.euler,
                                        selection.mat.labels[["Total&BUSTED"]],
                                        selection.mat.labels[["Total&aBSREL"]],
                                        selection.mat.labels[["Total&CSEPs"]], rep("", 3),
-                                       paste0("Positively\nselected\nconsensus\n",
+                                       paste0("Positively\nselected\nconsensus\n\n\n",
                                               selection.mat.labels[["Total&BUSTED&aBSREL"]]), 
                                        selection.mat.labels[["Total&BUSTED&CSEPs"]],
                                        selection.mat.labels[["Total&aBSREL&CSEPs"]], "",
@@ -1121,56 +1143,363 @@ for (i in 1:length(sc.df.iq$sc)) {
   
 }
 
-#Plot fully annotated selection tree
+#Plot aBSREL results on tree
 gg.selection2 <- gg.selection %<+% absrel.df +
   geom_tree(size=1, aes(colour=num)) +
-  xlim(0, 25) +
+  xlim(0, 22) +
   scale_colour_gradient2(trans="pseudo_log",
                          low="black", mid="#F0E442", high="#CC79A7", midpoint=1,
                          breaks=c(0, 10, 100),
                          limits=c(0, 100),
                          labels=c(0 , 10, 100),
                          na.value="dimgrey",
-                         guide=guide_colourbar(title="Orthogroups showing\npositive selection",
+                         guide=guide_colourbar(title="Genes showing\npositive selection",
                                                title.position="top",
                                                direction="horizontal")) +
+  geom_label2(aes(x=branch, label=effectors, fill=num),
+              size=1, label.size=0, label.padding=unit(1.5, "pt"), fontface="plain") +
+  scale_fill_gradient2(trans="pseudo_log",
+                       low="black", mid="#F0E442", high="#CC79A7", midpoint=1,
+                       breaks=c(0, 10, 100),
+                       limits=c(0, 100),
+                       labels=c(0 , 10, 100),
+                       na.value="dimgrey",
+                       guide=guide_colourbar(title="Genes showing\npositive selection",
+                                             title.position="top",
+                                             direction="horizontal")) +
+  geom_tiplab(aes(label=tiplab), fontface=tiplabel.face.speciestree, size=1.5, offset=0.05, colour="black") +
+  coord_cartesian(clip="off") +
+  annotation_custom(euler.grob, xmin=0, xmax=7, ymin=40, ymax=62) +
+  theme(legend.box="vertical",
+        legend.title=element_text(size=5, face="bold"),
+        legend.text=element_text(size=5, margin=margin(0, 3, 0, 0)),
+        legend.position=c(0.13, 0.5),
+        legend.key.size=unit(6, "pt"),
+        legend.spacing=unit(0, "pt"),
+        plot.margin=margin(0, 0, 5, -16, unit="pt"))
+
+
+
+##CONTRAST-FEL##
+
+contrastfel.df <- data.frame(ortho=rep(core.SC.orthogroups, each=length(na.omit(unique(metadata$lifestyle)))),
+                             lifestyle=rep(na.omit(unique(metadata$lifestyle)), times=length(core.SC.orthogroups)),
+                             increase=NA,
+                             decrease=NA)
+
+contrastfel.df$effector <- orthogroups.stats.ingroup2$effector[match(contrastfel.df$ortho,
+                                                                     orthogroups.stats.ingroup2$orthogroup)]
+
+#Create bar to show progress
+progress.bar <- txtProgressBar(1, length(contrastfel.df$ortho), initial=0, char="=", style=3)
+
+counter <- 0
+
+for (i in core.SC.orthogroups) {
+  
+  for (j in na.omit(unique(metadata$lifestyle))) {
+    
+    counter <- counter + 1
+    
+    #Update progress bar
+    setTxtProgressBar(progress.bar, counter)
+    
+    lifestyle <- sub(" ", "", j)
+    
+    contrastfel.results <- tryCatch(fromJSON(paste0("selection/hyphy/contrast-fel/",
+                                                    i, "_Contrast-FEL_", lifestyle, ".json")),
+                                    error=function(e) NULL)
+    
+    if (!is.null(contrastfel.results)) {
+      
+      #background
+      background.dN <- contrastfel.results$MLE$content$`0`[,2][
+        which(contrastfel.results$MLE$content$`0`[,6] <= 0.2)] 
+      #lifestyle
+      lifestyle.dN <- contrastfel.results$MLE$content$`0`[,3][
+        which(contrastfel.results$MLE$content$`0`[,6] <= 0.2)] 
+      
+      contrastfel.df$increase[intersect(which(contrastfel.df$ortho == i), which(contrastfel.df$lifestyle == j))] <- 
+        length(which(background.dN < lifestyle.dN))
+      contrastfel.df$decrease[intersect(which(contrastfel.df$ortho == i), which(contrastfel.df$lifestyle == j))] <- 
+        length(which(background.dN > lifestyle.dN))
+      
+    }
+    
+  }
+  
+}
+
+#Tukey significance testing
+tukey.increase <- TukeyHSD(aov(lm(increase ~ lifestyle, data=contrastfel.df[which(contrastfel.df$increase > 0),])))
+tukey.decrease <- TukeyHSD(aov(lm(decrease ~ lifestyle, data=contrastfel.df[which(contrastfel.df$decrease > 0),])))
+#Make dataframe for ggplot with tukey groups
+sitelabels.df <- rbind(data.frame(tukey=multcompLetters(tukey.increase[["lifestyle"]][,4])$Letters,
+                                  variable="increase",
+                                  lifestyle=names(multcompLetters(tukey.increase[["lifestyle"]][,4])$Letters)),
+                       data.frame(tukey=multcompLetters(tukey.decrease[["lifestyle"]][,4])$Letters,
+                                  variable="decrease",
+                                  lifestyle=names(multcompLetters(tukey.decrease[["lifestyle"]][,4])$Letters)))
+
+sitelabels.df$num <- NA
+
+for (i in sitelabels.df$lifestyle) {
+  
+  sitelabels.df$num[intersect(which(sitelabels.df$lifestyle == i),
+                              which(sitelabels.df$variable == "increase"))] <- 
+    paste0("n=",
+           length(intersect(which(contrastfel.df$lifestyle == i),
+                            which(contrastfel.df$increase > 0))))
+  
+  sitelabels.df$num[intersect(which(sitelabels.df$lifestyle == i),
+                              which(sitelabels.df$variable == "decrease"))] <- 
+    paste0("n=",
+           length(intersect(which(contrastfel.df$lifestyle == i),
+                            which(contrastfel.df$decrease > 0))))
+  
+}
+
+sitelabels.df$lifestyle <- sub(" ", "\n", sitelabels.df$lifestyle)
+
+#Number of genes with a different pressure relative to other lifestyles
+length(unique(contrastfel.df$ortho[union(which(contrastfel.df$increase > 0), which(contrastfel.df$decrease > 0))]))
+
+contrastfel.sites <- melt(contrastfel.df)
+
+contrastfel.sites <- contrastfel.sites[which(contrastfel.sites$value > 0),]
+
+contrastfel.sites$absrel <- NA
+
+contrastfel.sites$absrel[intersect(which(!is.na(contrastfel.sites$effector)),
+                                  which(contrastfel.sites$value != 0))][contrastfel.sites$ortho[intersect(which(!is.na(contrastfel.sites$effector)),
+                                  which(contrastfel.sites$value != 0))] %in% selection.df$orthogroup[intersect(which(selection.df$busted == "Y"), which(selection.df$absrel == "Y"))]] <- "Y"
+
+
+contrastfel.sites$ortho <- sub("OG000", "", contrastfel.sites$ortho)
+
+contrastfel.sites$lifestyle <- sub(" ", "\n", contrastfel.sites$lifestyle)
+
+
+
+
+gg.siterates <- ggplot(contrastfel.sites, aes(x=lifestyle, y=value, fill=lifestyle)) +
+  facet_wrap(. ~ variable, labeller=labeller(variable=c(increase="Higher relative selective pressure",
+                                                        decrease="Lower relative selective pressure"))) +
+  geom_violin(aes(colour=lifestyle), size=0.3) +
+  geom_point(data=contrastfel.sites[which(contrastfel.sites$absrel == "Y"),],
+             size=0.2,
+             colour="black") +
+  geom_text(data=sitelabels.df,
+            aes(x=lifestyle, y=Inf, label=tukey),
+            family="mono",
+            hjust=0.5,
+            vjust=2,
+            size=2,
+            inherit.aes=FALSE) +
+  geom_text(data=sitelabels.df,
+            aes(x=lifestyle, y=-Inf, colour=lifestyle, label=num),
+            hjust=0.5,
+            vjust=5,
+            size=1.5,
+            inherit.aes=FALSE) +
+  geom_text_repel(data=contrastfel.sites[which(contrastfel.sites$absrel == "Y"),],
+                  aes(label=ortho),
+                  segment.size=0.2,
+                  min.segment.length=unit(0, 'lines'),
+                  segment.colour="grey",
+                  colour="black",
+                  nudge_x=0.5,
+                  direction="y",
+                  max.overlaps=Inf,
+                  size=1) +
+  labs(y="Number of sites") +
+  scale_y_continuous(expand=expansion(mult=c(0, 0.15)),
+                     limits=c(0, max(contrastfel.sites$value))) +
+  scale_fill_manual(values=col.df$colour[match(sort(unique(specific.df$lifestyle)), col.df$lifestyle)],
+                    labels=str_to_sentence(col.df$lifestyle[match(sort(unique(specific.df$lifestyle)),
+                                                                  col.df$lifestyle)]),
+                    name=NULL,
+                    guide=FALSE) +
+  scale_colour_manual(values=col.df$colour[match(sort(unique(specific.df$lifestyle)), col.df$lifestyle)],
+                    labels=str_to_sentence(col.df$lifestyle[match(sort(unique(specific.df$lifestyle)),
+                                                                  col.df$lifestyle)]),
+                    name=NULL,
+                    guide=FALSE) +
+  coord_cartesian(clip="off") +
+  theme_minimal() +
+  theme(legend.position="bottom",
+        legend.margin=margin(0, 0, 0, 0),
+        legend.key.size=unit(6, "pt"),
+        legend.text=element_text(size=4, margin=margin(0, 5, 0, 0)),
+        axis.text.x=element_text(colour=c("#009E73","#56B4E9", "#D55E00", "#9AE324", "dimgrey", "#0072B2"),
+                                 size=3, face="bold", vjust=0.5),
+        axis.ticks.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_text(size=6),
+        axis.text.y=element_text(size=4),
+        strip.text=element_text(size=6, face="bold"),
+        plot.margin=margin(10, 0, 10, 10, unit="pt"))
+
+
+
+#####
+
+increase <- as.data.frame(table(contrastfel.df$lifestyle[intersect(which(contrastfel.df$increase > 0),
+                                                                   which(contrastfel.df$decrease == 0))]))
+
+colnames(increase) <- c("lifestyle", "increase")
+
+decrease <- as.data.frame(table(contrastfel.df$lifestyle[intersect(which(contrastfel.df$decrease > 0),
+                                                                   which(contrastfel.df$increase == 0))]))
+
+colnames(decrease) <- c("lifestyle", "decrease")
+
+both <- as.data.frame(table(contrastfel.df$lifestyle[intersect(which(contrastfel.df$decrease > 0),
+                                                               which(contrastfel.df$increase > 0))]))
+
+contrastfel.tmp <- left_join(increase, decrease)
+
+if (!empty(both)) { 
+  
+  colnames(both) <- c("lifestyle", "both")
+  
+  contrastfel.tmp <- left_join(contrastfel.tmp, both)
+  
+  contrastfel.tmp$both[which(is.na(contrastfel.tmp$both))] <- 0
+  
+}  
+  
+contrastfel.genes <- melt(contrastfel.tmp)
+
+contrastfel.genes$lifestyle <- sub(" ", "\n", contrastfel.genes$lifestyle)
+
+gg.generates <- ggplot(contrastfel.genes, aes(x=lifestyle, y=value, fill=variable)) +
+  geom_bar(stat="identity", position="dodge", colour="black", width=0.7, size=0.2) +
+  geom_text(aes(label=value, x=lifestyle, y=value, colour=lifestyle),
+            position=position_dodge(width=0.7),
+            fontface="bold",
+            size=1,
+            vjust=-1) +
+  geom_text(data=sitelabels.df,
+            aes(x=lifestyle, y=-Inf, label=num, colour=lifestyle),
+            hjust=0.5,
+            vjust=5,
+            size=1.5,
+            inherit.aes=FALSE) +
+  labs(y="Number of genes") +
+  scale_y_continuous(expand=expansion(mult=c(0, 0.2))) +
+  scale_colour_manual(values=col.df$colour[match(sort(unique(specific.df$lifestyle)), col.df$lifestyle)],
+                    labels=str_to_sentence(col.df$lifestyle[match(sort(unique(specific.df$lifestyle)),
+                                                                  col.df$lifestyle)]),
+                    name="Lifestyle",
+                    guide=FALSE) +
+  scale_fill_manual(values=c("dimgrey", "white", "grey"),
+                        labels=c("Higher", "Lower", "Both"),
+                        name="Relative selective\npressure") +
+  coord_cartesian(clip="off") +
+  guides(lty=guide_legend(override.aes=list(fill="white"))) +
+  theme_minimal() +
+  theme(legend.position="top",
+        legend.margin=margin(0, 0, -10, 0),
+        legend.key.size=unit(5, "pt"),
+        legend.text=element_text(size=4, margin=margin(0, 3, 0, 0)),
+        legend.title=element_text(face="bold", size=5, margin=margin(0, 10, 0, 0)),
+        axis.text.x=element_text(colour=c("#009E73","#56B4E9", "#D55E00", "#9AE324", "dimgrey", "#0072B2"),
+                                 size=3, face="bold", vjust=0.5),
+        axis.ticks.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_text(size=6),
+        axis.text.y=element_text(size=4),
+        strip.text=element_text(size=6, face="bold"),
+        panel.grid.major.x=element_blank(),
+        plot.margin=margin(10, 0, 10, 10, unit="pt"))
+
+
+#codon optimisation
+
+#Load codon optimisation results
+load("selection/codon_optimisation/codon_optimisation-2021-07-26.RData")
+#Add lifestyle and name to dataframe
+s.df$lifestyle <- metadata$lifestyle[match(s.df$taxon, metadata$file2)]
+s.df$name <- metadata$name[match(s.df$taxon, metadata$file2)]
+s.df <- s.df %>% select(name, everything())
+#Remove outgroup
+s.df <- s.df[-which(is.na(s.df$lifestyle)),]
+
+#Tukey significance testing
+tukey.codons <- TukeyHSD(aov(lm(S ~ lifestyle, data=s.df)))
+#Make dataframe for ggplot with tukey groups
+codonlabels.df <- data.frame(tukey=multcompLetters(tukey.codons[["lifestyle"]][,4])$Letters,
+                             lifestyle=names(multcompLetters(tukey.codons[["lifestyle"]][,4])$Letters))
+#Add sample size
+codonlabels.df$num <- boxlabels.df$num[match(codonlabels.df$lifestyle, boxlabels.df$lifestyle)]
+
+gg.codons <- ggplot(s.df, aes(x=lifestyle, y=S, fill=lifestyle)) +
+  geom_violin(fill="white", colour="grey", lty="dotted", size=0.3) +
+  geom_boxplot(width=0.2, size=0.3, outlier.size=0.5) +
+  geom_text(data=codonlabels.df,
+            aes(x=lifestyle, y=Inf, label=tukey),
+            family="mono",
+            hjust=0.5,
+            vjust=2,
+            size=1,
+            inherit.aes=FALSE) +
+  geom_text(data=codonlabels.df,
+            aes(x=lifestyle, y=-Inf, label=num),
+            hjust=0.5,
+            vjust=2,
+            size=1.5,
+            inherit.aes=FALSE) +
+  labs(y="Codon optimisation (S)") +
+  scale_y_continuous(expand=expansion(mult=c(0, 0.2))) +
+  scale_fill_manual(values=col.df$colour[match(sort(unique(s.df$lifestyle)), col.df$lifestyle)],
+                    labels=str_to_sentence(col.df$lifestyle[match(sort(unique(s.df$lifestyle)),
+                                                                  col.df$lifestyle)]),
+                    name=NULL) +
+  coord_cartesian(clip="off") +
+  guides(fill=guide_legend(direction="horizontal",
+                           nrow=2)) +
+  theme_minimal() +
+  theme(legend.position="bottom",
+        legend.margin=margin(0, 0, 0, 0),
+        legend.key.size=unit(6, "pt"),
+        legend.text=element_text(size=4, margin=margin(0, 5, 0, 0)),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_text(size=6),
+        axis.text.y=element_text(size=4),
+        strip.text=element_text(size=6, face="bold"),
+        plot.margin=margin(10, 0, 0, 0, unit="pt"))
+
+
+
+gg.selection3 <- gg.selection2 %<+% s.df +
   new_scale_colour() +
-  geom_tippoint(aes(colour=lifestyle), size=0.7) +
+  geom_tippoint(aes(colour=lifestyle.x, size=S)) +
   scale_colour_manual(values=col.df$colour[na.omit(match(sort(unique(metadata$lifestyle[match(iqtree.tree$tip.label, metadata$name)])), col.df$lifestyle))],
                       labels=str_to_sentence(col.df$lifestyle[na.omit(match(sort(unique(metadata$lifestyle[match(iqtree.tree$tip.label, metadata$name)])), col.df$lifestyle))]),
                       na.translate=FALSE,
                       guide=guide_legend(title="Lifestyle",
                                          ncol=2,
-                                         title.hjust=0)) +
-  new_scale_colour() +
-  geom_label2(aes(x=branch, label=effectors, fill=num),
-              size=1, label.size=0, label.padding=unit(1.5, "pt"), fontface="plain") +
-  scale_fill_gradient2(trans="pseudo_log",
-                         low="black", mid="#F0E442", high="#CC79A7", midpoint=1,
-                         breaks=c(0, 10, 100),
-                         limits=c(0, 100),
-                         labels=c(0 , 10, 100),
-                         na.value="dimgrey",
-                         guide=guide_colourbar(title="Orthogroups showing\npositive selection",
-                                               title.position="top",
-                                               direction="horizontal")) +
-  geom_tiplab(aes(label=tiplab), fontface=tiplabel.face.speciestree, size=1.5, offset=0.1, colour="black") +
-  new_scale_fill() +
-  coord_cartesian(clip="off") +
-  annotation_custom(euler.grob, xmin=-3, xmax=4, ymin=25, ymax=55) +
-  theme(legend.box="horizontal",
-        legend.title=element_text(size=5, face="bold"),
-        legend.text=element_text(size=5),
-        legend.position=c(0.15, 0.92),
-        legend.key.size=unit(6, "pt"),
-        legend.spacing=unit(0, "pt"),
-        plot.margin=margin(0, 5.5, 0, 50, unit="pt"))
-
+                                         title.hjust=0,
+                                         order=1)) +
+  scale_size_continuous(range=c(0.4,2),
+                        guide=guide_legend(title="Codon optimisation (S)",
+                                           nrow=2,
+                                           title.hjust=0,
+                                           order=2))
 
 #Write to file
-tiff(file=paste0("selectiontree-", Sys.Date(), ".tiff"),
-     height=4, width=6.75, unit="in", res=600, compression="lzw")
-gg.selection2
+tiff(file=paste0("Fig4-", Sys.Date(), ".tiff"),
+     height=6, width=6.75, unit="in", res=600, compression="lzw")
+plot_grid(gg.selection3,
+          plot_grid(gg.siterates, gg.codons, nrow=1, labels=c("", "C"), label_size=10,
+                    align="h", axis="tb", rel_widths=c(1.8, 1)),
+          nrow=2,
+          rel_heights=c(2, 1),
+          labels="AUTO",
+          label_size=10)
 dev.off()
 
 
