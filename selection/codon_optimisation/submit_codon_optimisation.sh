@@ -7,7 +7,7 @@ do
 	awk '/>/{sub(">","&"FILENAME"_");sub(/\.fasta/,x)}1' ../alignments/codon/${ORTHO} | sed 's#\.\./alignments/codon/##' > ${ORTHO}.tmp
 done
 
-for TAXON in $(ls ../proteins/*.faa | sed 's#\.\./proteins/##' | sed 's/\.faa//')
+for TAXON in $(ls ../../proteins/*.faa | sed 's#\.\./\.\./proteins/##' | sed 's/\.faa//')
 do
 	awk -v p="$TAXON" 'BEGIN{ ORS=""; RS=">"; FS="\n" } $1 ~ p { print ">" $0 }' *.tmp | sed "s/_${TAXON}//" | sed 's/_aln_nuc\.fa//' > ${TAXON}_coreSC.fa
 done
