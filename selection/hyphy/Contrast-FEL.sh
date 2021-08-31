@@ -10,7 +10,7 @@ ORTHO=$(cat ../../phylogenomics/aln_list | sed 's/\.fa//' | sed -n ${SGE_TASK_ID
 module load anaconda3
 conda activate hyphy-2.5.30
 
-for LIFESTYLE in endophyte insectassociated mycoparasite plantassociated plantpathogen saprotroph
+for LIFESTYLE in endophyte insectmutualist mycoparasite plantassociate plantpathogen saprotroph
 do
 
 	hyphy contrast-fel 	--alignment ../alignments/codon/${ORTHO}_aln_nuc.fa \

@@ -22,7 +22,8 @@ Rscript blank_topology.r fus_proteins_62T_iqtree_genepart.treefile_rooted ./
 
 sed -i '1s/^/62 1\n/' fus_proteins_62T_iqtree_genepart.treefile_rooted_blank
 sed -i 's/Root//' fus_proteins_62T_iqtree_genepart.treefile_rooted_blank
-sed "s/;/\'<1.0\';/" fus_proteins_62T_iqtree_genepart.treefile_rooted_blank > fus_proteins_62T_iqtree_genepart.treefile_dating
+sed "s/;/\'>0.9<1.35\';/" fus_proteins_62T_iqtree_genepart.treefile_rooted_blank > fus_proteins_62T_iqtree_genepart.treefile_dating
+sed -i "s/GCA_013266205)))/GCA_013266205)))'>0.5<0.9'/" fus_proteins_62T_iqtree_genepart.treefile_dating
 
 module load anaconda3
 conda activate paml

@@ -1,7 +1,7 @@
           seed = -1
        seqfile = fus_proteins_dating10_mcmctree_short.phy
       treefile = fus_proteins_62T_iqtree_genepart.treefile_dating
-      mcmcfile = mcmc_run1_independent.txt
+      mcmcfile = mcmc.txt
        outfile = mcmctree_step2_out.txt
          ndata = 1
        seqtype = 2    	 * 0: nucleotides; 1:codons; 2:AAs

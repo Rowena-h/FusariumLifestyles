@@ -74,17 +74,12 @@ print(paste0("Counting number of effectors in each orthogroup: ", i, "/", length
 #Read in sample metadata
 metadata <- read.csv("../metadata.csv")
 
-for (ingroup in c(0, 1, 2)) {
+for (ingroup in c(0, 1)) {
   
   if (ingroup == 1) {
     
     orthogroups.copies.ingroup <- orthogroups.copies[which(!is.na(match(colnames(orthogroups.copies), metadata$file2[metadata$ingroup == ingroup])))]
     effector.count.ingroup <- effector.count[which(!is.na(match(colnames(effector.count), metadata$file2[metadata$ingroup == ingroup])))]
-    
-  } else if (ingroup == 2) {
-    
-    orthogroups.copies.ingroup <- orthogroups.copies[which(!is.na(match(colnames(orthogroups.copies), metadata$file2[metadata$ingroup != "outgroup"])))]
-    effector.count.ingroup <- effector.count[which(!is.na(match(colnames(effector.count), metadata$file2[metadata$ingroup != "outgroup"])))]
     
   } else {
     
@@ -162,5 +157,11 @@ for (ingroup in c(0, 1, 2)) {
   
 }
 
-print(paste0("Results saved in effector-matrices-", Sys.Date(), ".RData"))
-save.image(file=paste0("effector-matrices-", Sys.Date(), ".RData"))
+print(paste0("Results saved in orthogroup-matrices-", Sys.Date(), ".RData"))
+save(orthogroups.stats.ingroup0,
+     orthogroups.stats.ingroup1,
+     orthogroups.copies.ingroup0,
+     orthogroups.copies.ingroup1,
+     effector.count.ingroup0,
+     effector.count.ingroup1,
+     file=paste0("orthogroup-matrices-", Sys.Date(), ".RData"))

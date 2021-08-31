@@ -19,8 +19,12 @@ do
 	sed -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/' trees/${i}.raxml.bestTree_rooted > trees/${i}.raxml.bestTree_rooted_hyphy
 done
 
-#Label species tree foreground branches for HyPhy
-sed -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/' ../divergence_time_estimation/fus_proteins_62T_iqtree_genepart.contree_rooted > trees/fus_proteins_62T_iqtree_genepart.contree_rooted_absrel
+#sed -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/' ../divergence_time_estimation/fus_proteins_62T_iqtree_genepart.contree_rooted > trees/fus_proteins_62T_iqtree_genepart.contree_rooted_absrel
+#Label dated species tree foreground branches for HyPhy
+sed -n 638p ../divergence_time_estimation/mcmctree/run1_independent/mcmctree_step2_out.txt | sed -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/' > trees/dated_tree_absrel.tre
+awk -F',' '{print $8 "\t" $9}' ../metadata.csv > tmp
+sed `cat tmp | awk '{print "-e s/"$2"/"$1"/"}'`<<<"`cat trees/dated_tree_absrel.tre`" > tmp2 && mv tmp2 trees/dated_tree_absrel.tre
+rm tmp
 
 module load R
 

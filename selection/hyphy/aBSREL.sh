@@ -11,6 +11,6 @@ module load anaconda3
 conda activate hyphy-2.5.30
 
 hyphy absrel 	--alignment ../alignments/codon/${ORTHO}_aln_nuc.fa \
-		--tree ../trees/fus_proteins_62T_iqtree_genepart.contree_rooted \
+		--tree ../trees/dated_tree_absrel.tre \
 		--output absrel/${ORTHO}_aBSREL.json \
 		--branches FOREGROUND

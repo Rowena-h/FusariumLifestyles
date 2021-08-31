@@ -10,14 +10,14 @@ conda activate lifestyle-test
 
 module load R
 
-mkdir effectors
+mkdir effectors orthogroups
 
-python run.py 	-i lifestyle-test-effectors.csv \
+python run2.py 	-i lifestyle-test-orthogroups.csv \
 		-t species_tree_ingroup.tre \
-		--colors endophyte:#009E73,insectassociated:#56B4E9,plantpathogen:#696969,saprotroph:#0072B2,plantassociated:#000000,mycoparasite:#D55E00 \
-		-o effectors
+		--colors endophyte:#009E73,insectmutualist:#56B4E9,plantpathogen:#696969,saprotroph:#0072B2,plantassociate:#9AE324,mycoparasite:#D55E00 \
+		-o orthogroups
 
-#python run.py -i raxml\fus_orthogroups\lifestyle-test-orthogroups.csv -t 
-#raxml\fus_orthogroups\RAxML_bipartitions.fus_proteins_27T_bsadd_rooted_ingroup --colors 
-#endophyte:#009E73,insectmutualist:#56B4E9,plantpathogen:#696969,saprotroph:#0072B2 -o "D:\Documents\Bio 
-#Programmes\Effect-Of-Biological-Categories-On-Genomes-Composition-master\Effect-Of-Biological-Categories-On-Genomes-Composition-master\raxml\fus_orthogroups"
+python run2.py  -i lifestyle-test-effectors.csv \
+                -t species_tree_ingroup.tre \
+                --colors endophyte:#009E73,insectmutualist:#56B4E9,plantpathogen:#696969,saprotroph:#0072B2,plantassociate:#9AE324,mycoparasite:#D55E00 \
+                -o effectors
