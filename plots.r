@@ -1,3 +1,11 @@
+###################################
+###################################
+####                           ####
+####  Script to plot figures   ####
+####                           ####
+###################################
+###################################
+
 library(plyr)
 library(dplyr)
 library(stringr)
@@ -49,20 +57,24 @@ load("effector_prediction/orthogroup-matrices-2021-07-27.RData")
 metadata <- read.csv("metadata.csv")
 
 #Make dataframe of lifestyle colours
-col.df <- data.frame(lifestyle=c("endophyte", "coral associate", "human pathogen","insect associate", "insect mutualist", "plant associate", "plant pathogen", "saprotroph", "mycoparasite"),
-                     colour=c("#009E73", "#FFE983", "#000000", "#F1BCF4", "#56B4E9", "#9AE324", "dimgrey", "#0072B2", "#D55E00"))
+col.df <- data.frame(lifestyle=c("endophyte", "animal pathogen", "human pathogen","animal associate",
+                                 "insect mutualist", "plant associate", "plant pathogen", "saprotroph",
+                                 "mycoparasite"),
+                     colour=c("#009E73", "#FFE983", "#000000", "#F1BCF4", "#56B4E9",
+                              "#9AE324", "dimgrey", "#0072B2", "#D55E00"))
 
 
-##EFFECTOR PREDICTION SANKEY
+##FIGURE 2 - EFFECTOR PREDICTION PIPELINE SANKEY##
 
+#Make empty list for protein length results
 protein.lengths <- list()
 
+#For each taxon...
 for (i in metadata$file2[metadata$ingroup != "outgroup"]) {
   
-  #print(i)
-  
-  #Read in CSEPfilter log
-  CSEPfilter <- read.csv(paste0("effector_prediction/CSEPfilter_", i, ".faa.log"), sep=":", row.names=NULL, header=FALSE)
+  #Read in and format CSEPfilter log
+  CSEPfilter <- read.csv(paste0("effector_prediction/CSEPfilter_", i, ".faa.log"),
+                         sep=":", row.names=NULL, header=FALSE)
   CSEPfilter <- CSEPfilter[!is.na(CSEPfilter$V2),]
   CSEPfilter$V1 <- word(CSEPfilter$V1, 1)
   CSEPfilter$V1[max(grep("Phobius", CSEPfilter$V1))] <- "Phobius2"
@@ -72,8 +84,12 @@ for (i in metadata$file2[metadata$ingroup != "outgroup"]) {
   
   assign(paste0(i, ".CSEPfilter"), CSEPfilter)
   
-  #Protein length stuff
+  #Read in effectors
+  effectors <- scan(paste0("effector_prediction/", i, ".faa_candidate_effectors"), character(), quote="")
   
+  assign(paste0(i, ".effectors"), effectors)
+  
+  #Read in proteins
   proteins <- read.fasta(paste0("orthology_inference/", i, ".faa"), seqtype="AA")
   names(proteins) <- sub(".*\\.faa_", "", names(proteins))
   
@@ -82,6 +98,7 @@ for (i in metadata$file2[metadata$ingroup != "outgroup"]) {
   
   counter <- 0
   
+  #For each protein...
   for (j in names(proteins)) {
     
     counter <- counter + 1
@@ -89,12 +106,10 @@ for (i in metadata$file2[metadata$ingroup != "outgroup"]) {
     #Update progress bar
     setTxtProgressBar(progress.bar, counter)
     
+    #Calculate length
     protein.lengths[[i]][j] <- length(proteins[[j]])
     
   }
-  
-  effectors <- scan(paste0("effector_prediction/", i, ".faa_candidate_effectors"), character(), quote="")
-  assign(paste0(i, ".effectors"), effectors)
   
 }
 
@@ -670,7 +685,7 @@ rownames(lifestyle.grid) <- metadata$name
 
 ##Fix colours
 
-col.df$lifestyle <- factor(col.df$lifestyle, levels=c("plant associate", "endophyte", "plant pathogen", "saprotroph", "insect mutualist", "insect associate", "mycoparasite", "human pathogen", "coral associate"))
+col.df$lifestyle <- factor(col.df$lifestyle, levels=c("plant associate", "endophyte", "plant pathogen", "saprotroph", "animal associate", "insect mutualist",  "animal pathogen", "human pathogen", "mycoparasite"))
 
 gg.maintree <- gg.datedtree.independent +
   new_scale_fill() +
@@ -767,6 +782,8 @@ for (i in na.omit(unique(metadata$lifestyle))) {
 
 copynum.df$lifestyle <- sub(" ", "\n", copynum.df$lifestyle)
 copynumlabels.df$lifestyle <- sub(" ", "\n", copynumlabels.df$lifestyle)
+
+set.seed(1)
 
 gg.copynum <- ggplot(copynum.df, aes(x=lifestyle, y=value)) +
   facet_wrap(. ~ data, scales="free",
@@ -977,8 +994,8 @@ pw.lifestyle.genes <- rbind(data.frame(melt(as.matrix(read.csv("lifestyle_test/e
                            data.frame(melt(as.matrix(read.csv("lifestyle_test/orthogroups/pairwiseComparisons.csv",
                                                               row.names=1)), na.rm=TRUE), data="Orthogroups"))
 
-pw.lifestyle.genes$value <- round(pw.lifestyle.genes$value, digits=3)
-pw.lifestyle.genes$value[which(pw.lifestyle.genes$value == 0)] <- "<0.001"
+pw.lifestyle.genes$label <- round(pw.lifestyle.genes$value, digits=3)
+pw.lifestyle.genes$label[which(pw.lifestyle.genes$label == 0)] <- "<0.001"
 pw.lifestyle.genes$Var2 <- sub("p.value.", "", pw.lifestyle.genes$Var2)
 pw.lifestyle.genes$Var1 <- as.character(pw.lifestyle.genes$Var1)
 pw.lifestyle.genes$Var2 <- as.character(pw.lifestyle.genes$Var2)
@@ -998,13 +1015,11 @@ test <- data.frame(lab=c(paste0("Phylogeny: ", round(sum(permanova.effectors$R2[
                    data=c("CSEPs", "Orthogroups"))
 
 
-
-
 #Plot grid
 gg.pwperm <- ggplot(pw.lifestyle.genes, aes(Var2, Var1, fill=value>0.05)) +
   facet_grid(. ~ data, labeller=labeller(data=c(CSEPs="CSEPs", Orthogroups="All genes"))) +
   geom_tile(color="grey", size=1, alpha=0.5, show.legend=FALSE) +
-  geom_text(aes(label=value, colour=value>0.05), size=1.5, show.legend=FALSE) +
+  geom_text(aes(label=label, colour=value>0.05), size=1.5, show.legend=FALSE) +
   annotate("text", x=4, y=2, label="PERMANOVA", size=1.5, fontface="bold") +
   geom_text(data=test, aes(x=4, y=1.5, label=lab), size=1.5, inherit.aes=FALSE) +
   scale_fill_manual(values=c("#E69F00", "white")) +
@@ -1994,7 +2009,10 @@ ggplot(test, aes(x=range, y=value)) +
   geom_point()
 
 
-rangefilt.s.df <- range.s.df[range.s.df$range <= 4,]
+range.s.df$genus <- "Fusarium"
+range.s.df$genus[match(metadata$name[grep("'", metadata$speciescomplex.abb)], range.s.df$name)] <- "Allied"
+
+rangefilt.s.df <- range.s.df[range.s.df$genus == "Fusarium",]
 
 rangefilt.corr.r <- signif(cor.test(rangefilt.s.df$S, rangefilt.s.df$range)$estimate, digits=1)
 rangefilt.corr.p <- signif(cor.test(rangefilt.s.df$S, rangefilt.s.df$range)$p.value, digits=1)
