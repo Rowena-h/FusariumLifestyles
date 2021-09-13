@@ -22,3 +22,6 @@ gunzip ${FILE}.gz
 
 #Add file name to fasta headers
 sed -i "s/>/>${FILE}_/g" $FILE
+
+#Submit OrthoFinder
+qsub orthofinder.sh
