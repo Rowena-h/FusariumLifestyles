@@ -1,6 +1,6 @@
 #!/bin/sh
 #$ -cwd           	# Set the working directory for the job to the current directory
-#$ -pe smp 4		# Request 4 cors
+#$ -pe smp 4		# Request 4 cores
 #$ -l h_rt=0:30:0 	# Request 30 min runtime
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -m bea
