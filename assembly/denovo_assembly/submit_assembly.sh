@@ -1,13 +1,15 @@
 #!/bin/sh
 #Script to submit de novo assembly jobs
 
+STRAINS=$(cat ../strains)
+
 for ASSEMBLER in abyss megahit spades
 do
 	mkdir ${ASSEMBLER}
 
-	for i in 1 3 5 6 7
+	for STRAIN in $STRAINS
 	do
-		mkdir ${ASSEMBLER}/fusotu${i}
+		mkdir ${ASSEMBLER}/fusotu${STRAIN}
 	done
 
 	qsub ${ASSEMBLER}.sh
