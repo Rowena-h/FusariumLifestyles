@@ -1,5 +1,5 @@
 #-----Genome (these are always required)
-genome=/data/SBCS-BuggsLab/RowenaHill/genome_assemblies/Fusarium_OTU6/repeatmasker/abyss_masked/fusotu6_abyss_pilon.fasta.masked
+genome=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/annotation/repeat_masking/fusotu6_abyss_masked/fusotu6_abyss_pilon.fasta.masked
 organism_type=eukaryotic #eukaryotic or prokaryotic. Default is eukaryotic
 
 #-----Re-annotation Using MAKER Derived GFF3
@@ -13,13 +13,13 @@ pred_pass=0 #use ab-initio predictions in maker_gff: 1 = yes, 0 = no
 other_pass=0 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
 
 #-----EST Evidence (for best results provide a file for at least one)
-est=/data/SBCS-BuggsLab/RowenaHill/genome_assemblies/Fusarium_OTU6/maker/Fuseq1_EST_20180330_cluster_consensi.fasta
+est=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/annotation/maker/Fuseq1_EST_20180330_cluster_consensi.fasta
 altest= #EST/cDNA sequence file in fasta format from an alternate organism
 est_gff= #aligned ESTs or mRNA-seq from an external GFF3 file
 altest_gff= #aligned ESTs from a closly relate species in GFF3 format
 
 #-----Protein Homology Evidence (for best results provide a file for at least one)
-protein=/data/SBCS-BuggsLab/RowenaHill/genome_assemblies/Fusarium_OTU6/maker/Fuseq1_GeneCatalog_proteins_20180330.aa.fasta
+protein=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/annotation/maker/Fuseq1_GeneCatalog_proteins_20180330.aa.fasta
 protein_gff=  #aligned protein homology evidence from an external GFF3 file
 
 #-----Repeat Masking (leave values blank to skip repeat masking)

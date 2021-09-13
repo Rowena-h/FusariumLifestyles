@@ -1,5 +1,5 @@
 #-----Genome (these are always required)
-genome=/data/SBCS-BuggsLab/RowenaHill/genome_assemblies/Fusarium_OTU5/repeatmasker/abyss_masked/fusotu5_abyss_pilon.fasta.masked
+genome=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/annotation/repeat_masking/fusotu5_abyss_masked/fusotu5_abyss_pilon.fasta.masked
 organism_type=eukaryotic #eukaryotic or prokaryotic. Default is eukaryotic
 
 #-----Re-annotation Using MAKER Derived GFF3
@@ -15,12 +15,12 @@ other_pass=0 #passthrough anyything else in maker_gff: 1 = yes, 0 = no
 #-----EST Evidence (for best results provide a file for at least one)
 est=
 altest= #EST/cDNA sequence file in fasta format from an alternate organism
-est_gff=/data/SBCS-BuggsLab/RowenaHill/genome_assemblies/Fusarium_OTU5/maker/round1/fusotu5_abyss_rnd1.maker.output/fusotu5_abyss_rnd1.all.maker.est2genome.gff #aligned ESTs or mRNA-seq from an external GFF3 file
+est_gff=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/annotation/maker/round1/fusotu5_abyss_rnd1.maker.output/fusotu5_abyss_rnd1.all.maker.est2genome.gff #aligned ESTs or mRNA-seq from an external GFF3 file
 altest_gff= #aligned ESTs from a closly relate species in GFF3 format
 
 #-----Protein Homology Evidence (for best results provide a file for at least one)
 protein=
-protein_gff=/data/SBCS-BuggsLab/RowenaHill/genome_assemblies/Fusarium_OTU5/maker/round1/fusotu5_abyss_rnd1.maker.output/fusotu5_abyss_rnd1.all.maker.protein2genome.gff  #aligned protein homology evidence from an external GFF3 file
+protein_gff=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/annotation/maker/round1/fusotu5_abyss_rnd1.maker.output/fusotu5_abyss_rnd1.all.maker.protein2genome.gff  #aligned protein homology evidence from an external GFF3 file
 
 #-----Repeat Masking (leave values blank to skip repeat masking)
 model_org= #select a model organism for RepBase masking in RepeatMasker
@@ -31,7 +31,7 @@ prok_rm=0 #forces MAKER to repeatmask prokaryotes (no reason to change this), 1 
 softmask=1 #use soft-masking rather than hard-masking in BLAST (i.e. seg and dust filtering)
 
 #-----Gene Prediction
-snaphmm=/data/SBCS-BuggsLab/RowenaHill/genome_assemblies/Fusarium_OTU5/maker/round2/training_snap/abyss/fusotu5_abyss_rnd1.zff.length50_aed0.25.hmm #SNAP HMM file
+snaphmm=/data/SBCS-BuggsLab/RowenaHill/fus_comparison/annotation/maker/round2/training_snap/5/fusotu5_abyss_rnd1.zff.length50_aed0.25.hmm #SNAP HMM file
 gmhmm= #GeneMark HMM file
 augustus_species=fusarium #Augustus gene prediction species model
 fgenesh_par_file= #FGENESH parameter file
