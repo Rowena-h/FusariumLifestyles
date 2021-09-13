@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-##Script to parse OrthoFinder and SPfilter results into a matrix of effector counts for each taxon##
+##Script to parse OrthoFinder and CSEPfilter results into presence-absence matrix of orthogroups for each taxon##
 
 library(dplyr)
 
@@ -15,24 +15,23 @@ dir <- args[1]
 #Read in orthogroups from OrthoFinder
 orthogroups <- read.csv(paste0(dir, "Orthogroups/Orthogroups.tsv"), row.names=1, sep="\t", check.names=FALSE)
 
-#Read in 'unassigned genes' i.e. species specific genes and combines with orthogroups dataframe
+#Read in 'unassigned genes' - i.e. strain specific genes - and combine with orthogroups dataframe
 unassigned <- read.csv(paste0(dir, "Orthogroups/Orthogroups_UnassignedGenes.tsv"),
                      row.names=1, sep="\t", check.names=FALSE)
 
 orthogroups <- rbind(orthogroups, unassigned)
 
 #For each sample...
-print("Reading in candidate effectors")
+print("Reading in CSEPs")
 for (i in colnames(orthogroups)) {
   
-  #Read in the list of candidate effectors
-  effectors <- scan(paste0(i, ".faa_candidate_effectors"), character(), quote="")
+  #Read in the list of CSEPs
+  CSEPs <- scan(paste0(i, ".faa_candidate_effectors"), character(), quote="")
   #Replace pipes (|) with hyphens
-  effectors <- gsub("\\|", "-", effectors)
-  assign(paste0(i, ".effectors"), effectors)
-  
-  #Replace pipes (|) with hyphens
+  CSEPs <- gsub("\\|", "-", CSEPs)
   orthogroups[,i] <- gsub("\\|", "-", orthogroups[,i])
+  
+  assign(paste0(i, ".CSEPs"), CSEPs)
   
 }
 
@@ -43,62 +42,63 @@ for (i in 1:length(colnames(orthogroups.copies))) {
   orthogroups.copies[, i] <- sapply(strsplit(orthogroups[, i], " "), length)
 }
 
-#Make dataframe for effector counts
-effector.count <- data.frame(matrix(0, ncol=ncol(orthogroups), nrow=nrow(orthogroups)))
-colnames(effector.count) <- colnames(orthogroups)
-rownames(effector.count) <- rownames(orthogroups)
+#Make dataframe for CSEP counts
+CSEP.count <- data.frame(matrix(0, ncol=ncol(orthogroups), nrow=nrow(orthogroups)))
+colnames(CSEP.count) <- colnames(orthogroups)
+rownames(CSEP.count) <- rownames(orthogroups)
 
 #For each sample...
-for (i in 1:length(colnames(effector.count))) {
+for (i in 1:length(colnames(CSEP.count))) {
   
   #Print progress
-  cat("Counting number of effectors in each orthogroup: ", (i - 1), "/", length(colnames(effector.count)), " taxa", "\r")
+  cat("Counting number of CSEPs in each orthogroup: ", (i - 1), "/", length(colnames(CSEP.count)), " taxa", "\r")
   
-  #Retrieve the list of potential effectors
-  effectors <- get(paste0(colnames(effector.count)[i], ".effectors"))
+  #Retrieve the list of potential CSEPs
+  CSEPs <- get(paste0(colnames(CSEP.count)[i], ".CSEPs"))
   
-  #For each row in the list (i.e. potential effector)...
-  for (j in 1:length(effectors)) {
+  #For each CSEP...
+  for (j in 1:length(CSEPs)) {
     
-    #Retrieve effector
-    effector <- grep(effectors[j], orthogroups[, i])
+    #Retrieve CSEP
+    CSEP <- grep(CSEPs[j], orthogroups[, i])
     
-    #Search for effector in corresponding column of orthogroups dataframe and add 1 to orthogroup count
-    effector.count[effector, i] <- effector.count[effector, i] + 1
+    #Search for CSEP in corresponding column of orthogroups dataframe and add 1 to orthogroup count
+    CSEP.count[CSEP, i] <- CSEP.count[CSEP, i] + 1
     
   }
   
 }
-print(paste0("Counting number of effectors in each orthogroup: ", i, "/", length(colnames(effector.count)), " taxa"))
+print(paste0("Counting number of CSEPs in each orthogroup: ", i, "/", length(colnames(CSEP.count)), " taxa"))
 
 #Read in sample metadata
 metadata <- read.csv("../metadata.csv")
 
+#Including and excluding the outgroup...
 for (ingroup in c(0, 1)) {
   
   if (ingroup == 1) {
     
     orthogroups.copies.ingroup <- orthogroups.copies[which(!is.na(match(colnames(orthogroups.copies), metadata$file2[metadata$ingroup == ingroup])))]
-    effector.count.ingroup <- effector.count[which(!is.na(match(colnames(effector.count), metadata$file2[metadata$ingroup == ingroup])))]
+    CSEP.count.ingroup <- CSEP.count[which(!is.na(match(colnames(CSEP.count), metadata$file2[metadata$ingroup == ingroup])))]
     
   } else {
     
     orthogroups.copies.ingroup <- orthogroups.copies
-    effector.count.ingroup <- effector.count
+    CSEP.count.ingroup <- CSEP.count
     
   }
 
+  #Make dataframe to collect stats for orthogroups
   orthogroups.stats <- data.frame(orthogroup=rownames(orthogroups.copies.ingroup),
                                   copy_number="multi",
-                                  secretome=NA,
-                                  effector=NA,
+                                  category=NA,
+                                  CSEP=NA,
                                   stringsAsFactors=FALSE)
   
-  #Single copy
+  #Add whether orthogroups are single copy
   orthogroups.stats$copy_number[match(rownames(orthogroups.copies.ingroup[apply(orthogroups.copies.ingroup < 2, 1, all),]), orthogroups.stats$orthogroup)] <- "single"
   
-  #Secretome type
-  
+  #Categorise orthogroups according to sharedness
   print("Assigning orthogroups as core, accessory or specific")
   #Create bar to show progress
   progress.bar <- txtProgressBar(1, length(rownames(orthogroups.copies.ingroup)), initial=0, char="=", style=3)
@@ -108,52 +108,53 @@ for (ingroup in c(0, 1)) {
     setTxtProgressBar(progress.bar, j)
     
     if (length(which(orthogroups.copies.ingroup[j,] == 0)) == (length(colnames(orthogroups.copies.ingroup)) - 1)) {
-      orthogroups.stats$secretome[orthogroups.stats$orthogroup == rownames(orthogroups.copies.ingroup)[j]] <- "specific"
+      orthogroups.stats$category[orthogroups.stats$orthogroup == rownames(orthogroups.copies.ingroup)[j]] <-
+        "specific"
     }
     if (length(which(orthogroups.copies.ingroup[j,] == 0)) == 0) {
-      orthogroups.stats$secretome[orthogroups.stats$orthogroup == rownames(orthogroups.copies.ingroup)[j]] <- "core"
+      orthogroups.stats$category[orthogroups.stats$orthogroup == rownames(orthogroups.copies.ingroup)[j]] <-
+        "core"
     }
     if (length(which(orthogroups.copies.ingroup[j,] == 0)) < (length(colnames(orthogroups.copies.ingroup)) - 1) && length(which(orthogroups.copies.ingroup[j,] == 0)) > 0) {
-      orthogroups.stats$secretome[orthogroups.stats$orthogroup == rownames(orthogroups.copies.ingroup)[j]] <- "accessory"
+      orthogroups.stats$category[orthogroups.stats$orthogroup == rownames(orthogroups.copies.ingroup)[j]] <-
+        "accessory"
     }
   }
   close(progress.bar)
   
-  #Effectors
+  #Determine which orthogroups contain only CSEPs (SP-only) or both CSEPs and other genes (SP-mixed) 
+  CSEPs <- names(which(rowSums(CSEP.count.ingroup) > 0))
   
-  #Assess which orthogroups contain only effectors (SP-only) or both effectors and other genes (SP-mixed) 
-  effectors <- names(which(rowSums(effector.count.ingroup) > 0))
-  
-  effector.type <- list()
+  CSEP.type <- list()
   
   #For each sample...
   for (i in 1:length(colnames(orthogroups.copies.ingroup))) {
     
     #Print progress
-    cat("Assigning effector orthogroups as effector-only or effector-mixed: ", (i - 1), "/", length(colnames(orthogroups.copies.ingroup)), " taxa", "\r")
+    cat("Assigning CSEP orthogroups as CSEP-only or CSEP-mixed: ", (i - 1), "/", length(colnames(orthogroups.copies.ingroup)), " taxa", "\r")
     
-    for (j in effectors) {
-      if (orthogroups.copies.ingroup[j,i] == effector.count.ingroup[j,i]) {
-        effector.type[[j]][i] <- "effector"
+    for (j in CSEPs) {
+      if (orthogroups.copies.ingroup[j,i] == CSEP.count.ingroup[j,i]) {
+        CSEP.type[[j]][i] <- "CSEP"
       } else {
-        effector.type[[j]][i] <- "mixed"
+        CSEP.type[[j]][i] <- "mixed"
       }
     }
     
   }
-  print(paste0("Assigning effector orthogroups as effector-only or effector-mixed: ", i, "/", length(colnames(orthogroups.copies.ingroup)), " taxa"))
+  print(paste0("Assigning CSEP orthogroups as CSEP-only or CSEP-mixed: ", i, "/", length(colnames(orthogroups.copies.ingroup)), " taxa"))
   
-  for (j in effectors) {
-    if(grepl("mixed", effector.type[j]) == TRUE) {
-      orthogroups.stats$effector[orthogroups.stats$orthogroup == j] <- "mixed"
+  for (j in CSEPs) {
+    if(grepl("mixed", CSEP.type[j]) == TRUE) {
+      orthogroups.stats$CSEP[orthogroups.stats$orthogroup == j] <- "mixed"
     } else {
-      orthogroups.stats$effector[orthogroups.stats$orthogroup == j] <- "effector"
+      orthogroups.stats$CSEP[orthogroups.stats$orthogroup == j] <- "CSEP"
     }
   }
 
   assign(paste0("orthogroups.stats.ingroup", ingroup), orthogroups.stats)
   assign(paste0("orthogroups.copies.ingroup", ingroup), orthogroups.copies.ingroup)
-  assign(paste0("effector.count.ingroup", ingroup), effector.count.ingroup)
+  assign(paste0("CSEP.count.ingroup", ingroup), CSEP.count.ingroup)
   
 }
 
@@ -162,6 +163,6 @@ save(orthogroups.stats.ingroup0,
      orthogroups.stats.ingroup1,
      orthogroups.copies.ingroup0,
      orthogroups.copies.ingroup1,
-     effector.count.ingroup0,
-     effector.count.ingroup1,
+     CSEP.count.ingroup0,
+     CSEP.count.ingroup1,
      file=paste0("orthogroup-matrices-", Sys.Date(), ".RData"))

@@ -1,3 +1,6 @@
+#!/usr/bin/env Rscript
+##Script to download ftp links for Fusarium strains with annotated proteins from NCBI##
+
 #Download and read in ncbi genome data (< 3 MB file)
 download.file("ftp://ftp.ncbi.nlm.nih.gov/genomes/GENOME_REPORTS/eukaryotes.txt", destfile=paste0(Sys.Date(), "_eukaryotes.txt"))
 ncbi <- read.csv(paste0(Sys.Date(), "_eukaryotes.txt"), header=TRUE, sep="\t")

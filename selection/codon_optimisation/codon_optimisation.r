@@ -130,7 +130,7 @@ for (i in colnames(orthogroups.copies)) {
   assign(paste0("codon.table.", i), codon.table)
   
 }
-print(paste0("Generating codon tables and RSCU values ", i, "/", length(colnames(ribosome.count)), " taxa"))
+print(paste0("Generating codon tables and RSCU values ", which(colnames(orthogroups.copies)  == i), "/", length(colnames(ribosome.count)), " taxa"))
 
 #Make empty vector to label which core SC proteins are ribosomal
 test.set <- rep(FALSE, length(codon.table))
@@ -138,16 +138,16 @@ ribosome.orthos <- rownames(ribosome.count)[which(rowSums(ribosome.count) > 0)]
 test.set[na.omit(match(ribosome.orthos, names(prots)[which(lengths(prots) > 0)]))] <- TRUE
 
 #Read in orthogroup data
-load("../../effector_prediction/orthogroup-matrices-2021-07-27.RData")
+load("../../CSEP_prediction/orthogroup-matrices-2021-09-09.RData")
 
 #Core, single-copy CSEPs
 core.SC.mixed <- Reduce(intersect,
                         list(orthogroups.stats.ingroup0$orthogroup[which(
                           orthogroups.stats.ingroup0$copy_number == "single")],
                           orthogroups.stats.ingroup0$orthogroup[which(
-                            orthogroups.stats.ingroup0$secretome == "core")],
+                            orthogroups.stats.ingroup0$category == "core")],
                           orthogroups.stats.ingroup0$orthogroup[which(
-                            orthogroups.stats.ingroup0$effector != "")]))
+                            orthogroups.stats.ingroup0$CSEP != "")]))
 
 #Make empty vector for GC3 content
 gc3.list <- list()
@@ -155,7 +155,7 @@ gc3.list <- list()
 #Make empty dataframe for codon optimisation (S) results
 s.df <- data.frame(taxon=colnames(orthogroups.copies),
                    S=NA,
-                   S.effector=NA,
+                   S.CSEP=NA,
                    S.other=NA)
 
 cai.list <- list()
@@ -198,7 +198,7 @@ for (i in colnames(orthogroups.copies)) {
   #Calculate S
   s.df$S[s.df$taxon == i] <- get.s(cai, enc, as.vector(gc3.list[[i]]))
   #...for CSEPs
-  s.df$S.effector[s.df$taxon == i] <-get.s(cai[match(core.SC.mixed, getID(codon.table))],
+  s.df$S.CSEP[s.df$taxon == i] <-get.s(cai[match(core.SC.mixed, getID(codon.table))],
                                            enc[match(core.SC.mixed, getID(codon.table))],
                                            as.vector(gc3.list[[i]])[match(core.SC.mixed, getID(codon.table))])
   #...for non-CSEPs
@@ -213,15 +213,15 @@ print(paste0("Calculating codon statistics for each core SC orthogroup: ",
 
 print("Testing for significant difference in S values between CSEPs and other genes:")
 
-shapiro.e <- shapiro.test(s.df$S.effector)
+shapiro.e <- shapiro.test(s.df$S.CSEP)
 shapiro.o <- shapiro.test(s.df$S.other)
 
 if (shapiro.e$p.value < 0.05 || shapiro.o$p.value < 0.05) {
   print("Reject normality, doing Wilcoxon test")
-  wilcox.test(x=s.df$S.effector, y=s.df$S.other)
+  wilcox.test(x=s.df$S.CSEP, y=s.df$S.other)
 } else {
   print("Normal data, doing t-test")
-  t.test(x=s.df$S.effector, y=s.df$S.other)
+  t.test(x=s.df$S.CSEP, y=s.df$S.other)
 }
 
 print(paste0("Results saved in codon_optimisation-", Sys.Date(), ".RData"))

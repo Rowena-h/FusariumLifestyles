@@ -10,14 +10,14 @@ conda activate lifestyle-test
 
 module load R
 
-mkdir effectors orthogroups
+mkdir CSEPs orthogroups
 
 python run_edited.py 	-i lifestyle-test-orthogroups.csv \
 			-t species_tree_ingroup.tre \
 			--colors endophyte:#009E73,insectmutualist:#56B4E9,plantpathogen:#696969,saprotroph:#0072B2,plantassociate:#9AE324,mycoparasite:#D55E00 \
 			-o orthogroups
 
-python run_edited.py  	-i lifestyle-test-effectors.csv \
+python run_edited.py  	-i lifestyle-test-CSEPs.csv \
                 	-t species_tree_ingroup.tre \
                 	--colors endophyte:#009E73,insectmutualist:#56B4E9,plantpathogen:#696969,saprotroph:#0072B2,plantassociate:#9AE324,mycoparasite:#D55E00 \
-	                -o effectors
+	                -o CSEPs

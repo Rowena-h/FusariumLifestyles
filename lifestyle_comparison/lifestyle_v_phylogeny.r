@@ -18,20 +18,20 @@ outgroup <- "Ilysp1_GeneCa"
 phy.ingroup <- drop.tip(phy, outgroup)
 write.tree(phy.ingroup, "species_tree_ingroup.tre")
 
-#Effectors
+#CSEPs
 #Transpose count dataframe (excluding outgroup)
-lifestyle.test.effectors <- as.data.frame(t(effector.count.ingroup1))
+lifestyle.test.CSEPs <- as.data.frame(t(CSEP.count.ingroup1))
 #Add column with names
-lifestyle.test.effectors$genome <- rownames(lifestyle.test.effectors)
+lifestyle.test.CSEPs$genome <- rownames(lifestyle.test.CSEPs)
 #Add column with lifestyle
-lifestyle.test.effectors$lifestyle <- gsub(" ", "", metadata$lifestyle[match(rownames(lifestyle.test.effectors), metadata$file2)])
+lifestyle.test.CSEPs$lifestyle <- gsub(" ", "", metadata$lifestyle[match(rownames(lifestyle.test.CSEPs), metadata$file2)])
 #Replace spaces and hyphens to match tree labels
-lifestyle.test.effectors$genome <- substr(lifestyle.test.effectors$genome, 1, 13)
+lifestyle.test.CSEPs$genome <- substr(lifestyle.test.CSEPs$genome, 1, 13)
 #Reorder columns
-lifestyle.test.effectors <- lifestyle.test.effectors %>% select(genome, lifestyle, everything())
+lifestyle.test.CSEPs <- lifestyle.test.CSEPs %>% select(genome, lifestyle, everything())
 
 #Write to file
-write.csv(lifestyle.test.effectors, "lifestyle-test-effectors.csv", row.names=FALSE, quote=FALSE)
+write.csv(lifestyle.test.CSEPs, "lifestyle-test-CSEPs.csv", row.names=FALSE, quote=FALSE)
 
 #Repeat for orthogroups
 lifestyle.test.orthogroups <- as.data.frame(t(orthogroups.copies.ingroup1))

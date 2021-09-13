@@ -4,8 +4,12 @@
 #$ -l h_rt=1:00:00
 #$ -t 1-56		#number of taxa to download
 
+module load R
+
+Rscript ncbi_ftp_links.r
+
 #Read ftp link for proteins into variable
-LINK=$(sed -n ${SGE_TASK_ID}p ../fus_ncbi_proteins)
+LINK=$(sed -n ${SGE_TASK_ID}p fus_ncbi_proteins)
 
 #Download from the ncbi ftp server
 wget $LINK
