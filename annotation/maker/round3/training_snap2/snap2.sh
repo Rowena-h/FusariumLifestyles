@@ -1,7 +1,7 @@
 #!/bin/sh
 #$ -cwd           	# Set the working directory for the job to the current directory
-#$ -pe smp 1	# Request 48 cores
-#$ -l h_rt=12:00:0 	# Request 72 hours runtime
+#$ -pe smp 1	    # Request 1 core    
+#$ -l h_rt=12:00:0 	# Request 12 hours runtime
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -m bea
 #$ -t 1-5
