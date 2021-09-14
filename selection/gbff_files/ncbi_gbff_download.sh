@@ -5,7 +5,7 @@
 #$ -t 1-56		#number of taxa to download
 
 #Read ftp link for gbff into variable
-LINK=$(sed -n ${SGE_TASK_ID}p ../../fus_ncbi_genomic)
+LINK=$(sed -n ${SGE_TASK_ID}p fus_ncbi_genomic)
 
 #Download from the ncbi ftp server
 wget $LINK

@@ -21,7 +21,7 @@ assembly.sum <- assembly.sum[match(ncbi.filtered$Assembly.Accession, assembly.su
 #Get FTP links and write to file
 genomic.ftp <- paste0(assembly.sum$ftp_path, "/", assembly.sum$X..assembly_accession, "_", assembly.sum$asm_name, "_genomic.gbff.gz")
 genomic.ftp <- gsub(" ", "_", genomic.ftp)
-write(genomic.ftp, file="fus_ncbi_genomic")
+write(genomic.ftp, file="../selection/gbff_files/fus_ncbi_genomic")
 
 protein.ftp <- paste0(assembly.sum$ftp_path, "/", assembly.sum$X..assembly_accession, "_", assembly.sum$asm_name, "_protein.faa.gz")
 protein.ftp <- gsub(" ", "_", protein.ftp)
