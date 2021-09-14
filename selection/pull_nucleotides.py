@@ -1,4 +1,5 @@
-# Biopython's SeqIO module handles sequence input/output
+##Script to pull corresponding nucleotides from GBFF files
+
 from Bio import SeqIO
 import sys
 
@@ -32,8 +33,7 @@ with open(sys.argv[1] + "_nucl.fa", "w") as nt_output:
             
             gene_sequence = cds_feature.extract(record.seq)
              
-            # Output FASTA records - note \n means insert a new line.
-            # This is a little lazy as it won't line wrap the sequence:
+            # Output FASTA records
             nt_output.write(">%s%s\n%s\n" % (sample, protein, gene_sequence))
 
         if not found_feature:

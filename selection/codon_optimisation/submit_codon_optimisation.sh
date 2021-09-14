@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#Make fasta file of core single-copy orthogroups for each taxon
+#Make fasta file of core single copy orthogroups for each taxon
 
 for ORTHO in $(ls ../alignments/codon/*.fa | sed 's#\.\./alignments/codon/##')
 do

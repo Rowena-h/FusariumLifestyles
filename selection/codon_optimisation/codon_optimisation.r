@@ -1,5 +1,5 @@
 #!/usr/bin/env Rscript
-##Script to parse OrthoFinder and ribosomal protein BLAST results to calculate codon optimisation for core single-copy genes##
+##Script to parse OrthoFinder and ribosomal protein BLAST results to calculate codon optimisation for core single copy genes##
 
 library(seqinr)
 library(coRdon)

@@ -1,7 +1,7 @@
 #!/bin/sh
 #$ -cwd           	# Set the working directory for the job to the current directory
-#$ -pe smp 1 		# Request 4 cors
-#$ -l h_rt=1:00:00 	# Request 30 min runtime
+#$ -pe smp 1 		# Request 1 core
+#$ -l h_rt=1:00:00 	# Request 1 hour runtime
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -j y 
 
@@ -21,4 +21,3 @@ blastp \
 
 #Make file with list of protein names with blast hits
 awk '{print $2}' ${TAXON}_blast > ${TAXON}_ribosomes
-#grep -f ${TAXON}_blast_ribosomes ../../orthology_inference/OrthoFinder/Results_Mar01/Orthogroups/Orthogroups.tsv | awk '{print $1}' > ${TAXON}_ribosomeorthos
