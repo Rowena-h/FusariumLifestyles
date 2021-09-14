@@ -1,16 +1,19 @@
+#!/usr/bin/env Rscript
+##Script to produce input files for lifestyle test:
 ##https://github.com/fantin-mesny/Effect-Of-Biological-Categories-On-Genomes-Composition
 
 library(ape)
 library(MCMCtreeR)
 library(dplyr)
 
-load("../CSEP_prediction/orthogroup-matrices-2021-07-27.RData")
+#Load most recent orthogroup presence absence matrices
+load("../CSEP_prediction/orthogroup-matrices-2021-09-09.RData")
 
 ##LIFESTYLE VERSUS PHYLOGENY TEST
 
 metadata <- read.csv("../metadata.csv")
 
-#Read in tree
+#Read in dated tree
 phy <- readMCMCtree("../divergence_time_estimation/mcmctree/run1_independent/FigTree.tre", 
 		    forceUltrametric=TRUE)$apePhy
 #Remove outgroup from tree and write to file
@@ -42,4 +45,5 @@ lifestyle.test.orthogroups <- lifestyle.test.orthogroups %>% select(genome, life
 
 write.csv(lifestyle.test.orthogroups, "lifestyle-test-orthogroups.csv", row.names=FALSE, quote=FALSE)
 
+#Submit test
 system("qsub lifestyle-test.sh")
