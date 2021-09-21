@@ -4,7 +4,7 @@
 #$ -l h_rt=1:00:0 	# Request 1 hour runtime
 #$ -l h_vmem=1G         # Request 1GB RAM
 #$ -j y
-#$ -t 2-5
+#$ -t 1-5
 
 STRAIN=$(sed -n ${SGE_TASK_ID}p ../../strains)
 TAG=$(sed -n ${SGE_TASK_ID}p locus_tags.txt)
