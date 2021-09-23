@@ -11,6 +11,7 @@ STRAIN=$(sed -n ${SGE_TASK_ID}p ../strains)
 
 module load bwa
 module load samtools
+module load seqtk
 
 for ASSEMBLER in abyss megahit spades
 do
@@ -30,4 +31,7 @@ do
 
 	#Polish with pilon
 	java -jar /data/home/btx494/pilon/pilon-1.23.jar --genome ../denovo_assembly/${ASSEMBLER}/fusotu${STRAIN}/fusotu${STRAIN}-contigs.fa --frags fusotu${STRAIN}_${ASSEMBLER}_mapped_coordinatesorted.bam --output fusotu${STRAIN}_${ASSEMBLER}_pilon --changes --fix all --threads ${NSLOTS}
+
+	#Remove contigs <200bp (to be NCBI compliant)
+	seqtk seq -L 200 fusotu${STRAIN}_${ASSEMBLER}_pilon.fasta > fusotu${STRAIN}_${ASSEMBLER}_pilon_filtered.fa
 done
