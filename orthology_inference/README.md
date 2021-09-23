@@ -2,4 +2,5 @@
 
 ## 3 Orthology inferences
 
-`./submit_orthology_inferences.sh` - download predicted protein sets of *Fusarium* strains from NCBI and submit OrthoFinder.
+1. `qsub submit_protein_download.sh` - submits download of predicted protein sets of *Fusarium* strains from NCBI.
+2. `qsub orthofinder.sh` - submits orthology inference.
