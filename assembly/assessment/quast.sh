@@ -13,5 +13,5 @@ conda activate quast
 
 for STRAIN in $STRAINS
 do
-	quast.py ../polishing/fusotu${STRAIN}_abyss_pilon.fasta ../polishing/fusotu${STRAIN}_megahit_pilon.fasta ../polishing/fusotu${STRAIN}_spades_pilon.fasta -o fusotu${STRAIN}_abyss_quast_results -t ${NSLOTS} --fungus -l "ABySS v2.0.2, MEGAHIT v1.2.9, SPAdes v3.11.1"
+	quast.py ../polishing/fusotu${STRAIN}_abyss_pilon_filtered.fa ../polishing/fusotu${STRAIN}_megahit_pilon_filtered.fa ../polishing/fusotu${STRAIN}_spades_pilon_filtered.fa -o fusotu${STRAIN}_quast_results -t ${NSLOTS} --fungus -l "ABySS v2.0.2, MEGAHIT v1.2.9, SPAdes v3.11.1"
 done
