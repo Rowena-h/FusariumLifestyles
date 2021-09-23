@@ -12,4 +12,4 @@ module load anaconda3
 conda activate repeatmasker
 
 mkdir fusotu${STRAIN}abyss_masked
-RepeatMasker -e ncbi -lib fusotu${STRAIN}/RM*/consensi.fa -pa ${NSLOTS} -xsmall -dir fusotu${STRAIN}_abyss_masked ../../assembly/polishing/fusotu${STRAIN}_abyss_pilon_filtered.fasta
+RepeatMasker -e ncbi -lib fusotu${STRAIN}/RM*/consensi.fa -pa ${NSLOTS} -xsmall -dir fusotu${STRAIN}_abyss_masked ../../assembly/polishing/fusotu${STRAIN}_abyss_pilon_filtered.fa
