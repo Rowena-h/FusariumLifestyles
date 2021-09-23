@@ -15,6 +15,6 @@ cd fusotu${STRAIN}
 
 module load singularity
 
-singularity exec /data/containers/repeatmodeler/repeatmodeler-2.0.1.simg BuildDatabase -name fusotu${STRAIN}_abyss ../../../assembly/polishing/fusotu${STRAIN}_abyss_pilon.fasta
+singularity exec /data/containers/repeatmodeler/repeatmodeler-2.0.1.simg BuildDatabase -name fusotu${STRAIN}_abyss ../../../assembly/polishing/fusotu${STRAIN}_abyss_pilon_filtered.fasta
 
 singularity exec /data/containers/repeatmodeler/repeatmodeler-2.0.1.simg RepeatModeler -database fusotu${STRAIN}_abyss -engine ncbi -pa 1 -LTRStruct >& fusotu${STRAIN}_abyss.out 
