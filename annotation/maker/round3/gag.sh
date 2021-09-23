@@ -17,6 +17,7 @@ python2.7 ~/Programmes/genomeannotation-GAG-997e384/gag.py \
 -o fusotu${STRAIN}_gag
 
 cd fusotu${STRAIN}_gag
+
 rename genome fusotu${STRAIN} *
 mv fusotu${STRAIN}.fasta fusotu${STRAIN}.fsa
-cd ../
+sed -i 's/protein|//' fusotu${STRAIN}.proteins.fasta
