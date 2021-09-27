@@ -1,4 +1,6 @@
 #!/bin/sh
 
-qsub species_tree/raxmlng.sh
-qsub species_tree/iqtree.sh
+cd species_tree
+
+qsub raxmlng.sh
+qsub iqtree.sh
