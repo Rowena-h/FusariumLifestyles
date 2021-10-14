@@ -6,7 +6,7 @@
 #$ -j y
 #$ -m bea
 
-PARTITION=$(ls -dir partition.* | sed -n ${SGE_TASK_ID}p)
+PARTITION=$(ls -d partition.* | sed -n ${SGE_TASK_ID}p)
 
 cd partition.${SGE_TASK_ID}
 
