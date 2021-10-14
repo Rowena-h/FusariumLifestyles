@@ -1,9 +1,7 @@
 #!/bin/sh
 
-mkdir modeltest-ng
-
 module load anaconda3
-source activate AMAS
+conda activate AMAS
 
 #Concatenate gene alignments
 AMAS.py concat -f phylip -d aa -i gene_trees/*_aln_edit_trimmed.phy -p fus_proteins_62T_partition.txt -t fus_proteins_62T_concat.phy -u phylip
@@ -29,4 +27,4 @@ done
 mv fus_proteins_62T_partition.txt species_tree/fus_proteins_62T_iqtreepartition.txt
 mv fus_proteins_62T_concat.phy species_tree/
 
-deactivate AMAS
+conda deactivate AMAS
