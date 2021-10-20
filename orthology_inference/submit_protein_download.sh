@@ -3,7 +3,7 @@
 module load R 
 
 #Get FTP links for Fusarium taxa off NCBI
-ncbi_ftp_links.r
+Rscript ncbi_ftp_links.r
 
 #Read number of taxa into variable
 NUM=$(cat fus_ncbi_proteins | wc -l)
