@@ -1,9 +1,10 @@
 #!/bin/sh
 #$ -cwd           	# Set the working directory for the job to the current directory
-#$ -pe smp 1	    # Request 1 core
-#$ -l h_rt=120:00:0 # Request 120 hours runtime
+#$ -pe smp 1	    	# Request 1 core
+#$ -l h_rt=120:00:0 	# Request 120 hours runtime
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -m bea
+#$ -j y
 #$ -t 1-5
 
 STRAIN=$(sed -n ${SGE_TASK_ID}p ../../strains)

@@ -4,7 +4,7 @@
 #$ -l h_rt=1:00:0       # Request 1 hour runtime
 #$ -l h_vmem=1G         # Request 1GB RAM
 #$ -j y
-#$ -t 1-5
+#$ -t 3
 
 STRAIN=$(sed -n ${SGE_TASK_ID}p ../../strains)
 

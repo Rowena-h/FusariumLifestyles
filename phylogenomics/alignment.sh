@@ -1,12 +1,13 @@
 #!/bin/sh
 #$ -cwd           	# Set the working directory for the job to the current directory
 #$ -pe smp 1		# Request 1 core
-#$ -l h_rt=00:30:00 # Request 30 minutes runtime
+#$ -l h_rt=00:30:00 	# Request 30 minutes runtime
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -j y
+#$ -o /dev/null
 
 ORTHO=$(cat aln_list | sed 's/\.fa//' | sed -n ${SGE_TASK_ID}p)
-ORTHOFINDER_DIR=../orthology_inference/OrthoFinder/Results_Mar01/Single_Copy_Orthologue_Sequences
+ORTHOFINDER_DIR=../orthology_inference/OrthoFinder/Results_Sep23/Single_Copy_Orthologue_Sequences
 
 #Align single copy orthogroups
 
