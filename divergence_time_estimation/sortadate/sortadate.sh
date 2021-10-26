@@ -16,7 +16,7 @@ do
 done
 
 #Reroot species tree for SortaDate
-Rscript ../reroot.r ../../phylogenomics/species_tree/iqtree/fus_proteins_62T_iqtree_genepart.contree "Ilysp1_GeneCatalog_proteins_20121116" ../
+Rscript ../reroot.r ../../phylogenomics/species_tree/raxml-ng/fus_proteins_62T.raxml.support "Ilysp1_GeneCatalog_proteins_20121116" ../
 
 module load anaconda3
 conda activate phyx
@@ -24,7 +24,7 @@ conda activate phyx
 #Run SortaDate
 python get_var_length.py ../trees/ --flend _rooted --outf var --outg Ilysp1_GeneCatalog_proteins_20121116
 
-python get_bp_genetrees.py ../trees/ ../fus_proteins_62T_iqtree_genepart.contree_rooted --flend _rooted --outf bp
+python get_bp_genetrees.py ../trees/ ../fus_proteins_62T.raxml.support_rooted --flend _rooted --outf bp
 
 python combine_results.py var bp --outf comb
 

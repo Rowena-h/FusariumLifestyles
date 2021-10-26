@@ -19,12 +19,12 @@ sed -e 's/^\(.\{13\}\).*\( .*\)$/\1 \2/' fus_proteins_dating10_mcmctree.phy > fu
 module load R
 
 #Format rooted species tree for MCMCTree
-Rscript blank_topology.r ../fus_proteins_62T_iqtree_genepart.contree_rooted ./
+Rscript blank_topology.r ../fus_proteins_62T.raxml.support_rooted ./
 
-sed -i '1s/^/62 1\n/' fus_proteins_62T_iqtree_genepart.contree_rooted_blank
-sed -i 's/Root//' fus_proteins_62T_iqtree_genepart.contree_rooted_blank
-sed "s/;/\'>0.9<1.35\';/" fus_proteins_62T_iqtree_genepart.contree_rooted_blank > fus_proteins_62T_iqtree_genepart.contree_dating
-sed -i "s/GCA_013266205)))/GCA_013266205)))'>0.5<0.9'/" fus_proteins_62T_iqtree_genepart.treefile_dating
+sed -i '1s/^/62 1\n/' fus_proteins_62T.raxml.support_rooted_blank
+#sed -i 's/Root//' fus_proteins_62T.raxml.support_rooted_blank
+sed "s/;/\'>0.9<1.35\';/" fus_proteins_62T.raxml.support_rooted_blank > fus_proteins_62T.raxml.support_dating
+sed -i "s/GCA_003947015)))))/GCA_003947015)))))'>0.5<0.9'/" fus_proteins_62T.raxml.support_dating
 
 module load anaconda3
 conda activate paml

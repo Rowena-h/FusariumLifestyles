@@ -7,7 +7,7 @@
 #$ -j y
 
 mkdir run${SGE_TASK_ID}_independent
-cp {in.BV,fus_proteins_62T_iqtree_genepart.treefile_dating,fus_proteins_dating10_mcmctree_short.phy,mcmctree_step2_independent.ctl} run${SGE_TASK_ID}_independent
+cp {in.BV,fus_proteins_62T.raxml.support_dating,fus_proteins_dating10_mcmctree_short.phy,mcmctree_step2_independent.ctl} run${SGE_TASK_ID}_independent
 
 cd run${SGE_TASK_ID}_independent
 sed -i "s/mcmcfile = mcmc.txt/mcmcfile = mcmc_run${SGE_TASK_ID}_independent.txt/" mcmctree_step2_independent.ctl
