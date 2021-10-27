@@ -16,11 +16,11 @@ for (i in trees) {
   tree <- read.tree(paste0("trees/", i))
   
   #For each lifestyle...
-  for (j in unique(metadata$lifestyle)) {
+  for (j in na.omit(unique(metadata$lifestyle))) {
     
     #Add label to taxa in that lifestyle
     tree.edit <- tree
-    tree.edit$tip.label[match(metadata$tip[metadata$lifestyle == j], tree.edit$tip.label)] <- paste0(tree.edit$tip.label[match(metadata$tip[metadata$lifestyle == j], tree.edit$tip.label)], "{lifestyle}")
+    tree.edit$tip.label[match(metadata$tip[which(metadata$lifestyle == j)], tree.edit$tip.label)] <- paste0(tree.edit$tip.label[match(metadata$tip[which(metadata$lifestyle == j)], tree.edit$tip.label)], "{lifestyle}")
     
     #Write tree
     lifestyle <- sub(" ", "", j)
