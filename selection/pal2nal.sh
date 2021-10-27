@@ -20,7 +20,7 @@ conda activate biopython
 python pull_nucleotides.py alignments/${ORTHO}_seqlist
 
 #Get nucleotides for own proteins
-awk -F '>' 'NR==FNR{ids[$0]; next} NF>1{f=($2 in ids)} f' alignments/${ORTHO}_seqlist own_fus_transcripts.fa >> alignments/${ORTHO}_seqlist_nucl.fa
+awk -F '>' 'NR==FNR{ids[$0]; next} NF>1{f=($2 in ids)} f' alignments/${ORTHO}_seqlist gbff_files/own_fus_transcripts.fa >> alignments/${ORTHO}_seqlist_nucl.fa
 
 perl /data/home/btx494/Programmes/pal2nal.v14/pal2nal.pl alignments/${ORTHO}_aln.fa alignments/${ORTHO}_seqlist_nucl.fa -output fasta -nogap > alignments/codon/${ORTHO}_aln_nuc.fa
 
