@@ -11,6 +11,6 @@ module load anaconda3
 conda activate hyphy-2.5.30
 
 hyphy busted 	--alignment ../alignments/codon/${ORTHO}_aln_nuc.fa \
-                --tree ../trees/${ORTHO}.raxml.bestTree_rooted \
+                --tree ../trees/${ORTHO}.raxml.bestTree_rooted_hyphy \
                 --output busted/${ORTHO}_BUSTED.json \
                 --branches FOREGROUND
