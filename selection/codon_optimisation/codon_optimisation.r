@@ -65,7 +65,7 @@ print("Reading in ribosomal proteins")
 for (i in colnames(orthogroups)) {
   
   #Read in the list of ribosomal proteins
-  ribosomes <- scan(paste0(i, ".faa_blast_ribosomes"), character(), quote="")
+  ribosomes <- scan(paste0(i, ".faa_ribosomes"), character(), quote="")
   #Replace pipes (|) with hyphens
   ribosomes <- gsub("\\|", "-", ribosomes)
   assign(paste0(i, ".ribosomes"), ribosomes)
@@ -138,7 +138,7 @@ ribosome.orthos <- rownames(ribosome.count)[which(rowSums(ribosome.count) > 0)]
 test.set[na.omit(match(ribosome.orthos, names(prots)[which(lengths(prots) > 0)]))] <- TRUE
 
 #Read in orthogroup data
-load("../../CSEP_prediction/orthogroup-matrices-2021-09-09.RData")
+load("../../CSEP_prediction/orthogroup-matrices-2021-10-27.RData")
 
 #Core, single-copy CSEPs
 core.SC.mixed <- Reduce(intersect,
