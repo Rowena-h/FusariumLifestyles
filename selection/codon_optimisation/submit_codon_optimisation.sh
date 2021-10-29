@@ -16,4 +16,4 @@ rm *.tmp
 
 module load R
 
-Rscript codon_optimisation.r ../../orthology_inference/OrthoFinder/Results_Mar01/
+Rscript codon_optimisation.r ../../orthology_inference/OrthoFinder/Results_Oct22/
