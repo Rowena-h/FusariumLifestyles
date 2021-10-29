@@ -8,4 +8,4 @@
 
 module load R
 
-Rscript orthogroup_parser.r ../orthology_inference/OrthoFinder/Results_Mar01/
+Rscript orthogroup_parser.r ../orthology_inference/OrthoFinder/Results_Oct22/
