@@ -6,8 +6,15 @@ library(ape)
 library(MCMCtreeR)
 library(dplyr)
 
-#Load most recent orthogroup presence absence matrices
-load("../CSEP_prediction/orthogroup-matrices-2021-09-09.RData")
+args <- commandArgs(trailingOnly=TRUE)
+
+#Test if there is one argument: if not, return an error
+if (length(args) != 1) {
+  stop("One argument must be supplied: the orthology parsing results RData file to be used", call.=FALSE)
+} 
+
+#Load orthogroup presence absence matrices
+load(args[1])
 
 ##LIFESTYLE VERSUS PHYLOGENY TEST
 
