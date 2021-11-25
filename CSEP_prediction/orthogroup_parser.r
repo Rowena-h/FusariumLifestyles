@@ -17,12 +17,12 @@ orthogroups <- read.csv(paste0(dir, "Orthogroups/Orthogroups.tsv"), row.names=1,
 
 #Read in 'unassigned genes' - i.e. strain specific genes - and combine with orthogroups dataframe
 unassigned <- read.csv(paste0(dir, "Orthogroups/Orthogroups_UnassignedGenes.tsv"),
-                     row.names=1, sep="\t", check.names=FALSE)
+                       row.names=1, sep="\t", check.names=FALSE)
 
 orthogroups <- rbind(orthogroups, unassigned)
 
 #For each sample...
-print("Reading in CSEPs")
+message("Reading in CSEPs")
 for (i in colnames(orthogroups)) {
   
   #Read in the list of CSEPs
@@ -47,11 +47,13 @@ CSEP.count <- data.frame(matrix(0, ncol=ncol(orthogroups), nrow=nrow(orthogroups
 colnames(CSEP.count) <- colnames(orthogroups)
 rownames(CSEP.count) <- rownames(orthogroups)
 
+message("Counting number of CSEPs in each orthogroup:")
+
 #For each sample...
 for (i in 1:length(colnames(CSEP.count))) {
   
   #Print progress
-  cat("Counting number of CSEPs in each orthogroup: ", (i - 1), "/", length(colnames(CSEP.count)), " taxa", "\r")
+  message((i - 1), "/", length(colnames(CSEP.count)))
   
   #Retrieve the list of potential CSEPs
   CSEPs <- get(paste0(colnames(CSEP.count)[i], ".CSEPs"))
@@ -68,7 +70,7 @@ for (i in 1:length(colnames(CSEP.count))) {
   }
   
 }
-print(paste0("Counting number of CSEPs in each orthogroup: ", i, "/", length(colnames(CSEP.count)), " taxa"))
+message(i, "/", length(colnames(CSEP.count)))
 
 #Read in sample metadata
 metadata <- read.csv("../metadata.csv")
@@ -87,7 +89,7 @@ for (ingroup in c(0, 1)) {
     CSEP.count.ingroup <- CSEP.count
     
   }
-
+  
   #Make dataframe to collect stats for orthogroups
   orthogroups.stats <- data.frame(orthogroup=rownames(orthogroups.copies.ingroup),
                                   copy_number="multi",
@@ -99,7 +101,7 @@ for (ingroup in c(0, 1)) {
   orthogroups.stats$copy_number[match(rownames(orthogroups.copies.ingroup[apply(orthogroups.copies.ingroup < 2, 1, all),]), orthogroups.stats$orthogroup)] <- "single"
   
   #Categorise orthogroups according to sharedness
-  print("Assigning orthogroups as core, accessory or specific")
+  message("Assigning orthogroups as core, accessory or specific for ingroup ", ingroup, ":")
   #Create bar to show progress
   progress.bar <- txtProgressBar(1, length(rownames(orthogroups.copies.ingroup)), initial=0, char="=", style=3)
   for (j in 1:length(rownames(orthogroups.copies.ingroup))) {
@@ -127,11 +129,13 @@ for (ingroup in c(0, 1)) {
   
   CSEP.type <- list()
   
+  message("Assigning CSEP orthogroups as CSEP-only or CSEP-mixed for ingroup ", ingroup, ":")
+  
   #For each sample...
   for (i in 1:length(colnames(orthogroups.copies.ingroup))) {
     
     #Print progress
-    cat("Assigning CSEP orthogroups as CSEP-only or CSEP-mixed: ", (i - 1), "/", length(colnames(orthogroups.copies.ingroup)), " taxa", "\r")
+    message((i - 1), "/", length(colnames(orthogroups.copies.ingroup)))
     
     for (j in CSEPs) {
       if (orthogroups.copies.ingroup[j,i] == CSEP.count.ingroup[j,i]) {
@@ -142,7 +146,7 @@ for (ingroup in c(0, 1)) {
     }
     
   }
-  print(paste0("Assigning CSEP orthogroups as CSEP-only or CSEP-mixed: ", i, "/", length(colnames(orthogroups.copies.ingroup)), " taxa"))
+  message(i, "/", length(colnames(orthogroups.copies.ingroup)))
   
   for (j in CSEPs) {
     if(grepl("mixed", CSEP.type[j]) == TRUE) {
@@ -151,14 +155,14 @@ for (ingroup in c(0, 1)) {
       orthogroups.stats$CSEP[orthogroups.stats$orthogroup == j] <- "CSEP"
     }
   }
-
+  
   assign(paste0("orthogroups.stats.ingroup", ingroup), orthogroups.stats)
   assign(paste0("orthogroups.copies.ingroup", ingroup), orthogroups.copies.ingroup)
   assign(paste0("CSEP.count.ingroup", ingroup), CSEP.count.ingroup)
   
 }
 
-print(paste0("Results saved in orthogroup-matrices-", Sys.Date(), ".RData"))
+message(paste0("Results saved in orthogroup-matrices-", Sys.Date(), ".RData"))
 save(orthogroups.stats.ingroup0,
      orthogroups.stats.ingroup1,
      orthogroups.copies.ingroup0,
