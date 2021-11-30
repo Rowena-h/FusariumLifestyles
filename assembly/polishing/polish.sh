@@ -35,3 +35,6 @@ do
 	#Remove contigs <200bp (to be NCBI compliant)
 	seqtk seq -L 200 fusotu${STRAIN}_${ASSEMBLER}_pilon.fasta > fusotu${STRAIN}_${ASSEMBLER}_pilon_filtered.fa
 done
+
+mkdir fusotu${STRAIN}
+mv fusotu${STRAIN}*.bam* fusotu${STRAIN}

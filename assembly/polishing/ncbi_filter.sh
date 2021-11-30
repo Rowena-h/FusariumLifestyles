@@ -7,8 +7,6 @@ STRAINS=$(cat ../strains)
 for STRAIN in $STRAINS
 do
 
-	STRAIN=5	
-	
 	awk '{print $1}' mito_remove_${STRAIN} > tmp
 
 	#Remove sequences flagged as mitochondrial contaminants by NCBI
