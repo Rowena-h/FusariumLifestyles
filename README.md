@@ -1,4 +1,4 @@
-# Fusarium Lifestyles
+# *Fusarium* Lifestyles
  
 Bioinformatics analysis pipeline for Hill et al. (in prep) Lifestyle transitions in fusarioid fungi are frequent and lack clear genomic signatures.
 
