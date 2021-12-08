@@ -17,16 +17,19 @@ for ASSEMBLER in abyss megahit spades
 do
 	#Index assembly	
 	bwa index ../denovo_assembly/${ASSEMBLER}/fusotu${STRAIN}/fusotu${STRAIN}-contigs.fa
-	#Align reads to assembly and sort by readname
-	bwa mem ../denovo_assembly/${ASSEMBLER}/fusotu${STRAIN}/fusotu${STRAIN}-contigs.fa ../reads/FUS_OTU${STRAIN}_1_trimmedpaired.fastq.gz ../reads/FUS_OTU${STRAIN}_2_trimmedpaired.fastq.gz -t ${NSLOTS} | samtools sort -@ ${NSLOTS} -n -o fusotu${STRAIN}_${ASSEMBLER}_mapped_sorted.bam -
-	#Coordinate sort and mark duplicates
-	samtools fixmate -m -@ ${NSLOTS} fusotu${STRAIN}_${ASSEMBLER}_mapped_sorted.bam - | samtools sort -@ ${NSLOTS} - | samtools markdup -@ ${NSLOTS} - fusotu${STRAIN}_${ASSEMBLER}_mapped_sorted_dups.bam
-	#Calculate statistics
-	samtools flagstat fusotu${STRAIN}_${ASSEMBLER}_mapped_sorted_dups.bam > fusotu${STRAIN}_${ASSEMBLER}_mapstats
+	#Align reads to assembly, coordinate sort and mark duplicates
+	bwa mem ./denovo_assembly/${ASSEMBLER}/fusotu${STRAIN}/fusotu${STRAIN}-contigs.fa \
+	../reads/FUS_OTU${STRAIN}_1_trimmedpaired.fastq.gz \
+	../reads/FUS_OTU${STRAIN}_2_trimmedpaired.fastq.gz \
+	-t ${NSLOTS} | \
+	samtools fixmate -m -@ ${NSLOTS} - - | \
+	samtools sort -@ ${NSLOTS} - | \
+	samtools markdup -@ ${NSLOTS} - fusotu${STRAIN}_${ASSEMBLER}_mapped_coordinatesorted.bam
 	
-	#Coordinate sort for polishing
-	samtools sort -@ ${NSLOTS} fusotu${STRAIN}_${ASSEMBLER}_mapped_sorted.bam -o fusotu${STRAIN}_${ASSEMBLER}_mapped_coordinatesorted.bam
-	#Index
+	#Calculate statistics
+	samtools flagstat fusotu${STRAIN}_${ASSEMBLER}_mapped_coordinatesorted.bam > fusotu${STRAIN}_${ASSEMBLER}_mapstats
+	
+	#Index for polishing
 	samtools index fusotu${STRAIN}_${ASSEMBLER}_mapped_coordinatesorted.bam
 
 	#Polish with pilon
