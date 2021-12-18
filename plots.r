@@ -6,41 +6,42 @@
 ###################################
 ###################################
 
-library(ape)
-library(cowplot)
-library(deeptime)
-library(dendextend)
-library(plyr)
-library(dplyr)
-library(eulerr)
-library(ggplot2)
-library(ggalluvial)
-library(ggnewscale)
-library(ggplotify)
-library(ggpubr)
-library(ggrepel)
-library(ggthemes)
-library(ggtree)
-library(grid)
-library(jsonlite)
-library(matrixStats)
-library(MCMCtreeR)
-library(metR)
-library(multcompView)
-library(nlme)
-library(pBrackets)
-library(phytools)
-library(reshape2)
-library(scales)
-library(seqinr)
-library(stringr)
-library(vegan)
+#Written in R v4.0.4
+library(ape)          #5.5
+library(cowplot)      #1.1.1
+library(deeptime)     #0.0.6.0
+library(dendextend)   #1.15.2
+library(plyr)         #1.8.5  must be loaded before dplyr to avoid clashes
+library(dplyr)        #1.0.6
+library(eulerr)       #6.1.0
+library(ggplot2)      #3.3.3
+library(ggalluvial)   #0.12.3
+library(ggnewscale)   #0.4.5
+library(ggplotify)    #0.0.7
+library(ggpubr)       #0.4.0
+library(ggrepel)      #0.9.1
+library(ggthemes)     #4.2.4
+library(ggtree)       #2.4.2
+library(grid)         #4.0.4
+library(jsonlite)     #1.7.2
+library(matrixStats)  #0.61.0
+library(MCMCtreeR)    #1.1
+library(metR)         #0.9.2
+library(multcompView) #0.1-8
+library(nlme)         #3.1-152
+library(pBrackets)    #1.0.1
+library(phytools)     #0.7-80
+library(reshape2)     #1.4.4
+library(scales)       #1.1.1
+library(seqinr)       #4.2-8
+library(stringr)      #1.4.0
+library(vegan)        #2.5-7
 
 #Colour palette
 show_col(colorblind_pal()(8))
 
 #Read in orthogroup data
-load("CSEP_prediction/orthogroup-matrices-2021-09-09.RData")
+load("CSEP_prediction/orthogroup-matrices-2021-10-27.RData")
 
 #Read in sample metadata
 metadata <- read.csv("metadata.csv")
@@ -54,205 +55,6 @@ col.df <- data.frame(lifestyle=c("endophyte", "animal pathogen", "human pathogen
 
 
 ############################    FIGURE 2    ####################################
-#################   CSEP PREDICTION PIPELINE SANKEY   ##########################
-
-#Make empty list to capture protein lengths
-protein.lengths <- list()
-
-#For each taxon...
-for (i in metadata$file2) {
-  
-  #Read in and format CSEPfilter log
-  CSEPfilter <- read.csv(paste0("CSEP_prediction/CSEPfilter_", i, ".faa.log"),
-                         sep=":", row.names=NULL, header=FALSE)
-  CSEPfilter <- CSEPfilter[!is.na(CSEPfilter$V2),]
-  CSEPfilter$V1 <- word(CSEPfilter$V1, 1)
-  CSEPfilter$V1[max(grep("Phobius", CSEPfilter$V1))] <- "Phobius2"
-  rownames(CSEPfilter) <-CSEPfilter$V1
-  CSEPfilter <- subset(CSEPfilter, select="V2")
-  colnames(CSEPfilter) <- metadata$name[metadata$file2 == i]
-  
-  assign(paste0(i, ".CSEPfilter"), CSEPfilter)
-  
-  #Read in CSEPs
-  CSEPs <- scan(paste0("CSEP_prediction/", i, ".faa_candidate_effectors"), character(), quote="")
-  
-  assign(paste0(i, ".CSEPs"), CSEPs)
-  
-  #Read in proteins
-  proteins <- read.fasta(paste0("orthology_inference/", i, ".faa"), seqtype="AA")
-  names(proteins) <- sub(".*\\.faa_", "", names(proteins))
-  
-  #Create bar to show progress
-  progress.bar <- txtProgressBar(1, length(proteins), initial=0, char="=", style=3)
-  
-  counter <- 0
-  
-  #For each protein...
-  for (j in names(proteins)) {
-    
-    counter <- counter + 1
-    
-    #Update progress bar
-    setTxtProgressBar(progress.bar, counter)
-    
-    #Get length
-    protein.lengths[[i]][j] <- length(proteins[[j]])
-    
-  }
-  
-}
-
-#Combine CSEPfilter results into master dataframe
-CSEPfilter.df <- bind_cols(mget(paste0(metadata$file2, ".CSEPfilter")))
-
-#Make dataframe for labelling plot
-CSEPfilterlabels.df <- data.frame(programme=c("", "SignalP v5.0b", "TargetP v2.0", "Phobius v1.01", "TMHMM v2.0c", "Phobius v1.01", "ps_scan v1.86", "NucPred v1.1",  "PredGPI", "EffectorP v3.0"),
-                              x=rev(seq(1.55, length(rownames(CSEPfilter.df)) + 1)),
-                              mean=round(rowMeans(CSEPfilter.df)),
-                              range=paste0(prettyNum(rowMins(as.matrix(CSEPfilter.df)), big.mark=","),
-                                           " - ", 
-                                           prettyNum(rowMaxs(as.matrix(CSEPfilter.df)), big.mark=",")),
-                              sum=rowSums(CSEPfilter.df[,-grep("programme", colnames(CSEPfilter.df))]),
-                              arrow.x=c(seq(2, 10), NA),
-                              arrow.xend=c(seq(1.2, 9.2), NA),
-                              face=c("bold", "plain", "plain", "bold", "plain",
-                                     "plain", "plain", "plain", "plain", "bold"))
-
-#Add column with programme
-CSEPfilter.df$programme <- rownames(CSEPfilter.df)
-#Melt dataframe for plotting
-CSEPfilter.df <- melt(CSEPfilter.df)
-#Order programmes
-CSEPfilter.df$programme <- factor(CSEPfilter.df$programme,
-                                  levels=c("Total", "SignalP", "TargetP", "Phobius", "TMHMM",
-                                           "Phobius2", "Prosite", "NucPred", "PredGPI", "EffectorP"))
-
-#Plot sankey diagram of CSEPfilter steps
-gg.CSEPfilter <- ggplot(CSEPfilter.df,
-                      aes(x=programme, y=value, stratum=variable, alluvium=variable, fill=variable)) +
-  geom_stratum(colour=NA, size=0.2) +
-  geom_flow(size=0.2) +
-  geom_segment(data=CSEPfilterlabels.df,
-               aes(x=arrow.x, xend=arrow.xend, y=-130000, yend=-130000),
-               arrow=arrow(length=unit(0.1, "cm"), type="closed"),
-               size=0.15,
-               inherit.aes=FALSE) +
-  geom_label(data=CSEPfilterlabels.df,
-            aes(x=rev(c(1:length(rownames(CSEPfilterlabels.df)))), y=-130000, label=range),
-            size=2,
-            inherit.aes=FALSE) +
-  geom_label(data=CSEPfilterlabels.df[CSEPfilterlabels.df$programme != "",],
-             aes(x=x, y=-130000, label=programme),
-             label.padding=unit(0.1, "lines"),
-             label.size=NA,
-             size=1.5,
-             inherit.aes=FALSE) +
-  annotate("text", x=10.5, y=-130000, label="Number of proteins", size=2) +
-  labs(tag="A") +
-  scale_x_discrete(limits=rev(c("Blank",
-                                "Total",
-                                "SignalP",
-                                "TargetP",
-                                "Phobius",
-                                "TMHMM",
-                                "Phobius2",
-                                "Prosite",
-                                "NucPred",
-                                "PredGPI",
-                                "EffectorP")),
-                   labels=rev(c("",
-                                "Predicted\nproteomes",
-                                "Predicted\nsignal peptide",
-                                "",
-                                "Predicted\nsecretomes",
-                                "TM helices\n<=1",
-                                "",
-                                "No ER retention",
-                                "Not nuclear\nlocalised",
-                                "Not\nGPI-anchored",
-                                "CSEPs")),
-                   expand=c(0, 0)) +
-  scale_fill_manual(values=rep(c("dimgrey", "grey"), length.out=length(metadata$file2))) +
-  coord_flip(ylim=c(-200000, sum(CSEPfilter.df$value[CSEPfilter.df$programme == "Total"])),
-             clip="off") +
-  theme(legend.position="none",
-        plot.tag=element_text(face="bold"),
-        panel.grid.major=element_blank(), 
-        panel.grid.minor=element_blank(),
-        panel.background=element_blank(),
-        axis.ticks=element_blank(),
-        axis.text.y=element_text(size=8, face=rev(CSEPfilterlabels.df$face)),
-        axis.text.x=element_blank(),
-        axis.title=element_blank())
-
-#Function to add brackets
-#https://stackoverflow.com/questions/35633239/add-curly-braces-to-ggplot2-and-then-use-ggsave
-bracketsGrob <- function(...){
-  l <- list(...)
-  e <- new.env()
-  e$l <- l
-  grid:::recordGrob(  {
-    do.call(grid.brackets, l)
-  }, e)
-}
-
-#Plot brackets
-b1 <- bracketsGrob(0.025, 0.68, 0.025, 0.83, lwd=1.5, ticks=0.8, col="dimgrey", h=0.02)
-b2 <- bracketsGrob(0.025, 0.38, 0.025, 0.53, lwd=1.5, ticks=0.8, col="dimgrey", h=0.02)
-
-#Add brackets to sankey
-gg.CSEPfilter <- gg.CSEPfilter +
-  annotation_custom(b1) +
-  annotation_custom(b2)
-
-#Make dataframe of protein lengths
-lengths.df <- stack(protein.lengths)
-#Make vector with CSEPs from all taxa
-CSEPs <- unlist(mget(paste0(metadata$file2, ".CSEPs")))
-#Label proteins as CSEPs or not
-lengths.df$group[!is.na(match(rownames(lengths.df), CSEPs))] <- "CSEP"
-lengths.df$group[is.na(lengths.df$group)] <- "other"
-
-#Make dataframe for labelling plot
-lengthslabels.df <- data.frame(table(lengths.df$group))
-lengthslabels.df$mean <- t.test(lengths.df$values[lengths.df$group == "CSEP"], lengths.df$values[lengths.df$group == "other"])$estimate
-lengthslabels.df$label <- paste0("n=", prettyNum(lengthslabels.df$Freq, big.mark=","))
-
-#Plot boxplot of protein lengths
-gg.lengths <- ggplot(lengths.df, aes(x=group, y=values)) +
-  geom_hline(yintercept=300, lty="dashed") +
-  geom_violin(size=0.3) +
-  geom_boxplot(width=0.2, size=0.3, outlier.size=0.3) +
-  geom_text(data=lengthslabels.df, aes(x=Var1, y=mean, label=label),
-            nudge_y=500, nudge_x=0.3, size=1.5, inherit.aes=FALSE) +
-  scale_x_discrete(labels=c("CSEP", "Other"),
-                   limits=c("CSEP", "other")) +
-  scale_y_continuous(labels=comma, sec.axis=dup_axis(),
-                     breaks=c(300, 5000, 10000),
-                     #expand=c(0, 100),
-                     minor_breaks=seq(0, round_any(max(lengths.df$values), 1000, f=ceiling), 1000)) +
-  labs(y="Protein length (aa)", tag="B") +
-  theme_minimal() +
-  theme(panel.grid.major.x=element_blank(),
-        plot.tag=element_text(face="bold"),
-        axis.title.x=element_blank(),
-        axis.text.x=element_text(size=12),
-        axis.title.y.left=element_text(size=10),
-        axis.title.y.right=element_blank(),
-        axis.text.y.left=element_blank(),
-        axis.text.y.right=element_text(size=8),
-        panel.border=element_rect(colour="black", fill=NA, size=1.5))
-
-#Write to file
-tiff(file=paste0("Fig2-", Sys.Date(), ".tiff"),
-     height=4, width=6.75, units="in", res=600, compression="lzw")
-gg.CSEPfilter + 
-  annotation_custom(ggplotGrob(gg.lengths), ymin=300000, ymax=900000, xmin=2, xmax=8)
-dev.off()
-
-
-############################    FIGURE 3    ####################################
 #####################   PHYLOGENY AND LIFESTYLE   ##############################
 
 ## MCMCTREE CONVERGENCE PLOTS ##
@@ -287,7 +89,7 @@ for (i in c("independent", "correlated")) {
   
   #Read in and format MCMCTRee output
   mcmc1.out <- read.csv(paste0("divergence_time_estimation/mcmctree/run1_", i, "/mcmctree_step2_out.txt"),
-                        sep="\t", skip=644, nrows=61, header=FALSE)
+                        sep="\t", skip=637, nrows=61, header=FALSE)
   mcmc1.out <- as.data.frame(do.call(rbind, strsplit(mcmc1.out$V1, "\\s+")))
   mcmc1.out <- mcmc1.out[1:7]
   colnames(mcmc1.out) <- c("node", "posterior_mean", "95_equal_tail_CI_lower", "95_equal_tail_CI_upper",
@@ -313,8 +115,8 @@ for (i in c("independent", "correlated")) {
   
 }
 
-#Write to file (Supplementary Figure 1)
-tiff(file=paste0("SupplementaryFig1-", Sys.Date(), ".tiff"),
+#Write to file (Supplementary Figure 9)
+tiff(file=paste0("SupplementaryFig9-", Sys.Date(), ".tiff"),
      height=4, width=6.75, units="in", res=600, compression="lzw")
 plot_grid(plot_grid(gg.mcmc.correlated, gg.infinitesite.correlated, align="h", axis="tb"),
           plot_grid(gg.mcmc.independent, gg.infinitesite.independent, align="h", axis="tb"), nrow=2,labels="AUTO")
@@ -344,6 +146,7 @@ for (i in c("iqtree", "raxmlng", "astral")) {
   chrono <- suppressWarnings(chronos(tree))
   #Convert to dendrogram for tanglegrams
   dend <- as.dendrogram(chrono)
+  labels(dend) <- metadata$tiplab2[match(labels(dend), metadata$name)]
   
   assign(paste0(i, ".dend"), dend)
   
@@ -374,8 +177,8 @@ for (i in c("iqtree", "raxmlng", "astral")) {
 #Untangle dendrograms and plot to compare topologies
 dend <- untangle_labels(raxmlng.dend, iqtree.dend, method="step2side")
 tanglegram(dend,
-           main_left="Concatenated ML (RAxML-NG)",
-           main_right="Coalescent (ASTRAL-III)",
+           main_left="RAxML-NG",
+           main_right="IQ-TREE",
            lab.cex=1,
            cex_main=1,
            columns_width=c(2,0.5,2),
@@ -390,21 +193,30 @@ tanglegram(dend,
            rank_branches=TRUE)
 
 dend <- untangle_labels(raxmlng.dend, astral.dend, method="step2side")
+
+#Create vector for tanglegram line colours
+tangle.cols <- rep("lightgrey", times=length(labels(raxmlng.dend)))
+tangle.cols[55:58] <- "dimgrey"
+
+#Write tanglegram to file (Supplementary Figure 1)
+tiff(file=paste0("SupplementaryFig1-", Sys.Date(), ".tiff"),
+     height=5, width=6.75, unit="in", res=600, compression="lzw")
 tanglegram(dend,
-           main_left="Concatenated ML (RAxML-NG)",
-           main_right="Coalescent (ASTRAL-III)",
-           lab.cex=1,
-           cex_main=1,
-           columns_width=c(2,0.5,2),
-           lwd=1,
-           margin_outer=0,
-           margin_inner=16,
-           margin_top=1.5,
+           main_left="Concatenated",
+           main_right="Multispecies coalescent",
+           lab.cex=0.7,
+           cex_main=0.8,
+           columns_width=c(2, 0.8, 2),
+           lwd=0.8,
+           margin_outer=1,
+           margin_inner=12,
+           margin_top=1,
            margin_bottom=0,
            axes=FALSE,
-           edge.lwd=1,
-           color_lines="grey",
+           edge.lwd=0.5,
+           color_lines=tangle.cols,
            rank_branches=TRUE)
+dev.off()
 
 #Proportion of supported branches
 #RAxML-NG Felsenstein's bootstrap >= 70
@@ -418,18 +230,21 @@ suppressWarnings(round(length(which(as.numeric(astral$node.label) >= 0.95)) /
                          length(na.omit(as.numeric(astral$node.label))) * 100))
 
 #Get matching node numbers between trees
-ml.nodes <- matchNodes(raxmlng.tree, iqtree.tree)
-ml.nodes2 <- matchNodes(astral.tree, iqtree.tree)
+ml.nodes <- matchNodes(iqtree.tree, raxmlng.tree)
+ml.nodes2 <- matchNodes(astral.tree, raxmlng.tree)
 
 #Assign species tree topology
-species.tree <- iqtree.tree
+species.tree <- raxmlng.tree
 #Combine branch supports from all tree building methods on the species tree
 species.tree$node.label <- paste0(species.tree$node.label,
-                                  gg.tree.data.raxmlng$label[match(ml.nodes[,1],
-                                                                   gg.tree.data.raxmlng$node)][order(ml.nodes[,2])])
+                                  gg.tree.data.iqtree$label[match(ml.nodes[,1],
+                                                                  gg.tree.data.iqtree$node)][order(ml.nodes[,2])])
 species.tree$node.label <- paste0(species.tree$node.label,
                                   gg.tree.data.astral$label[match(ml.nodes2[,1],
                                                                   gg.tree.data.astral$node)][order(ml.nodes2[,2])])
+
+#Make a vector of nodes that differ between concatenation/coalescent methods
+contradictory.nodes <- matchNodes(raxmlng.tree, astral.tree)[is.na(matchNodes(raxmlng.tree, astral.tree)[,2]),1]
 
 #Plot species tree
 gg.speciestree <- ggtree(species.tree, branch.length="none") %<+% metadata
@@ -503,8 +318,7 @@ for (clock in c("independent", "correlated")) {
                        labels=rev(seq(0, round(max(confidence.intervals$`95%_upper`)), 10)),
                        expand=c(0, 0),
                        name="Million years") +
-    theme(plot.margin=unit(c(1, 0, 0, 0), "cm"),
-          axis.text.x.bottom=element_text(size=5),
+    theme(axis.text.x.bottom=element_text(size=5),
           axis.title.x.bottom=element_text(size=5))
   
   #Reverse the x axis
@@ -562,12 +376,13 @@ for (clock in c("independent", "correlated")) {
                linetype="dashed", colour="grey", size=0.2) +
     geom_nodelab(size=1.4, nudge_x=-0.5, hjust=1, vjust=-0.5) +
     geom_tiplab(aes(label=tiplab), fontface=tiplabel.face.datedtree, size=1.5, offset=1) +
-    geom_tree(size=0.25) +
     geom_tippoint(aes(colour=lifestyle), size=0.7, show.legend=FALSE) +
     scale_colour_manual(values=col.df$colour[match(sort(unique(metadata$lifestyle[match(dated.tree$apePhy$tip.label,
                                                                                         metadata$name)])),
                                                    col.df$lifestyle)]) +
-    scale_linetype_manual(values=c("solid", "11"))
+    new_scale_colour() +
+    geom_tree(size=0.25, aes(colour=node %in% nodes[match(contradictory.nodes, nodes[,1]), 2]), show.legend=FALSE) +
+    scale_colour_manual(values=c("black", "red"))
   
   #Format confidence intervals for table
   confidence.intervals.tab <- data.frame(Node=as.numeric(rownames(confidence.intervals)) - Ntip(dated.tree$apePhy),
@@ -597,8 +412,8 @@ for (clock in c("independent", "correlated")) {
   
 }
 
-#Write dated trees with confidence interval tables to file (Supplementary Figure 4)
-tiff(file=paste0("SupplementaryFig4-", Sys.Date(), ".tiff"),
+#Write dated trees with confidence interval tables to file (Supplementary Figure 2)
+tiff(file=paste0("SupplementaryFig2-", Sys.Date(), ".tiff"),
      height=8, width=6.75, unit="in", res=600, compression="lzw")
 plot_grid(plot_grid(gg.datedtree.correlated +
                       geom_text_repel(data=gg.tree.data.dated.correlated[
@@ -615,7 +430,7 @@ plot_grid(plot_grid(gg.datedtree.correlated +
                         nudge_y=2.5) +
                       geom_label2(aes(subset=!isTip, label=node - Ntip(dated.tree$apePhy)),
                                   size=1, label.padding=unit(1, "pt")) +
-                      theme(plot.margin=margin(0, 1, 0, 0, unit="cm")),
+                      theme(plot.margin=margin(0.8, 1, 0, 0, unit="cm")),
                     gg.ci.first.correlated, gg.ci.second.correlated,
                     rel_widths=c(6, 1 ,1), nrow=1, align="h", axis="tb"),
           plot_grid(gg.datedtree.independent +
@@ -633,7 +448,7 @@ plot_grid(plot_grid(gg.datedtree.correlated +
                         nudge_y=2.5) +
                       geom_label2(aes(subset=!isTip, label=node - Ntip(dated.tree$apePhy)),
                                   size=1, label.padding=unit(1, "pt")) +
-                      theme(plot.margin=margin(0, 1, 0, 0, unit="cm")),
+                      theme(plot.margin=margin(0.8, 1, 0, 0, unit="cm")),
                     gg.ci.first.independent, gg.ci.second.independent,
                     rel_widths=c(6, 1 ,1), nrow=1, align="h", axis="tb"),
           ncol=1, labels="AUTO", align="v", axis="lr")
@@ -709,7 +524,7 @@ gg.category.orthogroups <- ggplot(genes.df, aes(y=name, x=orthogroups, fill=cate
   theme(axis.title.y=element_blank(),
         axis.ticks.y=element_blank(),
         axis.text.y=element_blank(),
-        axis.title.x.top=element_text(size=6, margin=margin(0, 0, 4, 0)),
+        axis.title.x.top=element_text(size=6, margin(0, 0, 4, 0)),
         axis.text.x.top=element_text(size=3),
         panel.grid.major.x=element_line(colour="white"),
         panel.grid.minor.x=element_line(colour="white"),
@@ -761,9 +576,23 @@ col.df$lifestyle <- factor(col.df$lifestyle,
                            levels=c("plant associate", "endophyte", "plant pathogen", "saprotroph", 
                                     "animal associate", "insect mutualist",  "animal pathogen", "human pathogen", "mycoparasite"))
 
+#Make dataframe for FFSC geographical clades
+clades.df <- data.frame(node=NA,
+                        clade=unique(metadata$clade.lab[metadata$clade.lab != ""]))
+
+#Get nodes for each species complex
+for (i in 1:length(clades.df$clade)) {
+  clades.df$node[i] <- getMRCA(dated.tree$apePhy, metadata$name[metadata$clade.lab == clades.df$clade[i]])
+}
+
+clades.df$clade <- paste(clades.df$clade, "clade")
+
 #Plot dated tree
 gg.maintree <- gg.datedtree.independent +
   new_scale_fill() +
+  geom_cladelab(data=clades.df, 
+                mapping=aes(node=node, label=clade),
+                offset.text=2, offset=50, align=TRUE, barsize=0.2, fontsize=1) +
   geom_nodepoint(aes(subset=(node %in% c(64, 66))),
                  size=1, colour="black") +
   geom_text_repel(data=gg.tree.data.dated.independent[gg.tree.data.dated.independent$node %in% c(64, 66),],
@@ -809,99 +638,6 @@ gg.lifestyles.grid <- gheatmap(gg.maintree,
         legend.title=element_text(face="bold", size=5, margin=margin(0, 5, 0, 0)))
 
 
-## GENE COPY NUMBER ##
-
-#Filter presence-absence matrices for orthogroups present in at least one ingroup taxon
-copynum.orthogroups <- orthogroups.copies.ingroup1[which(rowSums(orthogroups.copies.ingroup1) > 0),]
-#copynum.CSEPs <- CSEP.count.ingroup1[which(rowSums(CSEP.count.ingroup1) > 0),]
-copynum.CSEPs <- CSEP.orthogroups
-
-#Make dataframes of gene copy number for each taxon
-copynum.df.orthogroups <- data.frame(taxon=colnames(copynum.orthogroups),
-                                     lifestyle=metadata$lifestyle[match(colnames(copynum.orthogroups),
-                                                                        metadata$file2)],
-                                     as.data.frame(t(copynum.orthogroups)))
-
-copynum.df.CSEPs <- data.frame(taxon=colnames(copynum.CSEPs),
-                                   lifestyle=metadata$lifestyle[match(colnames(copynum.CSEPs),
-                                                                      metadata$file2)],
-                                   as.data.frame(t(copynum.CSEPs)))
-
-#Combine dataframes for plotting
-copynum.df <- rbind(data.frame(melt(copynum.df.orthogroups), data="Orthogroups"),
-                    data.frame(melt(copynum.df.CSEPs), data="CSEPs"))
-#Remove copy number of 0
-copynum.df <- copynum.df[copynum.df$value != 0,]
-
-#Test for significant difference of means
-tukey.copynum.orthogroups <- TukeyHSD(aov(lm(value ~ lifestyle,
-                                             data=copynum.df[copynum.df$data == "Orthogroups",])))
-tukey.copynum.CSEPs <- TukeyHSD(aov(lm(value ~ lifestyle,
-                                           data=copynum.df[copynum.df$data == "CSEPs",])))
-
-#Make dataframe for labelling plot
-copynumlabels.df <- rbind(data.frame(tukey=multcompLetters(tukey.copynum.CSEPs[["lifestyle"]][,4])$Letters,
-                                     data="CSEPs",
-                                     lifestyle=names(multcompLetters(tukey.copynum.CSEPs[["lifestyle"]][,4])$Letters)),
-                          data.frame(tukey=multcompLetters(tukey.copynum.orthogroups[["lifestyle"]][,4])$Letters,
-                                     data="Orthogroups",
-                                     lifestyle=names(multcompLetters(tukey.copynum.orthogroups[["lifestyle"]][,4])$Letters)))
-
-#Add sample sizes for lifestyles
-copynumlabels.df$num <- NA
-for (i in na.omit(unique(metadata$lifestyle))) {
-  copynumlabels.df$num[copynumlabels.df$lifestyle == i] <- paste0("n=", table(metadata$lifestyle[metadata$ingroup == 1])[names(table(metadata$lifestyle[metadata$ingroup == 1])) == i])
-}
-
-#Replace spaces with linebreaks
-copynum.df$lifestyle <- sub(" ", "\n", copynum.df$lifestyle)
-copynumlabels.df$lifestyle <- sub(" ", "\n", copynumlabels.df$lifestyle)
-
-#Set seed for reproducible jitter
-set.seed(1)
-
-gg.copynum <- ggplot(copynum.df, aes(x=lifestyle, y=value)) +
-  facet_wrap(. ~ data, scales="free",
-             labeller=labeller(data=c(CSEPs="CSEPs", Orthogroups="All genes"))) +
-  geom_point(position="jitter", aes(colour=lifestyle), size=0.3) +
-  geom_text(data=copynumlabels.df,
-            aes(x=lifestyle, y=Inf, label=tukey),
-            family="mono",
-            hjust=0.5,
-            vjust=2,
-            size=2,
-            inherit.aes=FALSE) +
-  geom_text(data=copynumlabels.df,
-            aes(x=lifestyle, y=-Inf, colour=lifestyle, label=num),
-            hjust=0.5,
-            vjust=2,
-            size=1.5,
-            show.legend=FALSE,
-            inherit.aes=FALSE) +
-  labs(y="Copy-number") +
-  scale_y_continuous(expand=expansion(mult=c(0, 0.2))) +
-  scale_colour_manual(values=col.df$colour[match(sort(unique(na.omit(metadata$lifestyle))), col.df$lifestyle)],
-                      labels=str_to_sentence(col.df$lifestyle[match(sort(unique(na.omit(metadata$lifestyle))),
-                                                                    col.df$lifestyle)]),
-                      name=NULL) +
-  coord_cartesian(clip="off") +
-  guides(colour=guide_legend(direction="horizontal",
-                             nrow=2,
-                             override.aes=list(size=1.5))) +
-  theme_minimal() +
-  theme(legend.position="bottom",
-        legend.margin=margin(0, 0, 0, 0),
-        legend.key.size=unit(8, "pt"),
-        legend.text=element_text(size=6, margin=margin(0, 5, 0, 0)),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank(),
-        axis.title.x=element_blank(),
-        axis.title.y=element_text(size=6),
-        axis.text.y=element_text(size=4),
-        strip.text=element_text(size=6, face="bold"),
-        plot.margin=margin(2, 0, 5, 5, unit="pt"))
-
-
 ## STRAIN SPECIFIC GENES ##
 
 #Filter presence-absence matrices for strain specific orthogroups
@@ -933,11 +669,16 @@ specificlabels.df <- rbind(data.frame(tukey=multcompLetters(tukey.CSEPs[["lifest
                                       lifestyle=names(multcompLetters(tukey.orthogroups[["lifestyle"]][,4])$Letters)))
 #Melt dataframe for plotting
 specific.df <- melt(specific.df)
+
+#Add sample sizes for lifestyles
+specificlabels.df$num <- NA
+for (i in na.omit(unique(metadata$lifestyle))) {
+  specificlabels.df$num[specificlabels.df$lifestyle == i] <- paste0("n=", table(metadata$lifestyle[metadata$ingroup == 1])[names(table(metadata$lifestyle[metadata$ingroup == 1])) == i])
+}
+
 #Replace spaces with linebreaks
 specific.df$lifestyle <- sub(" ", "\n", specific.df$lifestyle)
 specificlabels.df$lifestyle <- sub(" ", "\n", specificlabels.df$lifestyle)
-#Add sample size
-specificlabels.df$num <- copynumlabels.df$num[match(specificlabels.df$lifestyle, copynumlabels.df$lifestyle)]
 
 #Plot boxplot of strain specific orthogroups across lifestyles
 gg.specific <- ggplot(specific.df, aes(x=lifestyle, y=value, fill=lifestyle)) +
@@ -961,17 +702,10 @@ gg.specific <- ggplot(specific.df, aes(x=lifestyle, y=value, fill=lifestyle)) +
   labs(y="Strain specific genes") +
   scale_y_continuous(expand=expansion(mult=c(0, 0.2))) +
   scale_colour_manual(values=col.df$colour[match(sort(unique(na.omit(metadata$lifestyle))), col.df$lifestyle)],
-                      labels=str_to_sentence(col.df$lifestyle[match(sort(unique(na.omit(metadata$lifestyle))),
-                                                                    col.df$lifestyle)]),
-                      name=NULL) +
+                      guide=FALSE) +
   scale_fill_manual(values=col.df$colour[match(sort(unique(na.omit(metadata$lifestyle))), col.df$lifestyle)],
-                    labels=str_to_sentence(col.df$lifestyle[match(sort(unique(na.omit(metadata$lifestyle))),
-                                                                  col.df$lifestyle)]),
-                    name=NULL) +
+                    guide=FALSE) +
   coord_cartesian(clip="off") +
-  guides(fill=guide_legend(direction="horizontal",
-                           nrow=2),
-         colour="none") +
   theme_minimal() +
   theme(legend.position="bottom",
         legend.margin=margin(0, 0, 0, 0),
@@ -985,10 +719,149 @@ gg.specific <- ggplot(specific.df, aes(x=lifestyle, y=value, fill=lifestyle)) +
         strip.text=element_text(size=6, face="bold"),
         plot.margin=margin(0, 0, 5, 0, unit="pt"))
 
-#Write boxplot of strain specific genes to file (Supplementary Figure 5)
-tiff(file=paste0("SupplementaryFig5-", Sys.Date(), ".tiff"),
-     height=2, width=3.4, unit="in", res=600, compression="lzw")
-gg.specific
+
+## GENE COPY NUMBER ##
+
+#Filter presence-absence matrices for orthogroups present in at least one ingroup taxon
+copynum.orthogroups <- orthogroups.copies.ingroup1[which(rowSums(orthogroups.copies.ingroup1) > 0),]
+#copynum.CSEPs <- CSEP.count.ingroup1[which(rowSums(CSEP.count.ingroup1) > 0),]
+copynum.CSEPs <- CSEP.orthogroups
+
+#Make dataframes of gene copy number for each taxon
+copynum.df.orthogroups <- data.frame(taxon=colnames(copynum.orthogroups),
+                                     lifestyle=metadata$lifestyle[match(colnames(copynum.orthogroups),
+                                                                        metadata$file2)],
+                                     as.data.frame(t(copynum.orthogroups)))
+
+copynum.df.CSEPs <- data.frame(taxon=colnames(copynum.CSEPs),
+                               lifestyle=metadata$lifestyle[match(colnames(copynum.CSEPs),
+                                                                  metadata$file2)],
+                               as.data.frame(t(copynum.CSEPs)))
+
+#Combine dataframes for plotting
+copynum.df <- rbind(data.frame(melt(copynum.df.orthogroups), data="Orthogroups"),
+                    data.frame(melt(copynum.df.CSEPs), data="CSEPs"))
+#Remove copy number of 0
+copynum.df <- copynum.df[copynum.df$value != 0,]
+
+#Get mean copy number for each taxon
+copynum.mean.df <- copynum.df  %>%
+  group_by(taxon, lifestyle, data) %>%
+  summarise(mean=mean(value))
+
+#Test for significant difference of means
+tukey.copynum.orthogroups <- TukeyHSD(aov(lm(mean ~ lifestyle,
+                                             data=copynum.mean.df[copynum.mean.df$data == "Orthogroups",])))
+tukey.copynum.CSEPs <- TukeyHSD(aov(lm(mean ~ lifestyle,
+                                       data=copynum.mean.df[copynum.mean.df$data == "CSEPs",])))
+
+#Make dataframe for labelling plot
+copynumlabels.df <- rbind(data.frame(tukey=multcompLetters(tukey.copynum.CSEPs[["lifestyle"]][,4])$Letters,
+                                     data="CSEPs",
+                                     lifestyle=names(multcompLetters(tukey.copynum.CSEPs[["lifestyle"]][,4])$Letters)),
+                          data.frame(tukey=multcompLetters(tukey.copynum.orthogroups[["lifestyle"]][,4])$Letters,
+                                     data="Orthogroups",
+                                     lifestyle=names(multcompLetters(tukey.copynum.orthogroups[["lifestyle"]][,4])$Letters)))
+
+#Replace spaces with linebreaks
+copynum.df$lifestyle <- sub(" ", "\n", copynum.df$lifestyle)
+copynumlabels.df$lifestyle <- sub(" ", "\n", copynumlabels.df$lifestyle)
+copynum.mean.df$lifestyle <- sub(" ", "\n", copynum.mean.df$lifestyle)
+#Add sample size
+copynumlabels.df$num <- specificlabels.df$num[match(copynumlabels.df$lifestyle, specificlabels.df$lifestyle)]
+
+#Plot boxplot of gene copy number across lifestyles
+gg.copynum.mean <- ggplot(copynum.mean.df, aes(x=lifestyle, y=mean, fill=lifestyle)) +
+  facet_wrap(. ~ data, scales="free",
+             labeller=labeller(data=c(CSEPs="CSEPs", Orthogroups="All genes"))) +
+  geom_violin(fill="white", colour="grey", lty="dotted", size=0.3) +
+  geom_boxplot(width=0.2, size=0.3, outlier.size=0.5) +
+  geom_text(data=copynumlabels.df,
+            aes(x=lifestyle, y=Inf, label=tukey),
+            family="mono",
+            hjust=0.5,
+            vjust=2,
+            size=2,
+            inherit.aes=FALSE) +
+  geom_text(data=copynumlabels.df,
+            aes(x=lifestyle, y=-Inf, colour=lifestyle, label=num),
+            hjust=0.5,
+            vjust=2,
+            size=1.5,
+            show.legend=FALSE,
+            inherit.aes=FALSE) +
+  labs(y="Mean copy number") +
+  scale_y_continuous(expand=expansion(mult=c(0, 0.2))) +
+  scale_colour_manual(values=col.df$colour[match(sort(unique(na.omit(metadata$lifestyle))), col.df$lifestyle)],
+                      guide=FALSE) +
+  scale_fill_manual(values=col.df$colour[match(sort(unique(na.omit(metadata$lifestyle))), col.df$lifestyle)],
+                    labels=str_to_sentence(col.df$lifestyle[match(sort(unique(na.omit(metadata$lifestyle))),
+                                                                  col.df$lifestyle)]),
+                    name=NULL) +
+  coord_cartesian(clip="off") +
+  guides(colour=guide_legend(direction="horizontal",
+                             nrow=2,
+                             override.aes=list(size=1.5))) +
+  theme_minimal() +
+  theme(legend.position="bottom",
+        legend.margin=margin(0, 0, 0, 0),
+        legend.key.size=unit(8, "pt"),
+        legend.text=element_text(size=6, margin=margin(0, 5, 0, 0)),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_text(size=6),
+        axis.text.y=element_text(size=4),
+        strip.text=element_text(size=6, face="bold"),
+        plot.margin=margin(2, 0, 5, 5, unit="pt"))
+
+#Set seed for reproducible jitter
+set.seed(1)
+
+gg.copynum <- ggplot(copynum.df, aes(x=lifestyle, y=value)) +
+  facet_wrap(. ~ data, scales="free",
+             labeller=labeller(data=c(CSEPs="CSEPs", Orthogroups="All genes"))) +
+  geom_point(position="jitter", aes(colour=lifestyle), size=0.3) +
+  geom_text(data=copynumlabels.df,
+            aes(x=lifestyle, y=-Inf, colour=lifestyle, label=num),
+            hjust=0.5,
+            vjust=2,
+            size=1.5,
+            show.legend=FALSE,
+            inherit.aes=FALSE) +
+  labs(y="Copy number") +
+  scale_y_continuous(expand=expansion(mult=c(0, 0.2))) +
+  scale_colour_manual(values=col.df$colour[match(sort(unique(na.omit(metadata$lifestyle))), col.df$lifestyle)],
+                      labels=str_to_sentence(col.df$lifestyle[match(sort(unique(na.omit(metadata$lifestyle))),
+                                                                    col.df$lifestyle)]),
+                      name=NULL) +
+  coord_cartesian(clip="off") +
+  guides(colour=guide_legend(direction="horizontal",
+                             nrow=2,
+                             override.aes=list(size=1.5))) +
+  theme_minimal() +
+  theme(legend.position="bottom",
+        legend.margin=margin(0, 0, 0, 0),
+        legend.key.size=unit(8, "pt"),
+        legend.text=element_text(size=6, margin=margin(0, 5, 0, 0)),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_text(size=6),
+        axis.text.y=element_text(size=4),
+        strip.text=element_text(size=6, face="bold"),
+        plot.margin=margin(2, 0, 5, 5, unit="pt"))
+
+
+#Write boxplot of strain-specific genes/copy number to file (Supplementary Figure 3)
+tiff(file=paste0("SupplementaryFig3-", Sys.Date(), ".tiff"),
+     height=4, width=3.4, unit="in", res=600, compression="lzw")
+plot_grid(gg.specific,
+          gg.copynum.mean,
+          nrow=2,
+          rel_heights=c(0.9, 1),
+          labels="AUTO",
+          label_size=10)
 dev.off()
 
 
@@ -1073,7 +946,7 @@ gg.pwperm <- ggplot(pw.lifestyle.genes, aes(Var2, Var1, fill=value>0.05)) +
 ## COMBINE ##
 
 #Write to file
-tiff(file=paste0("Fig3-", Sys.Date(), ".tiff"),
+tiff(file=paste0("Fig2-", Sys.Date(), ".tiff"),
      height=6, width=6.75, unit="in", res=600, compression="lzw")
 plot_grid(plot_grid(gg.lifestyles.grid, gg.category.CSEPs, gg.category.orthogroups,
                     nrow=1, rel_widths=c(6, 1, 1), align="h", axis="bt"),
@@ -1205,6 +1078,16 @@ print(paste0(selection.mat.labels[["Total&BUSTED&aBSREL&CSEPs"]] + selection.mat
         selection.mat.labels[["Total"]] * 100),
       "%"))
 
+#Number of core SC CSEPs positively selected (consensus between aBSREL and BUSTED)
+print(paste0(selection.mat.labels[["Total&BUSTED&aBSREL&CSEPs"]],
+             ", ",
+             round((selection.mat.labels[["Total&BUSTED&aBSREL&CSEPs"]]) /
+                     (selection.mat.labels[["Total&BUSTED&CSEPs"]] +
+                        selection.mat.labels[["Total&aBSREL&CSEPs"]] +
+                        selection.mat.labels[["Total&CSEPs"]] +
+                        selection.mat.labels[["Total&BUSTED&aBSREL&CSEPs"]]) * 100),
+             "%"))
+
 #Make second matrix with altered numbers to fix plot
 selection.mat <- selection.mat.labels
 selection.mat[["Total&BUSTED&CSEPs"]] <-selection.mat[["Total&aBSREL&CSEPs"]]
@@ -1242,10 +1125,10 @@ euler <- plot(selection.euler,
 #Convert to grob
 euler.grob <- as.grob(euler)
 
-#Read in dataframe matching aBSREL tree nodes to IQ-TREE species tree nodes
+#Read in dataframe matching aBSREL tree nodes to RAxML-NG species tree nodes
 absrel.df <- read.csv("selection/hyphy/absrel_nodes.csv")
 #Add tip labels
-absrel.df <- rbind(absrel.df, data.frame(node=1:length(iqtree$tip.label), absrel=iqtree$tip.label))
+absrel.df <- rbind(absrel.df, data.frame(node=1:length(raxmlng$tip.label), absrel=raxmlng$tip.label))
 
 ##Add number of significant aBSREL tests per taxon that are also supported by busted
 absrel.p.count <- lengths(lapply(absrel.p.sig, function(x)
@@ -1267,10 +1150,10 @@ absrel.df$CSEPs[absrel.df$CSEPs == ""] <- NA
 absrel.df$CSEPs <- gsub('(?=(?:.{10})+$)', "\n", absrel.df$CSEPs, perl = TRUE)
 
 #Plot species tree with no branch lengths
-gg.selection <- ggtree(iqtree.tree, branch.length="none") %<+% metadata
+gg.selection <- ggtree(raxmlng.tree, branch.length="none") %<+% metadata
 
 #Create vector with the order of the tree tips for plotting
-tip.order.speciestree <- rev(gg.tree.data.iqtree$label[gg.tree.data.iqtree$isTip == "TRUE"])
+tip.order.speciestree <- rev(gg.tree.data.raxmlng$label[gg.tree.data.raxmlng$isTip == "TRUE"])
 #Create vector of fontface for new genomes in this study
 label.face.speciestree <- rev(metadata$new[match(tip.order.speciestree, metadata$name)])
 for (i in 1:length(label.face.speciestree)){
@@ -1281,46 +1164,46 @@ for (i in 1:length(label.face.speciestree)){
   }
 }
 #Fontface vector
-tiplabel.face.speciestree <- rep("italic", length(iqtree.tree$tip.label))
-tiplabel.face.speciestree[which(metadata$new[match(iqtree.tree$tip.label, metadata$name)] == "Y")] <- "bold.italic"
+tiplabel.face.speciestree <- rep("italic", length(raxmlng.tree$tip.label))
+tiplabel.face.speciestree[which(metadata$new[match(raxmlng.tree$tip.label, metadata$name)] == "Y")] <- "bold.italic"
 
 #Make dataframe of species complex nodes
-sc.df.iq <- data.frame(sc=names(table(metadata$speciescomplex.abb[match(iqtree.tree$tip.label, metadata$name)]))[table(metadata$speciescomplex.abb[match(iqtree.tree$tip.label, metadata$name)]) > 1],
+sc.df.spec <- data.frame(sc=names(table(metadata$speciescomplex.abb[match(raxmlng.tree$tip.label, metadata$name)]))[table(metadata$speciescomplex.abb[match(raxmlng.tree$tip.label, metadata$name)]) > 1],
                        node=NA)
 
 #Get nodes for each species complex
-for (i in 1:length(sc.df.iq$sc)) {
-  sc.df.iq$node[i] <- getMRCA(iqtree.tree, metadata$name[metadata$speciescomplex.abb == sc.df.iq$sc[i]])
+for (i in 1:length(sc.df.spec$sc)) {
+  sc.df.spec$node[i] <- getMRCA(raxmlng.tree, metadata$name[metadata$speciescomplex.abb == sc.df.spec$sc[i]])
 }
 
-sc.df.iq2 <- data.frame(sc=unique(metadata$speciescomplex.abb)[is.na(match(unique(metadata$speciescomplex.abb),
-                                                                           sc.df.iq$sc))],
+sc.df.spec2 <- data.frame(sc=unique(metadata$speciescomplex.abb)[is.na(match(unique(metadata$speciescomplex.abb),
+                                                                             sc.df.spec$sc))],
                      node=NA)
 
-sc.df.iq2$node <- gg.tree.data.iqtree$node[match(sc.df.iq2$sc, gg.tree.data.iqtree$speciescomplex.abb)]
+sc.df.spec2$node <- gg.tree.data.raxmlng$node[match(sc.df.spec2$sc, gg.tree.data.raxmlng$speciescomplex.abb)]
 
-sc.df.iq <- rbind(sc.df.iq, sc.df.iq2)
-sc.df.iq <- sc.df.iq[match(na.omit(unique(gg.tree.data.iqtree$speciescomplex.abb)), sc.df.iq$sc),]
-sc.df.iq$box <- rep(c(0,1), length.out=length(sc.df.iq$sc))
+sc.df.spec <- rbind(sc.df.spec, sc.df.spec2)
+sc.df.spec <- sc.df.spec[match(na.omit(unique(gg.tree.data.raxmlng$speciescomplex.abb)), sc.df.spec$sc),]
+sc.df.spec$box <- rep(c(0,1), length.out=length(sc.df.spec$sc))
 
-for (i in 1:length(sc.df.iq$sc)) {
+for (i in 1:length(sc.df.spec$sc)) {
   
-  if (sc.df.iq$box[i] == 1) {
+  if (sc.df.spec$box[i] == 1) {
     
     gg.selection <- gg.selection +
-      geom_highlight(node=sc.df.iq$node[sc.df.iq$sc == sc.df.iq$sc[i]], fill="#000000", alpha=0.075, extend=10)
+      geom_highlight(node=sc.df.spec$node[sc.df.spec$sc == sc.df.spec$sc[i]], fill="#000000", alpha=0.075, extend=10)
     
   } else {
     
     gg.selection <- gg.selection +
-      geom_highlight(node=sc.df.iq$node[sc.df.iq$sc == sc.df.iq$sc[i]], fill="#000000", alpha=0.04, extend=10)
+      geom_highlight(node=sc.df.spec$node[sc.df.spec$sc == sc.df.spec$sc[i]], fill="#000000", alpha=0.04, extend=10)
     
   }
   
 }
 
-#Write numbered selection tree to file (Supplementary Figure 6)
-tiff(file=paste0("SupplementaryFig6-", Sys.Date(), ".tiff"),
+#Write numbered selection tree to file (Supplementary Figure 4)
+tiff(file=paste0("SupplementaryFig4-", Sys.Date(), ".tiff"),
      height=4, width=6.75, unit="in", res=600, compression="lzw")
 
 gg.selection %<+% absrel.df +
@@ -1494,6 +1377,9 @@ sitelabels.df$lifestyle <- sub(" ", "\n", sitelabels.df$lifestyle)
 #Number of genes with a different pressure relative to other lifestyles
 length(unique(contrastfel.df$ortho[union(which(contrastfel.df$increase > 0), which(contrastfel.df$decrease > 0))]))
 
+#Genes with both higher and lower relatives rates
+contrastfel.df[intersect(which(contrastfel.df$increase > 0), which(contrastfel.df$decrease > 0)),]
+
 #Melt dataframe for plotting
 contrastfel.sites <- melt(contrastfel.df)
 #Remove genes with no sites
@@ -1574,7 +1460,7 @@ gg.siterates <- ggplot(contrastfel.sites, aes(x=lifestyle, y=value, fill=lifesty
 ## COMBINE ##
 
 #Write to file
-tiff(file=paste0("Fig4-", Sys.Date(), ".tiff"),
+tiff(file=paste0("Fig3-", Sys.Date(), ".tiff"),
      height=6, width=6.75, unit="in", res=600, compression="lzw")
 plot_grid(gg.selection2,
           gg.siterates,
@@ -1585,11 +1471,11 @@ plot_grid(gg.selection2,
 dev.off()
 
 
-############################    FIGURE 5    ####################################
+############################    FIGURE 4    ####################################
 ########################   CODON OPTIMISATION    ###############################
 
 #Load codon optimisation results
-load("selection/codon_optimisation/codon_optimisation-2021-09-10.RData")
+load("selection/codon_optimisation/codon_optimisation-2021-10-29.RData")
 
 ## LIFESTYLE BOXPLOT ##
 
@@ -1744,74 +1630,25 @@ for (i in range.s.df2$name) {
 }
 
 #Phylogenetic generalised least squares regression with three different correlation structure methods
-range.pgls.pagel <- gls(S ~ range,
-                        correlation=corPagel(1, phy=plgs.range.tree, form=~name),
-                        data=range.s.df, method="ML")
-range.pgls.brownian <- gls(S ~ range,
-                           correlation=corBrownian(phy=plgs.range.tree, form=~name),
-                           data=range.s.df, method="ML")
-range.pgls.blomberg <- gls(S ~ range, 
-                           correlation=corBlomberg(1, phy=plgs.range.tree, form=~name, fixed=TRUE),
-                           data=range.s.df, method="ML")
+range.pgls.pagel <- nlme::gls(S ~ range,
+                              correlation=corPagel(1, phy=plgs.range.tree, form=~name),
+                              data=range.s.df, method="ML")
+range.pgls.brownian <- nlme::gls(S ~ range,
+                                 correlation=corBrownian(phy=plgs.range.tree, form=~name),
+                                 data=range.s.df, method="ML")
+range.pgls.blomberg <- nlme::gls(S ~ range, 
+                                 correlation=corBlomberg(1, phy=plgs.range.tree, form=~name, fixed=TRUE),
+                                 data=range.s.df, method="ML")
 
 #Select the best model according to AIC 
 selected.model <- rownames(anova(range.pgls.pagel, range.pgls.brownian, range.pgls.blomberg))[which.min(anova(range.pgls.pagel, range.pgls.brownian, range.pgls.blomberg)$AIC)]
 #Add results for selected model to dataframe
 range.s.df$pgls <- predict(get(selected.model))
 
-#Fix bug in dotplots: https://stackoverflow.com/questions/51406933/how-to-use-ggplot2s-geom-dotplot-with-symmetrically-spaced-and-separated-dots
-dotstackGrob <- function(
-  x = unit(0.5, "npc"),     # x pos of the dotstack's origin
-  y = unit(0.5, "npc"),     # y pos of the dotstack's origin
-  stackaxis = "y",
-  dotdia = unit(1, "npc"),  # Dot diameter in the non-stack axis, should be in npc
-  stackposition = 0,        # Position of each dot in the stack, relative to origin
-  stackratio = 1,           # Stacking height of dots (.75 means 25% dot overlap)
-  default.units = "npc", name = NULL, gp = gpar(), vp = NULL)
-{
-  if (!is.unit(x))
-    x <- unit(x, default.units)
-  if (!is.unit(y))
-    y <- unit(y, default.units)
-  if (!is.unit(dotdia))
-    dotdia <- unit(dotdia, default.units)
-  if (attr(dotdia,"unit") != "npc")
-    warning("Unit type of dotdia should be 'npc'")
-  
-  grob(x = x, y = y, stackaxis = stackaxis, dotdia = dotdia,
-       stackposition = stackposition, stackratio = stackratio,
-       name = name, gp = gp, vp = vp, cl = "dotstackGrob")
-}
-
-#' @export
-makeContext.dotstackGrob <- function(x, recording = TRUE) {
-  # Need absolute coordinates because when using npc coords with circleGrob,
-  # the radius is in the _smaller_ of the two axes. We need the radius
-  # to instead be defined in terms of the non-stack axis.
-  xmm <- convertX(x$x, "mm", valueOnly = TRUE)
-  ymm <- convertY(x$y, "mm", valueOnly = TRUE)
-  
-  if (x$stackaxis == "x") {
-    dotdiamm <- convertY(x$dotdia, "mm", valueOnly = TRUE)
-    xpos <- xmm + dotdiamm * (x$stackposition * x$stackratio)
-    ypos <- ymm
-  } else if (x$stackaxis == "y") {
-    dotdiamm <- convertX(x$dotdia, "mm", valueOnly = TRUE)
-    xpos <- xmm
-    ypos <- ymm + dotdiamm * (x$stackposition * x$stackratio + (1 - x$stackratio) / 2)
-  }
-  
-  circleGrob(
-    x = xpos, y = ypos, r = dotdiamm / 2, default.units = "mm",
-    name = x$name, gp = x$gp, vp = x$vp
-  )
-}
-
-#Plot dotplot of range against codon optimisation
+#Plot scatterplot of range against codon optimisation
 gg.range <- ggplot(range.s.df, aes(x=range, y=S)) +
-  geom_dotplot(aes(x=as.factor(range)),
-               stackratio=2.5,
-               binaxis="y", stackdir="center", dotsize=0.5, fill="dimgrey", colour="dimgrey") +
+  geom_point(aes(x=as.factor(range)),
+             size=0.5, fill="dimgrey", colour="dimgrey") +
   geom_line(aes(y=pgls)) +
   geom_smooth(method="lm", colour="black", linetype="dashed", size=0.5, se=FALSE) +
   geom_text(data=rangelabels.df,
@@ -1822,10 +1659,10 @@ gg.range <- ggplot(range.s.df, aes(x=range, y=S)) +
             size=1.5,
             inherit.aes=FALSE) +
   labs(x="Number of reported lifestyles", y="Codon optimisation (S)") +
-  annotate("text", x=4, y=0.57, label="PGLS", fontface="bold", size=2) +
-  annotate("text", x=4, y=0.55, label=paste0("p=", signif(anova(range.pgls.brownian)[2, 3], 1)), size=2) +
-  annotate("text", x=5.5, y=0.57, label="Pearson's\ncorrelation", fontface="bold", size=2) +
-  annotate("text", x=5.5, y=0.53, label=paste0("r=", range.corr.r, "\np=", range.corr.p), size=2) +
+  annotate("text", x=4, y=0.46, label="PGLS", fontface="bold", size=2) +
+  annotate("text", x=4, y=0.44, label=paste0("p=", signif(anova(range.pgls.brownian)[2, 3], 1)), size=2) +
+  annotate("text", x=5.5, y=0.46, label="Pearson's\ncorrelation", fontface="bold", size=2) +
+  annotate("text", x=5.5, y=0.435, label=paste0("r=", range.corr.r, "\np=", range.corr.p), size=2) +
   coord_cartesian(clip="off") +
   theme_minimal() +
   theme(legend.position="none",
@@ -1836,8 +1673,8 @@ gg.range <- ggplot(range.s.df, aes(x=range, y=S)) +
         axis.text.y=element_text(size=4),
         plot.margin=margin(10, 10, 0, 10, unit="pt"))
 
-#Write lifestyle and range boxplots to file (Supplementary Figure 7)
-tiff(file=paste0("SupplementaryFig7-", Sys.Date(), ".tiff"),
+#Write lifestyle and range plots to file (Supplementary Figure 5)
+tiff(file=paste0("SupplementaryFig5-", Sys.Date(), ".tiff"),
      height=4, width=3.4, unit="in", res=600, compression="lzw")
 plot_grid(plot_grid(gg.codons, gg.range, ncol=1, labels="AUTO", label_size=10))
 dev.off()
@@ -1918,6 +1755,8 @@ gg.pca <- ggplot(pca.centroids.df, aes(x=PC1, y=PC2,
                              "\np=", p)),
             size=1.5,
             inherit.aes=FALSE) +
+  labs(x=paste0("PC1 (", signif(summary(phylpca)$importance[2, 1] * 100, 2), "%)"),
+       y=paste0("PC2 (", signif(summary(phylpca)$importance[2, 2] * 100, 2), "%)")) +
   theme_minimal() +
   theme(strip.text=element_text(size=6, face="bold"),
         panel.border=element_rect(colour="black", fill=NA, size=0.5),
@@ -1950,10 +1789,10 @@ gg.codongenus <- ggplot(s.df, aes(x=genus, y=S)) +
         plot.background=element_rect(colour="black", fill="white", size=0.7))
 
 #Remove outgroup from highlighting dataframe
-sc.df.pca <- sc.df.iq[!sc.df.iq$sc == "outgroup",]
+sc.df.pca <- sc.df.spec[!sc.df.spec$sc == "outgroup",]
 
 #Plot tree for PCA legend
-gg.pcatree <- ggtree(iqtree.tree, branch.length="none", linetype=NA) %<+% metadata +
+gg.pcatree <- ggtree(raxmlng.tree, branch.length="none", linetype=NA) %<+% metadata +
   geom_highlight(data=sc.df.pca, 
                  aes(node=node, fill=sc), extend=-1, alpha=0.5) +
   geom_cladelab(data=sc.df.pca,
@@ -2062,7 +1901,7 @@ gg.rscu <- gheatmap(gg.hclust,
 ## COMBINE ##
 
 #Write to file
-tiff(file=paste0("Fig5-", Sys.Date(), ".tiff"),
+tiff(file=paste0("Fig4-", Sys.Date(), ".tiff"),
      height=4, width=6.75, unit="in", res=600, compression="lzw")
 plot_grid(plot_grid(gg.pca,
                     gg.pcatree +
@@ -2071,4 +1910,259 @@ plot_grid(plot_grid(gg.pca,
                     labels=c("A", ""), label_size=10),
           gg.rscu,
           labels="AUTO", label_size=10, ncol=2, rel_widths=c(0.85, 1))
+dev.off()
+
+
+#####################    SUPPLEMENTARY FIGURE 6    #############################
+#################   CSEP PREDICTION PIPELINE SANKEY   ##########################
+
+#Make empty list to capture protein lengths
+protein.lengths <- list()
+
+#For each taxon...
+for (i in metadata$file2) {
+  
+  #Read in and format CSEPfilter log
+  CSEPfilter <- read.csv(paste0("CSEP_prediction/CSEPfilter_", i, ".faa.log"),
+                         sep=":", row.names=NULL, header=FALSE)
+  CSEPfilter <- CSEPfilter[!is.na(CSEPfilter$V2),]
+  CSEPfilter$V1 <- word(CSEPfilter$V1, 1)
+  CSEPfilter$V1[max(grep("Phobius", CSEPfilter$V1))] <- "Phobius2"
+  rownames(CSEPfilter) <- CSEPfilter$V1
+  CSEPfilter <- subset(CSEPfilter, select="V2")
+  colnames(CSEPfilter) <- metadata$name[metadata$file2 == i]
+  
+  assign(paste0(i, ".CSEPfilter"), CSEPfilter)
+  
+  #Read in CSEPs
+  CSEPs <- scan(paste0("CSEP_prediction/", i, ".faa_candidate_effectors"), character(), quote="")
+  
+  assign(paste0(i, ".CSEPs"), CSEPs)
+  
+  #Read in proteins
+  proteins <- read.fasta(paste0("orthology_inference/", i, ".faa"), seqtype="AA")
+  names(proteins) <- sub(".*\\.faa_", "", names(proteins))
+  
+  #Create bar to show progress
+  progress.bar <- txtProgressBar(1, length(proteins), initial=0, char="=", style=3)
+  
+  counter <- 0
+  
+  #For each protein...
+  for (j in names(proteins)) {
+    
+    counter <- counter + 1
+    
+    #Update progress bar
+    setTxtProgressBar(progress.bar, counter)
+    
+    #Get length
+    protein.lengths[[i]][j] <- length(proteins[[j]])
+    
+  }
+  
+}
+
+#Combine CSEPfilter results into master dataframe
+CSEPfilter.df <- bind_cols(mget(paste0(metadata$file2, ".CSEPfilter")))
+
+#Make dataframe for labelling plot
+CSEPfilterlabels.df <- data.frame(programme=c("", "SignalP v5.0b", "TargetP v2.0", "Phobius v1.01", "TMHMM v2.0c", "Phobius v1.01", "ps_scan v1.86", "NucPred v1.1",  "PredGPI", "EffectorP v3.0"),
+                                  x=rev(seq(1.55, length(rownames(CSEPfilter.df)) + 1)),
+                                  mean=round(rowMeans(CSEPfilter.df)),
+                                  range=paste0(prettyNum(rowMins(as.matrix(CSEPfilter.df)), big.mark=","),
+                                               " - ", 
+                                               prettyNum(rowMaxs(as.matrix(CSEPfilter.df)), big.mark=",")),
+                                  sum=rowSums(CSEPfilter.df[,-grep("programme", colnames(CSEPfilter.df))]),
+                                  arrow.x=c(seq(2, 10), NA),
+                                  arrow.xend=c(seq(1.2, 9.2), NA),
+                                  face=c("bold", "plain", "plain", "bold", "plain",
+                                         "plain", "plain", "plain", "plain", "bold"))
+
+#Add column with programme
+CSEPfilter.df$programme <- rownames(CSEPfilter.df)
+#Melt dataframe for plotting
+CSEPfilter.df <- melt(CSEPfilter.df)
+#Order programmes
+CSEPfilter.df$programme <- factor(CSEPfilter.df$programme,
+                                  levels=c("Total", "SignalP", "TargetP", "Phobius", "TMHMM",
+                                           "Phobius2", "Prosite", "NucPred", "PredGPI", "EffectorP"))
+
+#Plot sankey diagram of CSEPfilter steps
+gg.CSEPfilter <- ggplot(CSEPfilter.df,
+                        aes(x=programme, y=value, stratum=variable, alluvium=variable, fill=variable)) +
+  geom_stratum(colour=NA, size=0.2) +
+  geom_flow(size=0.2) +
+  geom_segment(data=CSEPfilterlabels.df,
+               aes(x=arrow.x, xend=arrow.xend, y=-130000, yend=-130000),
+               arrow=arrow(length=unit(0.1, "cm"), type="closed"),
+               size=0.15,
+               inherit.aes=FALSE) +
+  geom_label(data=CSEPfilterlabels.df,
+             aes(x=rev(c(1:length(rownames(CSEPfilterlabels.df)))), y=-130000, label=range),
+             size=2,
+             inherit.aes=FALSE) +
+  geom_label(data=CSEPfilterlabels.df[CSEPfilterlabels.df$programme != "",],
+             aes(x=x, y=-130000, label=programme),
+             label.padding=unit(0.1, "lines"),
+             label.size=NA,
+             size=1.5,
+             inherit.aes=FALSE) +
+  annotate("text", x=10.5, y=-130000, label="Number of proteins", size=2) +
+  labs(tag="A") +
+  scale_x_discrete(limits=rev(c("Blank",
+                                "Total",
+                                "SignalP",
+                                "TargetP",
+                                "Phobius",
+                                "TMHMM",
+                                "Phobius2",
+                                "Prosite",
+                                "NucPred",
+                                "PredGPI",
+                                "EffectorP")),
+                   labels=rev(c("",
+                                "Predicted\nproteomes",
+                                "Predicted\nsignal peptide",
+                                "",
+                                "Predicted\nsecretomes",
+                                "TM helices\n<=1",
+                                "",
+                                "No ER retention",
+                                "Not nuclear\nlocalised",
+                                "Not\nGPI-anchored",
+                                "CSEPs")),
+                   expand=c(0, 0)) +
+  scale_fill_manual(values=rep(c("dimgrey", "grey"), length.out=length(metadata$file2))) +
+  coord_flip(ylim=c(-200000, sum(CSEPfilter.df$value[CSEPfilter.df$programme == "Total"])),
+             clip="off") +
+  theme(legend.position="none",
+        plot.tag=element_text(face="bold"),
+        panel.grid.major=element_blank(), 
+        panel.grid.minor=element_blank(),
+        panel.background=element_blank(),
+        axis.ticks=element_blank(),
+        axis.text.y=element_text(size=8, face=rev(CSEPfilterlabels.df$face)),
+        axis.text.x=element_blank(),
+        axis.title=element_blank())
+
+#Function to add brackets
+#https://stackoverflow.com/questions/35633239/add-curly-braces-to-ggplot2-and-then-use-ggsave
+bracketsGrob <- function(...){
+  l <- list(...)
+  e <- new.env()
+  e$l <- l
+  grid:::recordGrob(  {
+    do.call(grid.brackets, l)
+  }, e)
+}
+
+#Plot brackets
+b1 <- bracketsGrob(0.025, 0.68, 0.025, 0.83, lwd=1.5, ticks=0.8, col="dimgrey", h=0.02)
+b2 <- bracketsGrob(0.025, 0.38, 0.025, 0.53, lwd=1.5, ticks=0.8, col="dimgrey", h=0.02)
+
+#Add brackets to sankey
+gg.CSEPfilter <- gg.CSEPfilter +
+  annotation_custom(b1) +
+  annotation_custom(b2)
+
+#Make dataframe of protein lengths
+lengths.df <- stack(protein.lengths)
+#Make vector with CSEPs from all taxa
+CSEPs <- unlist(mget(paste0(metadata$file2, ".CSEPs")))
+#Label proteins as CSEPs or not
+lengths.df$group[!is.na(match(rownames(lengths.df), CSEPs))] <- "CSEP"
+lengths.df$group[is.na(lengths.df$group)] <- "other"
+
+#Make dataframe for labelling plot
+lengthslabels.df <- data.frame(table(lengths.df$group))
+lengthslabels.df$mean <- t.test(lengths.df$values[lengths.df$group == "CSEP"], lengths.df$values[lengths.df$group == "other"])$estimate
+lengthslabels.df$label <- paste0("n=", prettyNum(lengthslabels.df$Freq, big.mark=","))
+
+#Plot boxplot of protein lengths
+gg.lengths <- ggplot(lengths.df, aes(x=group, y=values)) +
+  geom_hline(yintercept=300, lty="dashed") +
+  geom_violin(size=0.3) +
+  geom_boxplot(width=0.2, size=0.3, outlier.size=0.3) +
+  geom_text(data=lengthslabels.df, aes(x=Var1, y=mean, label=label),
+            nudge_y=500, nudge_x=0.3, size=1.5, inherit.aes=FALSE) +
+  scale_x_discrete(labels=c("CSEP", "Other"),
+                   limits=c("CSEP", "other")) +
+  scale_y_continuous(labels=comma, sec.axis=dup_axis(),
+                     breaks=c(300, 5000, 10000),
+                     #expand=c(0, 100),
+                     minor_breaks=seq(0, round_any(max(lengths.df$values), 1000, f=ceiling), 1000)) +
+  labs(y="Protein length (aa)", tag="B") +
+  theme_minimal() +
+  theme(panel.grid.major.x=element_blank(),
+        plot.tag=element_text(face="bold"),
+        axis.title.x=element_blank(),
+        axis.text.x=element_text(size=12),
+        axis.title.y.left=element_text(size=10),
+        axis.title.y.right=element_blank(),
+        axis.text.y.left=element_blank(),
+        axis.text.y.right=element_text(size=8),
+        panel.border=element_rect(colour="black", fill=NA, size=1.5))
+
+#Write to file
+tiff(file=paste0("SupplementaryFig6-", Sys.Date(), ".tiff"),
+     height=4, width=6.75, units="in", res=600, compression="lzw")
+gg.CSEPfilter + 
+  annotation_custom(ggplotGrob(gg.lengths), ymin=300000, ymax=900000, xmin=2, xmax=8)
+dev.off()
+
+
+
+
+## Graphical abstract
+
+test <- metadata[,c(which(colnames(metadata) == "name"), c((which(colnames(metadata) == "lifestyle")+1):length(colnames(metadata))))]
+
+test <- test %>% mutate(across(everything(), ~ifelse(.=="", NA, as.character(.))))
+
+test[2:length(colnames(test))][!is.na(test[2:length(colnames(test))])] <- 1
+
+test[2:length(colnames(test))][is.na(test[2:length(colnames(test))])] <- 0
+
+test2 <- melt(test, id="name")
+
+library(ggtreeExtra)
+
+#Plot tree
+gg.abstractree <- ggtree(dated.tree.independent$apePhy, linetype=NA, layout="circular") %<+% metadata +
+  geom_highlight(data=sc.df.dated, 
+                 aes(node=node, fill=as.factor(box)), alpha=1, extend=2, show.legend=FALSE) +
+  scale_fill_manual(values=c("#F5F5F5", "#ECECEC")) +
+  new_scale_fill() +
+  geom_tree(size=0.25) +
+  geom_fruit(data=test2, geom=geom_tile,
+             mapping=aes(y=name, x=variable, alpha=value, fill=variable),
+             color="grey50", offset=0.05,size=0.02) +
+  scale_alpha_discrete(range=c(0, 1), guide=FALSE) +
+  #geom_cladelab(data=sc.df.dated,
+  #              angle="auto",
+  #              horizontal=FALSE,
+  #              mapping=aes(node=node, label=sc),
+  #              offset.text=3, offset=30, align=TRUE, barsize=0.2, fontsize=1.3) +
+  geom_tippoint(aes(colour=lifestyle), size=1, show.legend=FALSE) +
+  scale_fill_manual(values=col.df$colour[match(levels(col.df$lifestyle), col.df$lifestyle)],
+                    labels=str_to_sentence(col.df$lifestyle[match(levels(col.df$lifestyle), col.df$lifestyle)])) +
+  scale_colour_manual(values=col.df$colour[match(sort(unique(metadata$lifestyle[match(dated.tree$apePhy$tip.label,
+                                                                                      metadata$name)])),
+                                                 col.df$lifestyle)]) +
+  guides(fill=guide_legend(direction="horizontal",
+                           title=NULL,
+                           ncol=2)) +
+  theme(legend.position=c(0.51, 0.43),
+        legend.background=element_rect(fill=NA),
+        #legend.key=element_rect(size=5, fill="white", colour="white"),
+        legend.key.size=unit(0.1, "cm"),
+        legend.text=element_text(size=5, margin=margin(0,0,2,-2)),
+        plot.margin=margin(0, 0, 0, 0))
+
+gg.abstractree
+
+tiff(file=paste0("GraphicAbstractTree-", Sys.Date(), ".tiff"),
+     height=4, width=4, unit="in", res=300, compression="lzw")
+gg.abstractree
 dev.off()
