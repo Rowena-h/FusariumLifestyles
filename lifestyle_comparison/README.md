@@ -1,4 +1,4 @@
-# Fusarium Lifestyles
+# *Fusarium* Lifestyles
 
 ## 7 Lifestyle comparison
 

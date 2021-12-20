@@ -1,4 +1,4 @@
-# Fusarium Lifestyles
+# *Fusarium* Lifestyles
 
 ## 1 Assembly
 
