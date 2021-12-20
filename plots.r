@@ -152,14 +152,14 @@ for (i in c("iqtree", "raxmlng", "astral")) {
   
   #Mark unsupported branches
   if (i == "iqtree") {
-    tree$node.label[which(suppressWarnings(as.numeric(tree$node.label) < 95))] <- "∗"
-    tree$node.label[tree$node.label != "∗"] <- ""
+    tree$node.label[which(suppressWarnings(as.numeric(tree$node.label) < 95))] <- "???"
+    tree$node.label[tree$node.label != "???"] <- ""
   } else if (i == "raxmlng") {
-    tree$node.label[which(suppressWarnings(as.numeric(tree$node.label) < 70))] <- "†"
-    tree$node.label[tree$node.label != "†"] <- ""
+    tree$node.label[which(suppressWarnings(as.numeric(tree$node.label) < 70))] <- "???"
+    tree$node.label[tree$node.label != "???"] <- ""
   } else if (i == "astral") {
-    tree$node.label[which(suppressWarnings(as.numeric(tree$node.label) < 0.95))] <- "×"
-    tree$node.label[tree$node.label != "×"] <- ""
+    tree$node.label[which(suppressWarnings(as.numeric(tree$node.label) < 0.95))] <- "??"
+    tree$node.label[tree$node.label != "??"] <- ""
   }
   
   #Plot tree
@@ -2114,17 +2114,17 @@ dev.off()
 
 
 
-## Graphical abstract
+## Simplified graphical abstract tree
 
-test <- metadata[,c(which(colnames(metadata) == "name"), c((which(colnames(metadata) == "lifestyle")+1):length(colnames(metadata))))]
+lifestyles.df <- metadata[,c(which(colnames(metadata) == "name"), c((which(colnames(metadata) == "lifestyle")+1):length(colnames(metadata))))]
 
-test <- test %>% mutate(across(everything(), ~ifelse(.=="", NA, as.character(.))))
+lifestyles.df <- lifestyles.df %>% mutate(across(everything(), ~ifelse(.=="", NA, as.character(.))))
 
-test[2:length(colnames(test))][!is.na(test[2:length(colnames(test))])] <- 1
+lifestyles.df[2:length(colnames(lifestyles.df))][!is.na(lifestyles.df[2:length(colnames(lifestyles.df))])] <- 1
 
-test[2:length(colnames(test))][is.na(test[2:length(colnames(test))])] <- 0
+lifestyles.df[2:length(colnames(lifestyles.df))][is.na(lifestyles.df[2:length(colnames(lifestyles.df))])] <- 0
 
-test2 <- melt(test, id="name")
+lifestyles.df <- melt(lifestyles.df, id="name")
 
 library(ggtreeExtra)
 
@@ -2135,7 +2135,7 @@ gg.abstractree <- ggtree(dated.tree.independent$apePhy, linetype=NA, layout="cir
   scale_fill_manual(values=c("#F5F5F5", "#ECECEC")) +
   new_scale_fill() +
   geom_tree(size=0.25) +
-  geom_fruit(data=test2, geom=geom_tile,
+  geom_fruit(data=lifestyles.df, geom=geom_tile,
              mapping=aes(y=name, x=variable, alpha=value, fill=variable),
              color="grey50", offset=0.05,size=0.02) +
   scale_alpha_discrete(range=c(0, 1), guide=FALSE) +
