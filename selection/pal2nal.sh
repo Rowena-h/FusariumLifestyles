@@ -33,7 +33,7 @@ then
 	echo ${ORTHO} >> pal2nal_check
 fi
 
-module load R
+module load R/4.0.2
 
 #Reroot gene trees
 Rscript reroot.r ../phylogenomics/gene_trees/RAxML-NG/${ORTHO}.raxml.bestTree "Ilysp1_GeneCatalog_proteins_20121116" trees/
