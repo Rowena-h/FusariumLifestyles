@@ -8,6 +8,7 @@
 ORTHO=$(cat aln_list | sed 's/\.fa//' | sed -n ${SGE_TASK_ID}p)
 
 MODEL=$(grep ${ORTHO} species_tree/fus_proteins_62T_raxmlpartition.txt | sed 's/,.*$//')
+MODEL_BMGE=$(grep ${ORTHO} species_tree/fus_proteins_bmge_62T_raxmlpartition.txt | sed 's/,.*$//')
 
 module load anaconda3
 conda activate raxml-ng
@@ -18,4 +19,10 @@ raxml-ng --search \
          --prefix gene_trees/RAxML-NG/${ORTHO} \
          --seed 2 \
          --threads ${NSLOTS}
-         
+
+raxml-ng --search \
+         --msa gene_trees_bmge/${ORTHO}_aln_edit_trimmed.phy \
+         --model ${MODEL_BMGE} \
+         --prefix gene_trees_bmge/RAxML-NG/${ORTHO} \
+         --seed 2 \
+         --threads ${NSLOTS}

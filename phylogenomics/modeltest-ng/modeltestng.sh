@@ -14,3 +14,4 @@ module load anaconda3
 conda activate modeltest-ng
 
 modeltest-ng -d aa -i fus_proteins_62T_concat.phy -q fus_proteins_62T_partition.num${SGE_TASK_ID} -p ${NSLOTS} -T raxml
+modeltest-ng -d aa -i fus_proteins_bmge_62T_concat.phy -q fus_proteins_bmge_62T_partition.num${SGE_TASK_ID} -p ${NSLOTS} -T raxml
