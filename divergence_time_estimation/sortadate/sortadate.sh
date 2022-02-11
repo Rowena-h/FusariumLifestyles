@@ -7,7 +7,7 @@
 
 mkdir ../trees
 
-module load R
+module load R/4.0.2
 
 #Reroot gene trees for SortaDate
 for ORTHO in $(cat ../../phylogenomics/aln_list | sed 's/\.fa//')
