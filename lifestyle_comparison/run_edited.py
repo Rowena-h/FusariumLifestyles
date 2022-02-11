@@ -1,7 +1,8 @@
 ## Developed by Fantin Mesny 
 ## Max Planck Institute For Plant Breeding Research (Cologne, Germany)
 
-# Added line 139 to output phylPCA data - Rowena Hill
+# Added line to output phylPCA data on line 140 - Rowena Hill
+# Added Bonferroni multiple testing correction to pairwise PERMANOVA on line 76 - Rowena Hill
 
 import sys
 import argparse
@@ -67,12 +68,12 @@ def runStat(output):
     dist <- vegdist(data, method='jaccard')
     distMatrix <- as.data.frame(as.matrix(dist))
     perm <- adonis2(dist~PC1+PC2+lifestyle, data=metadata, permutations = 9999)
-    capture.output(perm, file=paste(dir,'permanova.txt',sep=''))
+    capture.output(perm, file=paste(dir, 'permanova.txt', sep=''))
     write.csv(distMatrix,paste(dir,'distMatrix.csv',sep=''), row.names=TRUE)
 
 
     library(RVAideMemoire)
-    permManova<-pairwise.perm.manova(dist,metadata$lifestyle,,nperm=9999)
+    permManova<-pairwise.perm.manova(dist,metadata$lifestyle, , nperm=9999, p.method="bonferroni")
     permManova <- as.data.frame(permManova[3])
     write.csv(permManova,paste(dir,'pairwiseComparisons.csv',sep=''), row.names=TRUE)
     
