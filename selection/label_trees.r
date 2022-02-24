@@ -20,7 +20,7 @@ for (i in trees) {
     
     #Add label to taxa in that lifestyle
     tree.edit <- tree
-    tree.edit$tip.label[match(metadata$tip[which(metadata$lifestyle == j)], tree.edit$tip.label)] <- paste0(tree.edit$tip.label[match(metadata$tip[which(metadata$lifestyle == j)], tree.edit$tip.label)], "{lifestyle}")
+    tree.edit$tip.label[match(metadata$file2[which(metadata$lifestyle == j)], tree.edit$tip.label)] <- paste0(tree.edit$tip.label[match(metadata$file2[which(metadata$lifestyle == j)], tree.edit$tip.label)], "{lifestyle}")
     
     #Write tree
     lifestyle <- sub(" ", "", j)

@@ -9,18 +9,18 @@ mkdir hyphy/busted hyphy/absrel hyphy/contrast-fel
 
 for i in $ORTHO
 do
-	#Label gene tree foreground branches for HyPhy
+	#Label gene tree foreground branches for BUSTED and Contrast-FEL
 	sed -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/' trees/${i}.raxml.bestTree_rooted > trees/${i}.raxml.bestTree_rooted_hyphy
 done
 
-#Label dated species tree foreground branches for aBSREL and BUSTED
-sed -n 631p ../divergence_time_estimation/mcmctree/run1_independent/mcmctree_step2_out.txt | sed -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/' > trees/dated_tree_absrel.tre
-awk -F',' '{print $10 "\t" $11}' ../metadata.csv > tmp
+#Label dated species tree foreground branches for aBSREL
+sed -n 610p ../divergence_time_estimation/mcmctree/run1_independent/mcmctree_step2_out.txt | sed -r 's/:/\{FOREGROUND\}:/g; s/\{FOREGROUND\}([^,]*)$/\1/' > trees/dated_tree_absrel.tre
+awk -F',' '{print $13 "\t" $11}' ../metadata.csv > tmp
 sed `cat tmp | awk '{print "-e s/"$2"/"$1"/"}'`<<<"`cat trees/dated_tree_absrel.tre`" > tmp2 && mv tmp2 trees/dated_tree_absrel.tre
 rm tmp
 
 #Label trees for different lifestyles for Contrast-FEL
-module load R
+module load R/4.0.2
 
 Rscript label_trees.r
 

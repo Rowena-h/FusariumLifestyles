@@ -8,16 +8,21 @@
 module load anaconda3
 conda activate lifestyle-test
 
-module load R
+module load R/3.6.1
 
-mkdir CSEPs orthogroups
+mkdir CSEPs CAZymes orthogroups
 
 python run_edited.py 	-i lifestyle-test-orthogroups.csv \
                         -t species_tree_ingroup.tre \
                         --colors endophyte:#009E73,insectmutualist:#56B4E9,plantpathogen:#696969,saprotroph:#0072B2,plantassociate:#9AE324,mycoparasite:#D55E00 \
                         -o orthogroups
 
-python run_edited.py  	-i lifestyle-test-CSEPs.csv \
+python run_edited.py  	-i lifestyle-test-CSEP.csv \
                         -t species_tree_ingroup.tre \
                         --colors endophyte:#009E73,insectmutualist:#56B4E9,plantpathogen:#696969,saprotroph:#0072B2,plantassociate:#9AE324,mycoparasite:#D55E00 \
                         -o CSEPs
+
+python run_edited.py    -i lifestyle-test-CAZyme.csv \
+                        -t species_tree_ingroup.tre \
+                        --colors endophyte:#009E73,insectmutualist:#56B4E9,plantpathogen:#696969,saprotroph:#0072B2,plantassociate:#9AE324,mycoparasite:#D55E00 \
+                        -o CAZymes
