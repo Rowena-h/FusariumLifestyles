@@ -5,6 +5,7 @@ library(seqinr)
 library(coRdon)
 library(tAI)
 library(rstatix)
+library(reshape2)
 
 args <- commandArgs(trailingOnly=TRUE)
 
@@ -43,13 +44,6 @@ for (i in colnames(orthogroups)) {
 }
 
 
-#Make dataframe with gene counts for each orthogroup
-orthogroups.copies <- orthogroups
-
-for (i in 1:length(colnames(orthogroups.copies))) {
-  orthogroups.copies[, i] <- sapply(strsplit(orthogroups[, i], " "), length)
-}
-
 #Make dataframe for ribosomal protein counts
 ribosome.count <- data.frame(matrix(0, ncol=ncol(orthogroups), nrow=nrow(orthogroups)))
 colnames(ribosome.count) <- colnames(orthogroups)
@@ -83,11 +77,11 @@ message(i, "/", length(colnames(ribosome.count)))
 message("Generating codon tables and RSCU values:")
 
 #For each taxon...
-for (i in colnames(orthogroups.copies)) {
+for (i in colnames(orthogroups)) {
   
   #Print progress
-  message((which(colnames(orthogroups.copies)  == i) - 1),
-          "/", length(colnames(orthogroups.copies)))
+  message((which(colnames(orthogroups)  == i) - 1),
+          "/", length(colnames(orthogroups)))
   
   #Read in core single-copy proteins
   prots <- readSet(file=paste0(i, "_coreSC.fa"))
@@ -100,8 +94,8 @@ for (i in colnames(orthogroups.copies)) {
   assign(paste0("codon.table.", i), codon.table)
   
 }
-message((which(colnames(orthogroups.copies)  == i)),
-        "/", length(colnames(orthogroups.copies)))
+message((which(colnames(orthogroups)  == i)),
+        "/", length(colnames(orthogroups)))
 
 #Make empty vector to label which core SC proteins are ribosomal
 test.set <- rep(FALSE, length(codon.table))
@@ -109,7 +103,7 @@ ribosome.orthos <- rownames(ribosome.count)[which(rowSums(ribosome.count) > 0)]
 test.set[na.omit(match(ribosome.orthos, names(prots)[which(lengths(prots) > 0)]))] <- TRUE
 
 #Read in orthogroup data
-load("../../CSEP_CAZyme_prediction/orthogroup-matrices-2022-02-09.RData")
+load("../../CSEP_CAZyme_prediction/orthogroup-matrices-2022-02-10.RData")
 
 #Core, single-copy CSEPs
 core.SC.csepmixed <- Reduce(intersect,
@@ -133,7 +127,7 @@ core.SC.cazymemixed <- Reduce(intersect,
 gc3.list <- list()
 
 #Make empty dataframe for codon optimisation (S) results
-s.df <- data.frame(taxon=colnames(orthogroups.copies),
+s.df <- data.frame(taxon=colnames(orthogroups),
                    S=NA,
                    S.CSEP=NA,
                    S.CAZyme=NA,
@@ -145,11 +139,11 @@ enc.list <- list()
 message("Calculating codon statistics for each core SC orthogroup:")
 
 #For each taxon...
-for (i in colnames(orthogroups.copies)) {
+for (i in colnames(orthogroups)) {
   
   #Print progress
-  message((which(colnames(orthogroups.copies) == i) - 1), "/",
-          length(colnames(orthogroups.copies)))
+  message((which(colnames(orthogroups) == i) - 1), "/",
+          length(colnames(orthogroups)))
   
   codon.table <- get(paste0("codon.table.", i))
   
@@ -191,35 +185,18 @@ for (i in colnames(orthogroups.copies)) {
           enc[match(core.SC.cazymemixed, getID(codon.table))],
           as.vector(gc3.list[[i]])[match(core.SC.cazymemixed,
                                          getID(codon.table))])
-  #...for non-CSEPs
+  #...for non-CSEPs/CAZymes
   s.df$S.other[s.df$taxon == i] <-
     get.s(cai[-match(union(core.SC.csepmixed, core.SC.cazymemixed),
                      getID(codon.table))],
           enc[-match(union(core.SC.csepmixed, core.SC.cazymemixed),
                      getID(codon.table))],
-          as.vector(gc3.list[[i]])[-match(union(core.SC.csepmixed,
-                                                core.SC.cazymemixed), getID(codon.table))])
+          as.vector(gc3.list[[i]])[-match(union(core.SC.csepmixed, core.SC.cazymemixed),
+                                          getID(codon.table))])
   
 }
-message((which(colnames(orthogroups.copies) == i)), "/",
-        length(colnames(orthogroups.copies)))
-
-message("Testing for significant difference in S values between CSEPs/CAZymes and other genes:")
-
-shapiro.csep <- shapiro.test(s.df$S.CSEP)
-shapiro.cazyme <- shapiro.test(s.df$S.other)
-shapiro.other <- shapiro.test(s.df$S.other)
-
-tmp <- melt(s.df)
-tmp <- tmp[tmp$variable != "S",]
-
-if (shapiro.csep$p.value < 0.05 || shapiro.cazyme$p.value < 0.05 || shapiro.other$p.value < 0.05) {
-  message("Reject normality, doing Games Howell test")
-  games_howell_test(data=tmp, value ~ variable)
-} else {
-  message("Normal data, doing TukeyHSD")
-  TukeyHSD(aov(lm(data=tmp, value ~ variable)))
-}
+message((which(colnames(orthogroups) == i)), "/",
+        length(colnames(orthogroups)))
 
 message(paste0("Results saved in codon_optimisation-", Sys.Date(), ".RData"))
 save(list=c(ls(pattern="rscu\\."), "s.df"), file=paste0("codon_optimisation-", Sys.Date(), ".RData")) 
