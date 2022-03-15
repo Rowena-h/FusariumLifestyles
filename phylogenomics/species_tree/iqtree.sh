@@ -15,12 +15,12 @@ iqtree 	-s fus_proteins_62T_concat.phy \
         -spp fus_proteins_62T_iqtreepartition.txt \
         -bb 1000 \
         -nt ${NSLOTS} \
-        -pre iqtree/fus_proteins_62T_iqtree_genepart \
+        -pre iqtree/fus_proteins_62T_iqtree \
         -m MFP
 
 iqtree  -s fus_proteins_bmge_62T_concat.phy \
         -spp fus_proteins_bmge_62T_iqtreepartition.txt \
         -bb 1000 \
         -nt ${NSLOTS} \
-        -pre iqtree/fus_proteins_bmge_62T_iqtree_genepart \
+        -pre iqtree/fus_proteins_bmge_62T_iqtree \
         -m MFP

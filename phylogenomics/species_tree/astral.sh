@@ -15,7 +15,7 @@ cat ../gene_trees/RAxML-NG/*bestTree > astral/${TREES}_fusortho_raxmlng_trees.tr
 cat ../gene_trees_bmge/RAxML-NG/*bestTree > astral/${TREES}_fusortho_bmge_raxmlng_trees.tre
 
 java -jar /data/home/btx494/Programmes/Astral/astral.5.7.3.jar 	-i astral/${TREES}_fusortho_raxmlng_trees.tre \
-                                                                -o astral/fus_astral_proteins_62T.tre
+                                                                -o astral/fus_proteins_62T_astral.tre
 
 java -jar /data/home/btx494/Programmes/Astral/astral.5.7.3.jar  -i astral/${TREES}_fusortho_bmge_raxmlng_trees.tre \
-                                                                -o astral/fus_astral_proteins_bmge_62T.tre
+                                                                -o astral/fus_proteins_bmge_62T_astral.tre
