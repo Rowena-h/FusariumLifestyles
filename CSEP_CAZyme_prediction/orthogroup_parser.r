@@ -112,6 +112,7 @@ for (ingroup in c(0, 1)) {
   
   if (ingroup == 1) {
     
+    #Filter for taxa in ingroup
     orthogroups.count.ingroup <- orthogroups.count[which(!is.na(match(colnames(orthogroups.count),
                                                                       metadata$file2[metadata$ingroup == ingroup])))]
     CSEP.count.ingroup <- CSEP.count[which(!is.na(match(colnames(CSEP.count),
@@ -330,10 +331,6 @@ for (i in 1:length(names(CSEP.list))) {
 }
 close(progress.bar)
 
-#Classify PCWDEs
-orthogroups.stats$PCWDE[!is.na(orthogroups.stats$CAZyme_family)] <- "N"
-orthogroups.stats$PCWDE[grep("GH|PL|CE", orthogroups.stats$CAZyme_family)] <- "Y"
-
 #Add to all dataframes
 orthogroups.stats.ingroup0 <- 
   data.frame(orthogroups.stats.ingroup0,
@@ -348,6 +345,9 @@ orthogroups.stats.ingroup1 <-
                                      orthogroups.stats$orthogroup),
                                c("CSEP_name", "PHI.base_entry", "EC",
                                  "CAZyme_family", "CAZyme_name", "PCWDE")])
+
+#Remove orthogroups missing from ingroup
+orthogroups.stats.ingroup1 <- orthogroups.stats.ingroup1[!is.na(orthogroups.stats.ingroup1$category),]
 
 message(paste0("Results saved in orthogroup-matrices-", Sys.Date(), ".RData"))
 save(orthogroups.stats.ingroup0,
