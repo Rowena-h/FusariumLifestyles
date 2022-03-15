@@ -11,5 +11,7 @@ iqtree <- root(iqtree, outgroup="Ilysp1_GeneCatalog_proteins_20121116", edgelabe
 
 #Calculate substitution rate prior
 #beta = (alpha x root-time) / mean tip to root distance
+print(mean(distRoot(iqtree, iqtree$tip.label, method="patristic")))
+print(mean(distRoot(raxmlng, raxmlng$tip.label, method="patristic")))
 print(paste0("IQ-TREE: ", 1 / mean(distRoot(iqtree, iqtree$tip.label, method="patristic"))))
 print(paste0("RAxML-NG: ", 1 / mean(distRoot(raxmlng, raxmlng$tip.label, method="patristic"))))
