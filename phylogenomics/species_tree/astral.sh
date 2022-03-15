@@ -5,10 +5,6 @@
 #$ -l h_vmem=1G   	# Request 1GB RAM
 #$ -j y
 
-cd species_tree
-
-mkdir astral
-
 TREES=$(ls ../gene_trees/RAxML-NG/*bestTree | wc -l)
 
 cat ../gene_trees/RAxML-NG/*bestTree > astral/${TREES}_fusortho_raxmlng_trees.tre
