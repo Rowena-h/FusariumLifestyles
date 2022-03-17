@@ -2,9 +2,11 @@
  
 Bioinformatics analysis pipeline for Hill et al. (in prep) Lifestyle transitions in fusarioid fungi are frequent and lack clear genomic signatures.
 
+The pipeline was written for and run on Queen Mary University of London's [Apocrita HPC facility](http://doi.org/10.5281/zenodo.438045) which uses the Univa Grid Engine batch-queue system.
+
 ![Pipeline workflow](pipeline.png)
 
-The pipeline was written for and run on Queen Mary University of London's [Apocrita HPC facility](http://doi.org/10.5281/zenodo.438045) which uses the Univa Grid Engine batch-queue system.
+---
 
 ## 1 Assembly
 
@@ -14,7 +16,7 @@ The pipeline was written for and run on Queen Mary University of London's [Apocr
 
 `cd assembly/reads`
 
-Requires raw `fastq.gz` paired-end reads in this directory as well as `TruSeq3-PE.fa` file with adapter sequences downloaded from [here](https://github.com/timflutre/trimmomatic/blob/master/adapters/TruSeq3-PE.fa).
+Requires raw `fastq.gz` paired-end reads in this directory as well as `TruSeq3-PE.fa` file with adapter sequences downloaded from [here](https://github.com/timflutre/trimmomatic/blob/master/adapters/TruSeq3-PE.fa) (for Illumina NovaSeq 6000 151bp paired-end reads).
 
 1. `qsub trimmomatic.sh` - trims raw reads using [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic).
 2. `qsub fastqc.sh` - after trimming, checks read quality with [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).
@@ -42,6 +44,8 @@ After completing [4 Assessment](https://github.com/Rowena-h/FusariumLifestyles/t
 
 1. `./submit_assessment` - submits [QUAST](https://github.com/ablab/quast), [BUSCO](https://busco.ezlab.org/) and [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) scripts (Hypocreales dataset for BUSCO downloaded from [here](https://busco-data.ezlab.org/v4/data/lineages/)).
 2. `qsub blobtools.sh` - after the BLAST has finished, submit [BlobTools](https://github.com/DRL/blobtools).
+
+---
 
 ## 2 Annotation
 
@@ -82,6 +86,8 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 3. `qsub rename.sh` - after obtaining unique locus tags from e.g. NCBI, renames IDs in gff and fasta files.
 4. `qsub gag.sh` - runs [GAG](https://github.com/genomeannotation/GAG/) to remove introns <10bp, remove terminal Ns and correct start and stop codons in gff file for NCBI compliance.
 
+---
+
 ## 3 Orthology inference
 
 `cd orthology_inference`
@@ -99,6 +105,8 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 4. `./submit_speciestrees_concatenation` - submits concatenation-based species tree methods ([RAxML-NG](https://github.com/amkozlov/raxml-ng) and [IQ-TREE](https://github.com/iqtree/iqtree2)).
 5. `./submit_RAxML-NG_genetrees.sh` - submits RAxML-NG for individual gene trees.
 6. `./submit_speciestrees_coalescent` - submits coalescent-based species tree methods ([ASTRAL-III](https://github.com/smirarab/ASTRAL) and [ASTRAL-Pro](https://github.com/chaoszhang/A-pro)) using genes trees.
+
+---
 
 ## 5 Divergence time estimation
 
@@ -118,6 +126,8 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 2. `Rscript estimate_rate.r` - estimates the scaling parameter for the substitution rate prior using the species tree.
 3. `./submit_mcmctree_dating_step2.sh` - submits second step of approximate likelihood estimation for both independent and correlated rates relaxed clock models.
 
+---
+
 ## 6 CSEP & CAZyme prediction
 
 `cd CSEP_CAZyme_prediction`
@@ -128,11 +138,15 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 4. `./submit_CAZymeprediction.sh` - submits run_dbcan for all strains in this study. 
 5. `qsub submit_orthogroupparsing.sh` - makes abundance matrices of orthogroups for all strains and categorises whether they are CSEPs/CAZymes and core/accessory/specific.
 
+---
+
 ## 7 Lifestyle comparison
 
 `cd lifestyle_comparison`
 
 `./submit_lifestyletest.sh` - submits lifestyle test on orthogroup and CSEP presence absence matrices; `run_edited.py` is modified from the original script by [Mesny & Vannier](https://github.com/fantin-mesny/Effect-Of-Biological-Categories-On-Genomes-Composition).
+
+---
 
 ## 8 Selection
 
@@ -148,6 +162,8 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 
 1. `./pull_ribosomes.sh` - extracts ribosomal protein encoding genes from [Fusgr1](https://mycocosm.jgi.doe.gov/Fusgr1/Fusgr1.home.html) and submits BLAST search against all strains in this study.
 2. `./submit_codon_optimisation.sh` - submits scripts to estimate various codon usage bias statistics and codon optimisation values.
+
+---
 
 ## 9 Statistics and data visualisation
 
