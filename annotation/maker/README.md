@@ -1,7 +1,10 @@
 # *Fusarium* Lifestyles
 
 ## 2 Annotation
-### 2 MAKER pipeline
+
+### 2.2 MAKER pipeline
+
+Informed by [this](https://gist.github.com/darencard/bb1001ac1532dd4225b030cf0cd61ce2) tutorial.
  
 1. :file_folder: `round1`
 2. :file_folder: `round2`
