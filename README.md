@@ -25,14 +25,14 @@ Requires raw `fastq.gz` paired-end reads in this directory as well as `TruSeq3-P
 
 `cd assembly/denovo_assembly`
 
-1. `./submit_assembly.sh` - makes new directory and submits job scripts for each assembly tool (`abyss.sh` -[ABySS](https://github.com/bcgsc/abyss), `megahit.sh` - [MEGAHIT](https://github.com/voutcn/megahit), `spades.sh` - [SPAdes](https://github.com/ablab/spades)).
-2. `./abyss_comp.sh` - after ABySS has finished running for all kmer sizes, compare the assembly stats to choose 'best' kmer size.
+1. `./submit_assembly.sh` - makes new directory and submits job scripts for each assembly tool - [ABySS](https://github.com/bcgsc/abyss) (`abyss.sh`), [MEGAHIT](https://github.com/voutcn/megahit) (`megahit.sh`) and [SPAdes](https://github.com/ablab/spades) (`spades.sh`).
+2. `./abyss_comp.sh` - compares the assembly stats to choose 'best' kmer size for ABySS (must be done after `abyss.sh` has finished for all kmer sizes and strains).
 
 ### 1.3 Polishing
 
 `cd assembly/polishing`
 
-1.`qsub polish.sh` - for each strain and assembly tool, maps raw reads to assembly and calculates mapping statistics with [BWA-MEM](https://github.com/lh3/bwa) and [SAMtools](http://www.htslib.org/) and polishes the assembly with [Pilon](https://github.com/broadinstitute/pilon). Also removes sequences <200 bp using [Seqtk](https://github.com/lh3/seqtk) for NCBI compliance.
+1.`qsub polish.sh` - for each strain and assembly tool, maps raw reads to assembly and calculates mapping statistics with [BWA-MEM](https://github.com/lh3/bwa) and [SAMtools](http://www.htslib.org/) and polishes the assembly with [Pilon](https://github.com/broadinstitute/pilon). Also removes sequences <200bp using [Seqtk](https://github.com/lh3/seqtk) for NCBI compliance.
 
 After completing [4 Assessment](https://github.com/Rowena-h/FusariumLifestyles/tree/main/assembly/assessment) and uploading to NCBI:
 
@@ -42,8 +42,8 @@ After completing [4 Assessment](https://github.com/Rowena-h/FusariumLifestyles/t
 
 `cd assembly/assessment`
 
-1. `./submit_assessment.sh` - submits `quast.sh` ([QUAST](https://github.com/ablab/quast)), `busco.sh` ([BUSCO](https://busco.ezlab.org/)) and `blast.sh` ([BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi)) scripts. `busco.sh` requires the Hypocreales BUSCO dataset downloaded from [here](https://busco-data.ezlab.org/v4/data/lineages/)).
-2. `qsub blobtools.sh` - submits [BlobTools](https://github.com/DRL/blobtools) (must be done after the BLAST has finished).
+1. `./submit_assessment.sh` - submits `quast.sh` ([QUAST](https://github.com/ablab/quast)), `busco.sh` ([BUSCO](https://busco.ezlab.org/)) and `blast.sh` ([BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi)) scripts for assembly quality statistics. `busco.sh` requires the Hypocreales BUSCO dataset downloaded from [here](https://busco-data.ezlab.org/v4/data/lineages/)).
+2. `qsub blobtools.sh` - submits `blobtools.sh` to run [BlobTools](https://github.com/DRL/blobtools) (must be done after `blast.sh` has finished for all strains).
 
 ---
 
@@ -56,7 +56,7 @@ After completing [4 Assessment](https://github.com/Rowena-h/FusariumLifestyles/t
 `cd annotation/repeat_masking`
 
 1. `qsub repeatmodeler.sh` - makes custom repeat library for each strain using [RepeatModeler](https://www.repeatmasker.org/RepeatModeler/).
-2. `qsub repeatmasker.sh` - after repeat modelling, uses custom repeat library to softmask the assembly using [RepeatMasker](https://www.repeatmasker.org/RepeatMasker/).
+2. `qsub repeatmasker.sh` - uses the custom repeat libraries to softmask assemblies using [RepeatMasker](https://www.repeatmasker.org/RepeatMasker/).
 
 ### 2.2 MAKER pipeline
 
@@ -68,22 +68,22 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 
 `cd annotation/maker/round1`
 
-`qsub maker.sh` - first run of [MAKER](http://www.yandell-lab.org/software/maker.html) using ESTs and proteins, as indicated in `.ctl` files. Informed by [this](https://gist.github.com/darencard/bb1001ac1532dd4225b030cf0cd61ce2) tutorial.
+`qsub maker.sh` - submits first run of [MAKER](http://www.yandell-lab.org/software/maker.html) using ESTs and proteins, as indicated in `.ctl` files. Informed by [this](https://gist.github.com/darencard/bb1001ac1532dd4225b030cf0cd61ce2) tutorial.
 
 #### Round 2
 
 `cd annotation/maker/round2`
 
-1. `qsub training_snap/snap.sh` - train [SNAP](https://github.com/KorfLab/SNAP) using gene models from the first MAKER round.
-2. `qsub maker2.sh` - second run of MAKER using trained SNAP (as indicated in `.ctl` files).
+1. `qsub training_snap/snap.sh` - trains [SNAP](https://github.com/KorfLab/SNAP) using gene models from the first MAKER round.
+2. `qsub maker2.sh` - submits second run of MAKER using trained SNAP (as indicated in `.ctl` files).
 
 #### Round 3
 
 `cd annotation/maker/round3`
 
 1. `qsub training_snap2/snap2.sh` - trains SNAP again using gene models from the second MAKER round.
-2. `qsub maker3.sh` - third run of MAKER using second trained SNAP (as indicated in `.ctl` files).
-3. `qsub rename.sh` - after obtaining unique locus tags from e.g. NCBI, renames IDs in gff and fasta files.
+2. `qsub maker3.sh` - submits third run of MAKER using second trained SNAP (as indicated in `.ctl` files).
+3. `qsub rename.sh` - after obtaining unique locus tags from e.g. NCBI (see `locus_tags.txt`), renames IDs in gff and fasta files.
 4. `qsub gag.sh` - runs [GAG](https://github.com/genomeannotation/GAG/) to remove introns <10bp, remove terminal Ns and correct start and stop codons in gff file for NCBI compliance.
 
 ---
