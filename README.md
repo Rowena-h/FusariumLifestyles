@@ -25,7 +25,7 @@ Requires raw `fastq.gz` paired-end reads in this directory as well as `TruSeq3-P
 
 `cd assembly/denovo_assembly`
 
-1. `./submit_assembly.sh` - makes new directory and submits job scripts for each assembly tool - [ABySS](https://github.com/bcgsc/abyss) (`abyss.sh`), [MEGAHIT](https://github.com/voutcn/megahit) (`megahit.sh`) and [SPAdes](https://github.com/ablab/spades) (`spades.sh`).
+1. `./submit_assembly.sh` - makes new directory and submits job scripts for each assembly tool - `abyss.sh` ([ABySS](https://github.com/bcgsc/abyss)), `megahit.sh` ([MEGAHIT](https://github.com/voutcn/megahit)) and `spades.sh` ([SPAdes](https://github.com/ablab/spades)).
 2. `./abyss_comp.sh` - compares the assembly stats to choose 'best' kmer size for ABySS (must be done after `abyss.sh` has finished for all kmer sizes and strains).
 
 ### 1.3 Polishing
@@ -104,9 +104,9 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 1. `./submit_alignment.sh` - submits `alignment.sh` for alignment of single copy orthogroups from OrthoFinder with [MAFFT](https://mafft.cbrc.jp/alignment/software/) followed by trimming with [BMGE](https://bmcecolevol.biomedcentral.com/articles/10.1186/1471-2148-10-210) and [trimAl](http://trimal.cgenomics.org/).
 2. `./concat.sh` - concatenate single copy orthogroup alignments and prepare partition files using [AMAS](https://github.com/marekborowiec/AMAS).
 3. `./submit_modeltestng.sh` - submits `modeltest-ng/modeltestng.sh` to run [ModelTest-NG](https://github.com/ddarriba/modeltest) on all single copy orthogroups (in computationally tractable chunks).
-4. `./submit_speciestrees_concatenation.sh` - submits concatenation-based species tree methods - [RAxML-NG](https://github.com/amkozlov/raxml-ng) (`species_tree/raxmlng.sh`) and [IQ-TREE](https://github.com/iqtree/iqtree2) (`species_tree/iqtree.sh`).
+4. `./submit_speciestrees_concatenation.sh` - submits concatenation-based species tree methods - `species_tree/raxmlng.sh` ([RAxML-NG](https://github.com/amkozlov/raxml-ng)) and `species_tree/iqtree.sh` ([IQ-TREE](https://github.com/iqtree/iqtree2)).
 5. `./submit_RAxML-NG_genetrees.sh` - submits `RAxMLNG_genetrees.sh` to run RAxML-NG for individual gene trees.
-6. `./submit_speciestrees_coalescent.sh` - submits coalescent-based species tree methods -[ASTRAL-III](https://github.com/smirarab/ASTRAL) (`species_tree/astral.sh`) and [ASTRAL-Pro](https://github.com/chaoszhang/A-pro) (`species_tree/astral-pro.sh`) using genes trees.
+6. `./submit_speciestrees_coalescent.sh` - submits coalescent-based species tree methods - `species_tree/astral.sh` ([ASTRAL-III](https://github.com/smirarab/ASTRAL)) and `species_tree/astral-pro.sh` ([ASTRAL-Pro](https://github.com/chaoszhang/A-pro)) using genes trees.
 
 ---
 
@@ -134,7 +134,7 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 
 `cd CSEP_CAZyme_prediction`
 
-1. `./submit_CSEPprediction.sh` - submits all programmes in the CSEP prediction pipeline - [SignalP](https://services.healthtech.dtu.dk/service.php?SignalP-5.0) (`signalp/signalp.sh`, [TargetP](https://services.healthtech.dtu.dk/service.php?TargetP-2.0) (`targetp/targetp.sh`), [Phobius](https://phobius.sbc.su.se/instructions.html) (`phobius/phobius.sh`), [TMHMM](https://services.healthtech.dtu.dk/service.php?TMHMM-2.0) (`tmhmm/tmhmm.sh`), [ps_scan](https://prosite.expasy.org/scanprosite/) (`prosite/ps_scan.sh`), [NucPred](https://nucpred.bioinfo.se/nucpred/) (`nucpred/nucpred.sh`), [PredGPI](http://gpcr.biocomp.unibo.it/predgpi/) (`predgpi/predgpi.sh`, which in turn submits `predgpi/PredGPI.r` to use the R package [ragp](https://rdrr.io/github/missuse/ragp/man/get_pred_gpi.html)) and [EffectorP](https://github.com/JanaSperschneider/EffectorP-3.0) (`effectorp/effectorp.sh`).
+1. `./submit_CSEPprediction.sh` - submits all programmes in the CSEP prediction pipeline - `signalp/signalp.sh` ([SignalP](https://services.healthtech.dtu.dk/service.php?SignalP-5.0)), `targetp/targetp.sh` ([TargetP](https://services.healthtech.dtu.dk/service.php?TargetP-2.0)), `phobius/phobius.sh` ([Phobius](https://phobius.sbc.su.se/instructions.html)), `tmhmm/tmhmm.sh` ([TMHMM](https://services.healthtech.dtu.dk/service.php?TMHMM-2.0)), `prosite/ps_scan.sh` ([ps_scan](https://prosite.expasy.org/scanprosite/)), `nucpred/nucpred.sh` ([NucPred](https://nucpred.bioinfo.se/nucpred/)), `predgpi/predgpi.sh`, which in turn submits `predgpi/PredGPI.r` to use the R package [ragp](https://rdrr.io/github/missuse/ragp/man/get_pred_gpi.html) ([PredGPI](http://gpcr.biocomp.unibo.it/predgpi/)) and  `effectorp/effectorp.sh` ([EffectorP](https://github.com/JanaSperschneider/EffectorP-3.0)).
 2. `./submit_CSEPfilter.sh` - submits `CSEPfilter` to produce lists of CSEPs from all programme results.
 3. `./submit_CSEPblast.sh` -  submits `blastp/blastp.sh` to BLAST of CSEPs against the [PHI-base database](http://www.phi-base.org/) (requires `phi-base_current.csv` and `phi-base_current.fas` to be downloaded from [here](http://www.phi-base.org/downloadLink.htm) into the `blastp` directory).
 4. `./submit_CAZymeprediction.sh` - submits `run_dbcan.sh/run_dbcan.sh` to run run_dbcan. 
