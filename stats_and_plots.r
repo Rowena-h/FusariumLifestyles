@@ -3333,7 +3333,7 @@ gg.rscu <- gheatmap(gg.hclust,
                     colnames=FALSE) +
   scale_fill_gradient2(low="#F0E442", mid="white", high="#CC79A7",
                        breaks=pretty_breaks(),
-                       guide=guide_colourbar(title="Codon usage bias\n(RSCU)",
+                       guide=guide_colourbar(title="Normalised\ncodon usage bias\n(RSCU)",
                                              title.position="top",
                                              direction="horizontal",)) +
   theme(legend.position=c(0.2, 0.8))
