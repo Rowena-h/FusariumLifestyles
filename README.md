@@ -124,8 +124,8 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 
 `cd divergence_time_estimation/mcmctree`
 
-1. `qsub mcmctree_dating_step1.sh` - submits first step of approximate likelihood divergence time estimation with protein data using MCMCTree from [PAML](http://abacus.gene.ucl.ac.uk/software/paml.html) (see [tutorial](http://abacus.gene.ucl.ac.uk/software/MCMCtree.Tutorials.pdf)).
-2. `Rscript estimate_rate.r` - estimates the scaling parameter for the substitution rate prior using the species tree.
+1. `qsub mcmctree_dating_step1.sh` - adds secondary time calibrations to species tree nodes and submits first step of approximate likelihood divergence time estimation with protein data using MCMCTree from [PAML](http://abacus.gene.ucl.ac.uk/software/paml.html) (see [tutorial](http://abacus.gene.ucl.ac.uk/software/MCMCtree.Tutorials.pdf)).
+2. `Rscript estimate_rate.r` - estimates the scaling parameter for the substitution rate prior to be added to `mcmctree_step2_independent.ctl` and `mcmctree_step2_correlated.ctl`.
 3. `./submit_mcmctree_dating_step2.sh` - submits `mcmctree_independent.sh` and `mcmctree_correlated.sh` for second step of approximate likelihood estimation for both independent and correlated rates relaxed clock models.
 
 ---
@@ -134,7 +134,7 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 
 `cd CSEP_CAZyme_prediction`
 
-1. `./submit_CSEPprediction.sh` - submits all programmes in the CSEP prediction pipeline - `signalp/signalp.sh` ([SignalP](https://services.healthtech.dtu.dk/service.php?SignalP-5.0)), `targetp/targetp.sh` ([TargetP](https://services.healthtech.dtu.dk/service.php?TargetP-2.0)), `phobius/phobius.sh` ([Phobius](https://phobius.sbc.su.se/instructions.html)), `tmhmm/tmhmm.sh` ([TMHMM](https://services.healthtech.dtu.dk/service.php?TMHMM-2.0)), `prosite/ps_scan.sh` ([ps_scan](https://prosite.expasy.org/scanprosite/)), `nucpred/nucpred.sh` ([NucPred](https://nucpred.bioinfo.se/nucpred/)), `predgpi/predgpi.sh`, which in turn submits `predgpi/PredGPI.r` to use the R package [ragp](https://rdrr.io/github/missuse/ragp/man/get_pred_gpi.html) ([PredGPI](http://gpcr.biocomp.unibo.it/predgpi/)) and  `effectorp/effectorp.sh` ([EffectorP](https://github.com/JanaSperschneider/EffectorP-3.0)).
+1. `./submit_CSEPprediction.sh` - submits all programmes in the CSEP prediction pipeline - `signalp/signalp.sh` ([SignalP](https://services.healthtech.dtu.dk/service.php?SignalP-5.0)), `targetp/targetp.sh` ([TargetP](https://services.healthtech.dtu.dk/service.php?TargetP-2.0)), `phobius/phobius.sh` ([Phobius](https://phobius.sbc.su.se/instructions.html)), `tmhmm/tmhmm.sh` ([TMHMM](https://services.healthtech.dtu.dk/service.php?TMHMM-2.0)), `prosite/ps_scan.sh` ([ps_scan](https://prosite.expasy.org/scanprosite/)), `nucpred/nucpred.sh` ([NucPred](https://nucpred.bioinfo.se/nucpred/)), `predgpi/predgpi.sh` which in turn submits `predgpi/PredGPI.r` to use the R package [ragp](https://rdrr.io/github/missuse/ragp/man/get_pred_gpi.html) ([PredGPI](http://gpcr.biocomp.unibo.it/predgpi/)) and  `effectorp/effectorp.sh` ([EffectorP](https://github.com/JanaSperschneider/EffectorP-3.0)).
 2. `./submit_CSEPfilter.sh` - submits `CSEPfilter` to produce lists of CSEPs from all programme results.
 3. `./submit_CSEPblast.sh` -  submits `blastp/blastp.sh` to BLAST of CSEPs against the [PHI-base database](http://www.phi-base.org/) (requires `phi-base_current.csv` and `phi-base_current.fas` to be downloaded from [here](http://www.phi-base.org/downloadLink.htm) into the `blastp` directory).
 4. `./submit_CAZymeprediction.sh` - submits `run_dbcan.sh/run_dbcan.sh` to run run_dbcan. 
@@ -146,7 +146,7 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 
 `cd lifestyle_comparison`
 
-`./submit_lifestyletest.sh` - submits `lifestyle_v_phylogeny.r` which in turn submits `lifestyle-test.sh` to run PERMANOVA-based lifestyle test on orthogroup and CSEP presence absence matrices; `run_edited.py` is modified from the original script `run.py` by [Mesny & Vannier](https://github.com/fantin-mesny/Effect-Of-Biological-Categories-On-Genomes-Composition).
+`./submit_lifestyletest.sh` - submits `lifestyle_v_phylogeny.r` to prepare input file for `lifestyle-test.sh` which runs PERMANOVA-based lifestyle test on orthogroup and CSEP presence absence matrices; `run_edited.py` is modified from the original script `run.py` by [Mesny & Vannier](https://github.com/fantin-mesny/Effect-Of-Biological-Categories-On-Genomes-Composition).
 
 ---
 
@@ -172,5 +172,3 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 ## 9 Statistics and data visualisation
 
 `Rscript stats_and_plots.r`
-
-
