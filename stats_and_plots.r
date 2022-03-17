@@ -78,6 +78,12 @@ stag <- read.tree("orthology_inference/OrthoFinder/Results_Oct22/Species_Tree/Sp
 #Make vector with outgroup
 outgroup <- "Ilyonectria sp."
 
+#Create groupings for whether taxa are Fusarium sensu stricto or allied genera
+allied.group <- list(allied=metadata$name[-union(setdiff(grep("Fusarium", metadata$name),
+                                                         grep("'", metadata$name)), which(metadata$ingroup == 0))],
+                     fusarium=metadata$name[union(setdiff(grep("Fusarium", metadata$name),
+                                                          grep("'", metadata$name)), which(metadata$ingroup == 0))])
+
 #For each species-tree method...
 for (i in c("iqtree", "raxmlng", "astral", "astral.pro", "stag")) {
   
@@ -95,7 +101,7 @@ for (i in c("iqtree", "raxmlng", "astral", "astral.pro", "stag")) {
   assign(paste0(i, ".dend"), dend)
   
   #Plot tree
-  gg <- ggtree(tree, branch.length="none") %<+% metadata
+  gg <- ggtree(groupOTU(tree, allied.group), aes(colour=group), branch.length="none") %<+% metadata
   #Capture data structure
   gg.tree.data <- gg[["data"]] %>%
     arrange(y)
@@ -150,7 +156,9 @@ for (i in c("iqtree", "raxmlng", "astral", "astral.pro", "stag")) {
                   fontsize=1.5,
                   align=TRUE,
                   fontface="bold") +
-    coord_cartesian(clip="off")
+    coord_cartesian(clip="off") +
+    scale_colour_manual(values=c("red", "black")) +
+    theme(legend.position="none")
   
   assign(paste0(i, ".tree"), tree)
   assign(paste0("gg.", i), gg)
@@ -200,7 +208,7 @@ gg.tree.comp <- ggplot(tree.comp.df, aes(Var2, Var1)) +
                inherit.aes=FALSE) +
   scale_x_discrete(position="top") +
   scale_fill_gradient(low="white", high="dimgrey") +
-  scale_colour_manual(values=c("#D55E00", "#009E73", "#56B4E9", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#009E73", "#56B4E9", "#F0E442")) +
   theme_minimal() + 
   theme(legend.position=c(0.8, 0.25),
         legend.title=element_blank(),
@@ -247,7 +255,7 @@ plot_grid(gg.tree.comp,
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=7,
                                        yend=7),
-                                   colour="#D55E00",
+                                   colour="#E69F00",
                                    size=1.5) +
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=6,
@@ -259,7 +267,7 @@ plot_grid(gg.tree.comp,
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=7,
                                        yend=7),
-                                   colour="#D55E00",
+                                   colour="#E69F00",
                                    size=1.5) +
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=6,
@@ -271,7 +279,7 @@ plot_grid(gg.tree.comp,
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=7,
                                        yend=7),
-                                   colour="#D55E00",
+                                   colour="#E69F00",
                                    size=1.5) +
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=6,
