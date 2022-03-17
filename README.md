@@ -4,9 +4,7 @@
 
 Bioinformatics analysis pipeline for Hill et al. (in prep) Lifestyle transitions in fusarioid fungi are frequent and lack clear genomic signatures.
 
-The pipeline was written for and run on Queen Mary University of London's [Apocrita HPC facility](http://doi.org/10.5281/zenodo.438045) which uses the Univa Grid Engine batch-queue system.
-
-See detailed 
+The pipeline was written for and run on Queen Mary University of London's [Apocrita HPC facility](http://doi.org/10.5281/zenodo.438045) which uses the Univa Grid Engine batch-queue system. This means that many of the bash scripts (`.sh` file endings) specify core allocation, run times and memory usage allocation that may need to be adapted for different platforms.
 
 ---
 
@@ -27,7 +25,7 @@ Requires raw `fastq.gz` paired-end reads in this directory as well as `TruSeq3-P
 
 `cd assembly/denovo_assembly`
 
-1. `./submit_assembly` - makes new directory and submits job scripts for each assembly tool ([ABySS](https://github.com/bcgsc/abyss), [MEGAHIT](https://github.com/voutcn/megahit), [SPAdes](https://github.com/ablab/spades)).
+1. `./submit_assembly.sh` - makes new directory and submits job scripts for each assembly tool ([ABySS](https://github.com/bcgsc/abyss), [MEGAHIT](https://github.com/voutcn/megahit), [SPAdes](https://github.com/ablab/spades)).
 2. `./abyss_comp.sh` - after ABySS has finished running for all kmer sizes, compare the assembly stats to choose 'best' kmer size.
 
 ### 1.3 Polishing
@@ -40,13 +38,11 @@ After completing [4 Assessment](https://github.com/Rowena-h/FusariumLifestyles/t
 
 2.`./ncbi_filter.sh` - removes sequences identified as mitochondrial or duplicates by NCBI.
 
----
-
 ### 1.4 Assessment
 
 `cd assembly/assessment`
 
-1. `./submit_assessment` - submits [QUAST](https://github.com/ablab/quast), [BUSCO](https://busco.ezlab.org/) and [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) scripts (Hypocreales dataset for BUSCO downloaded from [here](https://busco-data.ezlab.org/v4/data/lineages/)).
+1. `./submit_assessment.sh` - submits [QUAST](https://github.com/ablab/quast), [BUSCO](https://busco.ezlab.org/) and [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) scripts (Hypocreales dataset for BUSCO downloaded from [here](https://busco-data.ezlab.org/v4/data/lineages/)).
 2. `qsub blobtools.sh` - after the BLAST has finished, submit [BlobTools](https://github.com/DRL/blobtools).
 
 ---
@@ -99,6 +95,8 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 1. `./submit_protein_download.sh` - submits download of predicted protein sets of *Fusarium* strains from NCBI.
 2. `qsub orthofinder.sh` - submits orthology inference using [OrthoFinder](https://github.com/davidemms/OrthoFinder).
 
+---	
+
 ## 4 Phylogenomics
 
 `cd phylogenomics`
@@ -106,9 +104,9 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 1. `./submit_alignment.sh` - submits alignment of single copy orthogroups from OrthoFinder with [MAFFT](https://mafft.cbrc.jp/alignment/software/) followed by trimming with [BMGE](https://bmcecolevol.biomedcentral.com/articles/10.1186/1471-2148-10-210) and [trimAl](http://trimal.cgenomics.org/).
 2. `./concat.sh` - concatenate single copy orthogroup alignments and prepare partition files using [AMAS](https://github.com/marekborowiec/AMAS).
 3. `./submit_modeltestng.sh` - runs [ModelTest-NG](https://github.com/ddarriba/modeltest) on all single copy orthogroups (in computationally tractable chunks).
-4. `./submit_speciestrees_concatenation` - submits concatenation-based species tree methods ([RAxML-NG](https://github.com/amkozlov/raxml-ng) and [IQ-TREE](https://github.com/iqtree/iqtree2)).
+4. `./submit_speciestrees_concatenation.sh` - submits concatenation-based species tree methods ([RAxML-NG](https://github.com/amkozlov/raxml-ng) and [IQ-TREE](https://github.com/iqtree/iqtree2)).
 5. `./submit_RAxML-NG_genetrees.sh` - submits RAxML-NG for individual gene trees.
-6. `./submit_speciestrees_coalescent` - submits coalescent-based species tree methods ([ASTRAL-III](https://github.com/smirarab/ASTRAL) and [ASTRAL-Pro](https://github.com/chaoszhang/A-pro)) using genes trees.
+6. `./submit_speciestrees_coalescent.sh` - submits coalescent-based species tree methods ([ASTRAL-III](https://github.com/smirarab/ASTRAL) and [ASTRAL-Pro](https://github.com/chaoszhang/A-pro)) using genes trees.
 
 ---
 
