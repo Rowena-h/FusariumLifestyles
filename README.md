@@ -1,10 +1,12 @@
 # *Fusarium* Lifestyles
  
+![Pipeline workflow](pipeline.png)
+
 Bioinformatics analysis pipeline for Hill et al. (in prep) Lifestyle transitions in fusarioid fungi are frequent and lack clear genomic signatures.
 
 The pipeline was written for and run on Queen Mary University of London's [Apocrita HPC facility](http://doi.org/10.5281/zenodo.438045) which uses the Univa Grid Engine batch-queue system.
 
-![Pipeline workflow](pipeline.png)
+See detailed 
 
 ---
 
@@ -12,7 +14,7 @@ The pipeline was written for and run on Queen Mary University of London's [Apocr
 
 `cd assembly`
 
-### 1 Read quality control
+### 1.1 Read quality control
 
 `cd assembly/reads`
 
@@ -21,14 +23,14 @@ Requires raw `fastq.gz` paired-end reads in this directory as well as `TruSeq3-P
 1. `qsub trimmomatic.sh` - trims raw reads using [Trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic).
 2. `qsub fastqc.sh` - after trimming, checks read quality with [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).
 
-### 2 *De novo* genome assembly
+### 1.2 *De novo* genome assembly
 
 `cd assembly/denovo_assembly`
 
 1. `./submit_assembly` - makes new directory and submits job scripts for each assembly tool ([ABySS](https://github.com/bcgsc/abyss), [MEGAHIT](https://github.com/voutcn/megahit), [SPAdes](https://github.com/ablab/spades)).
 2. `./abyss_comp.sh` - after ABySS has finished running for all kmer sizes, compare the assembly stats to choose 'best' kmer size.
 
-### 3 Polishing
+### 1.3 Polishing
 
 `cd assembly/polishing`
 
@@ -38,7 +40,9 @@ After completing [4 Assessment](https://github.com/Rowena-h/FusariumLifestyles/t
 
 2.`./ncbi_filter.sh` - removes sequences identified as mitochondrial or duplicates by NCBI.
 
-### 4 Assessment
+---
+
+### 1.4 Assessment
 
 `cd assembly/assessment`
 
@@ -51,14 +55,14 @@ After completing [4 Assessment](https://github.com/Rowena-h/FusariumLifestyles/t
 
 `cd annotation`
 
-### 1 Repeatmasking
+### 2.1 Repeatmasking
 
 `cd annotation/repeat_masking`
 
 1. `qsub repeatmodeler.sh` - makes custom repeat library for each strain using [RepeatModeler](https://www.repeatmasker.org/RepeatModeler/).
 2. `qsub repeatmasker.sh` - after repeat modelling, uses custom repeat library to softmask the assembly using [RepeatMasker](https://www.repeatmasker.org/RepeatMasker/).
 
-### 2 MAKER pipeline
+### 2.2 MAKER pipeline
 
 `cd annotation/maker`
 
@@ -112,13 +116,13 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 
 `cd divergence_time_estimation`
 
-### 1 SortaDate
+### 5.1 SortaDate
 
 `cd divergence_time_estimation/sortadata`
 
 `qsub sortadate` - reroots gene and RAxML-NG species tree and runs with [SortaDate](https://github.com/FePhyFoFum/SortaDate) to filter for top ten 'clock-like' genes.
 
-### 2 MCMCTree
+### 5.2 MCMCTree
 
 `cd divergence_time_estimation/mcmctree`
 
@@ -152,11 +156,13 @@ Requires ESTs and proteins from [Fusoxy1](https://mycocosm.jgi.doe.gov/Fusoxy1/F
 
 `cd selection`
 
+### 8.1 dN/dS analysis
+
 1. `qsub gbff_files/ncbi_gbff_download.sh` - downloads GBFF files for the strains used in this study from NCBI; also need [Ilysp1 transcripts downloaded from Mycocosm](https://mycocosm.jgi.doe.gov/Ilysp1/Ilysp1.home.html) in `gbff_files` directory.
 2. `./submit_pal2nal.sh` - submits script to pull corresponding nucleotides for all proteins and prepares codon alignments using [PAL2NAL](http://www.bork.embl.de/pal2nal/).
 3. `./submit_hyphy.sh` - submits [HyPhy](https://github.com/veg/hyphy) dN/dS methods.
 
-### Codon optimisation
+### 8.2 Codon optimisation
 
 `cd selection/codon_optimisation`
 
