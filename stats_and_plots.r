@@ -64,19 +64,25 @@ col.df <- data.frame(lifestyle=c("endophyte", "animal pathogen", "human pathogen
 #####################   TOPOLOGY COMPARISON   ##############################
 
 #Read in trees
-astral <- read.tree("phylogenomics/species_tree/astral/fus_astral_proteins_62T.tre")
+astral <- read.tree("phylogenomics/species_tree/astral/fus_proteins_62T_astral.tre")
 astral$edge.length <- rep(1, length(astral$edge.length))
 raxmlng <- read.tree("phylogenomics/species_tree/raxml-ng/fus_proteins_62T.raxml.support")
-iqtree <- read.tree("phylogenomics/species_tree/iqtree/fus_proteins_62T_iqtree_genepart.contree")
-astral.pro <- read.tree("phylogenomics/species_tree/fus_astralpro_multicopy_62T.tre")
+iqtree <- read.tree("phylogenomics/species_tree/iqtree/fus_proteins_62T_iqtree.contree")
+astral.pro <- read.tree("phylogenomics/species_tree/astral/fus_proteins_62T_astralpro_multicopy.tre")
 astral.pro$tip.label <- gsub("-", "_", astral.pro$tip.label)
 astral.pro$tip.label[which(astral.pro$tip.label == "Ilysp1_GeneCatalog_proteins")] <- "Ilysp1_GeneCatalog_proteins_20121116"
 astral.pro$tip.label <- metadata$file2[match(astral.pro$tip.label, metadata$tip)]
 astral.pro$edge.length <- rep(1, length(astral.pro$edge.length))
-stag <- read.tree("orthology_inference/OrthoFinder/Results_Jan28/Species_Tree/SpeciesTree_rooted.txt")
+stag <- read.tree("orthology_inference/OrthoFinder/Results_Oct22/Species_Tree/SpeciesTree_rooted.txt")
 
 #Make vector with outgroup
 outgroup <- "Ilyonectria sp."
+
+#Create groupings for whether taxa are Fusarium sensu stricto or allied genera
+allied.group <- list(allied=metadata$name[-union(setdiff(grep("Fusarium", metadata$name),
+                                                         grep("'", metadata$name)), which(metadata$ingroup == 0))],
+                     fusarium=metadata$name[union(setdiff(grep("Fusarium", metadata$name),
+                                                          grep("'", metadata$name)), which(metadata$ingroup == 0))])
 
 #For each species-tree method...
 for (i in c("iqtree", "raxmlng", "astral", "astral.pro", "stag")) {
@@ -95,7 +101,7 @@ for (i in c("iqtree", "raxmlng", "astral", "astral.pro", "stag")) {
   assign(paste0(i, ".dend"), dend)
   
   #Plot tree
-  gg <- ggtree(tree, branch.length="none") %<+% metadata
+  gg <- ggtree(groupOTU(tree, allied.group), aes(colour=group), branch.length="none") %<+% metadata
   #Capture data structure
   gg.tree.data <- gg[["data"]] %>%
     arrange(y)
@@ -150,7 +156,9 @@ for (i in c("iqtree", "raxmlng", "astral", "astral.pro", "stag")) {
                   fontsize=1.5,
                   align=TRUE,
                   fontface="bold") +
-    coord_cartesian(clip="off")
+    coord_cartesian(clip="off") +
+    scale_colour_manual(values=c("red", "black")) +
+    theme(legend.position="none")
   
   assign(paste0(i, ".tree"), tree)
   assign(paste0("gg.", i), gg)
@@ -200,7 +208,7 @@ gg.tree.comp <- ggplot(tree.comp.df, aes(Var2, Var1)) +
                inherit.aes=FALSE) +
   scale_x_discrete(position="top") +
   scale_fill_gradient(low="white", high="dimgrey") +
-  scale_colour_manual(values=c("#D55E00", "#009E73", "#56B4E9", "#F0E442")) +
+  scale_colour_manual(values=c("#E69F00", "#009E73", "#56B4E9", "#F0E442")) +
   theme_minimal() + 
   theme(legend.position=c(0.8, 0.25),
         legend.title=element_blank(),
@@ -247,7 +255,7 @@ plot_grid(gg.tree.comp,
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=7,
                                        yend=7),
-                                   colour="#D55E00",
+                                   colour="#E69F00",
                                    size=1.5) +
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=6,
@@ -259,7 +267,7 @@ plot_grid(gg.tree.comp,
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=7,
                                        yend=7),
-                                   colour="#D55E00",
+                                   colour="#E69F00",
                                    size=1.5) +
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=6,
@@ -271,7 +279,7 @@ plot_grid(gg.tree.comp,
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=7,
                                        yend=7),
-                                   colour="#D55E00",
+                                   colour="#E69F00",
                                    size=1.5) +
                       geom_segment(aes(x=-Inf, xend=Inf,
                                        y=6,
@@ -288,8 +296,8 @@ plot_grid(gg.tree.comp,
 ## Comparison of trimming tools
 
 raxmlng.bmge <- read.tree("phylogenomics/species_tree/raxml-ng/fus_proteins_bmge_62T.raxml.support")
-iqtree.bmge <- read.tree("phylogenomics/species_tree/iqtree/fus_proteins_bmge_62T_iqtree_genepart.contree")
-astral.bmge <- read.tree("phylogenomics/species_tree/astral/fus_astral_proteins_bmge_62T.tre")
+iqtree.bmge <- read.tree("phylogenomics/species_tree/iqtree/fus_proteins_bmge_62T_iqtree.contree")
+astral.bmge <- read.tree("phylogenomics/species_tree/astral/fus_proteins_bmge_62T_astral.tre")
 astral.bmge$edge.length <- rep(1, length(astral.bmge$edge.length))
 
 for (i in c("iqtree", "raxmlng", "astral")) {
@@ -392,11 +400,13 @@ plot_grid(labels="AUTO", label_size=10, ncol=1, rel_heights=c(1,1,1.1),
 #dev.off()
 
 ####################################
-moop <- data.frame(raxmlng=raxmlng.tree$edge.length, iqtree=iqtree.tree$edge.length, stag=stag.tree$edge.length)
 
-moop2 <- melt(moop)
+#Check distributions of branch lengths
+branch.lengths.df <- data.frame(raxmlng=raxmlng.tree$edge.length, iqtree=iqtree.tree$edge.length, stag=stag.tree$edge.length)
 
-ggplot(moop2, aes(x=value)) +
+branch.lengths.df2 <- melt(branch.lengths.df)
+
+ggplot(branch.lengths.df2, aes(x=value)) +
   facet_wrap(~ variable,
              labeller=labeller(variable=c(raxmlng="RAxML-NG", iqtree="IQ-TREE", stag="STAG"))) +
   geom_density(alpha=0.5, fill="grey") +
@@ -404,6 +414,7 @@ ggplot(moop2, aes(x=value)) +
   theme_minimal() +
   theme(legend.position="none",
         axis.text=element_blank())
+
 ###############################
 
 #Proportion of supported branches
@@ -3322,7 +3333,7 @@ gg.rscu <- gheatmap(gg.hclust,
                     colnames=FALSE) +
   scale_fill_gradient2(low="#F0E442", mid="white", high="#CC79A7",
                        breaks=pretty_breaks(),
-                       guide=guide_colourbar(title="Codon usage bias\n(RSCU)",
+                       guide=guide_colourbar(title="Normalised\ncodon usage bias\n(RSCU)",
                                              title.position="top",
                                              direction="horizontal",)) +
   theme(legend.position=c(0.2, 0.8))

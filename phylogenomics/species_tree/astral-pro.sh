@@ -7,13 +7,13 @@
 
 mkdir OF_gene_trees
 
-cp ../../orthology_inference/OrthoFinder/Results_Jan28/Resolved_Gene_Trees/*_tree.txt OF_gene_trees
+cp ../../orthology_inference/OrthoFinder/Results_Oct22/Resolved_Gene_Trees/*_tree.txt OF_gene_trees
 
 find OF_gene_trees/ -type f -exec sed -i 's/proteins_[^:]*:/proteins:/g' {} \;
 find OF_gene_trees/ -type f -exec sed -i 's/protein_[^:]*:/protein:/g' {} \;
 find OF_gene_trees/ -type f -exec sed -i -e '$a\' {} \;
 
-TREES=$(ls ../../orthology_inference/OrthoFinder/Results_Jan28/Resolved_Gene_Trees/*_tree.txt | wc -l)
+TREES=$(ls ../../orthology_inference/OrthoFinder/Results_Oct22/Resolved_Gene_Trees/*_tree.txt | wc -l)
 
 cat OF_gene_trees/*_tree.txt > astral/${TREES}_fusortho_multicopy_OF_trees.tre
 
