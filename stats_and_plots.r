@@ -605,7 +605,7 @@ for (clock in c("independent", "correlated")) {
                    aes(node=node, fill=as.factor(box)), alpha=1, extend=200, show.legend=FALSE) +
     geom_cladelab(data=sc.df.dated,
                   mapping=aes(node=node, label=sc),
-                  offset.text=2, offset=70, align=TRUE, barsize=0.2, fontsize=1.3) +
+                  offset.text=2, offset=70, align=TRUE, barsize=0.2, fontsize=1.5) +
     geom_rect(data=confidence.intervals,
               aes(xmin=`95%_lower` * -1, 
                   xmax=`95%_upper` * -1,
@@ -919,7 +919,7 @@ gg.gene.numbers <- ggplot(genes.df, aes(y=name, x=value, fill=category)) +
         panel.grid.minor.x=element_line(colour="white"),
         panel.grid.major.y=element_blank(),
         legend.position=c(0.5, 0),
-        legend.text=element_text(size=5, margin=margin(0, 4, 0, 0)),
+        legend.text=element_text(size=6, margin=margin(0, 4, 0, 0)),
         legend.key.size=unit(0.2, "cm"),
         legend.spacing.x=unit(0.1, "cm"),
         legend.title=element_blank())
@@ -1276,7 +1276,7 @@ gg.maintree <- gg.datedtree.independent +
   new_scale_fill() +
   geom_cladelab(data=clades.df, 
                 mapping=aes(node=node, label=clade),
-                offset.text=2, offset=50, align=TRUE, barsize=0.2, fontsize=1.2) +
+                offset.text=2, offset=50, align=TRUE, barsize=0.2, fontsize=1.5) +
   geom_nodepoint(aes(subset=(node %in% c(64, 66))),
                  size=1, colour="black") +
   geom_text_repel(data=gg.tree.data.dated.independent[gg.tree.data.dated.independent$node %in% c(64, 66),],
@@ -1469,13 +1469,13 @@ gg.specific <- ggplot(specific.df2, aes(x=lifestyle, y=value, fill=lifestyle)) +
   theme(legend.position="bottom",
         legend.margin=margin(0, 0, 0, 0),
         legend.key.size=unit(8, "pt"),
-        legend.text=element_text(size=6, margin=margin(0, 5, 0, 0)),
+        legend.text=element_text(size=7, margin=margin(0, 5, 0, 0)),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
         axis.title.x=element_blank(),
-        axis.title.y=element_text(size=6),
-        axis.text.y=element_text(size=4),
-        strip.text=element_text(size=6, face="bold"),
+        axis.title.y=element_text(size=7),
+        axis.text.y=element_text(size=5),
+        strip.text=element_text(size=7, face="bold"),
         plot.margin=margin(0, 0, 10, 0, unit="pt"))
 
 
@@ -1639,13 +1639,13 @@ gg.copynum.mean <- ggplot(copynum.mean.df, aes(x=lifestyle, y=mean, fill=lifesty
   theme(legend.position="bottom",
         legend.margin=margin(0, 0, 0, 0),
         legend.key.size=unit(8, "pt"),
-        legend.text=element_text(size=6, margin=margin(0, 5, 0, 0)),
+        legend.text=element_text(size=7, margin=margin(0, 5, 0, 0)),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
         axis.title.x=element_blank(),
-        axis.title.y=element_text(size=6),
-        axis.text.y=element_text(size=4),
-        strip.text=element_text(size=6, face="bold"),
+        axis.title.y=element_text(size=7),
+        axis.text.y=element_text(size=5),
+        strip.text=element_text(size=7, face="bold"),
         plot.margin=margin(5, 0, 5, 0, unit="pt"))
 
 #Set seed for reproducible jitter
@@ -1677,13 +1677,13 @@ gg.copynum <- ggplot(copynum.df, aes(x=lifestyle, y=value)) +
   theme(legend.position="bottom",
         legend.margin=margin(0, 0, 0, 0),
         legend.key.size=unit(8, "pt"),
-        legend.text=element_text(size=6, margin=margin(0, 5, 0, 0)),
+        legend.text=element_text(size=7, margin=margin(0, 5, 0, 0)),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
         axis.title.x=element_blank(),
-        axis.title.y=element_text(size=6),
-        axis.text.y=element_text(size=4),
-        strip.text=element_text(size=6, face="bold"),
+        axis.title.y=element_text(size=7),
+        axis.text.y=element_text(size=5),
+        strip.text=element_text(size=7, face="bold"),
         plot.margin=margin(2, 60, 5, 50, unit="pt"))
 
 #Get top outlier
@@ -1777,7 +1777,7 @@ gg.pwperm <- ggplot(pw.lifestyle.genes, aes(Var2, Var1, fill=value>0.05)) +
   facet_grid(. ~ data, labeller=labeller(data=c(Orthogroups="All genes", CSEPs="CSEPs", CAZymes="CAZymes"))) +
   geom_tile(color="grey", size=1, alpha=0.5, show.legend=FALSE) +
   geom_text(aes(label=label, colour=value>0.05), size=1.5, show.legend=FALSE) +
-  annotate("text", x=4.1, y=2, label="PERMANOVA", size=1.5, fontface="bold") +
+  annotate("text", x=4.1, y=2, label="PERMANOVA", size=2, fontface="bold") +
   geom_text(data=permanova.df, aes(x=4.1, y=1.5, label=lab), size=1.5, inherit.aes=FALSE) +
   scale_fill_manual(values=c("#E69F00", "white")) +
   scale_colour_manual(values=c("black", "grey")) +
@@ -1789,7 +1789,7 @@ gg.pwperm <- ggplot(pw.lifestyle.genes, aes(Var2, Var1, fill=value>0.05)) +
                                  face="bold", angle=90, hjust=0.5, vjust=0, size=2.5),
         axis.title.x=element_blank(),
         axis.title.y=element_blank(),
-        strip.text=element_text(face="bold", size=6),
+        strip.text=element_text(face="bold", size=7),
         strip.placement="outside",
         panel.grid=element_blank(),
         plot.margin=unit(c(0, 0, 0, 0), "pt")) +
@@ -1808,7 +1808,7 @@ plot_grid(plot_grid(gg.lifestyles.grid, gg.gene.numbers,
           rel_heights=c(2, 2),
           labels="AUTO",
           label_size=10)
-dev.off()
+#dev.off()
 
 
 ############################    FIGURE 3    ####################################
@@ -2617,16 +2617,13 @@ gg.siterates <- ggplot(contrastfel.sites, aes(x=lifestyle, y=value, fill=lifesty
   coord_cartesian(clip="off") +
   theme_minimal() +
   theme(legend.position="none",
-        legend.margin=margin(0, 0, 0, 0),
-        legend.key.size=unit(6, "pt"),
-        legend.text=element_text(size=4, margin=margin(0, 5, 0, 0)),
         axis.text.x=element_text(colour=c("#009E73","#56B4E9", "#D55E00", "#9AE324", "dimgrey", "#0072B2"),
                                  size=4, face="bold", vjust=0.5),
         axis.ticks.x=element_blank(),
         axis.title.x=element_blank(),
-        axis.title.y=element_text(size=6),
-        axis.text.y=element_text(size=4),
-        strip.text=element_text(size=6, face="bold"),
+        axis.title.y=element_text(size=7),
+        axis.text.y=element_text(size=5),
+        strip.text=element_text(size=7, face="bold"),
         plot.margin=margin(10, 10, 10, 10, unit="pt"))
 
 ## COMBINE ##
@@ -2858,15 +2855,12 @@ gg.s.lifestyle <- ggplot(s.df, aes(x=lifestyle, y=S)) +
   coord_cartesian(clip="off") +
   theme_minimal() +
   theme(legend.position="none",
-        legend.margin=margin(0, 0, 0, 0),
-        legend.key.size=unit(8, "pt"),
-        legend.text=element_text(size=6, margin=margin(0, 5, 0, 0)),
         axis.text.x=element_text(colour=c("#009E73","#56B4E9", "#D55E00", "#9AE324", "dimgrey", "#0072B2"),
                                  size=4, face="bold", vjust=0.5),
         axis.ticks.x=element_blank(),
         axis.title.x=element_blank(),
-        axis.title.y=element_text(size=6),
-        axis.text.y=element_text(size=4),
+        axis.title.y=element_text(size=7),
+        axis.text.y=element_text(size=5),
         panel.grid.major.x=element_blank(),
         plot.margin=margin(10, 10, 15, 10, unit="pt"))
 
@@ -2877,6 +2871,9 @@ sgenes.pw.df.plot <- sgenes.pw.df %>%
 
 #Function to add sample size to strip labels
 cust_labeller <- function(x) paste0(x, "\n", plot.labels$num[plot.labels$lifestyle == x])
+
+#Edit mycoparasite label to fit
+s.df2$lifestyle <- sub("mycoparasite", "myco-\nparasite", s.df2$lifestyle)
 
 #Plot boxplots of codon optimisation by gene type by lifestyle
 gg.s.genes <- ggplot(s.df2, aes(x=gene_type, y=value)) +
@@ -2895,15 +2892,15 @@ gg.s.genes <- ggplot(s.df2, aes(x=gene_type, y=value)) +
   theme(legend.position="top",
         legend.margin=margin(0, 0, 0, 0),
         legend.key.size=unit(8, "pt"),
-        legend.text=element_text(size=6, margin=margin(0, 5, 0, 0)),
+        legend.text=element_text(size=7, margin=margin(0, 5, 0, 0)),
         strip.text=element_text(size=4, face="bold", vjust=0.5),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
         axis.title.x=element_blank(),
-        axis.title.y=element_text(size=6),
-        axis.text.y=element_text(size=4),
+        axis.title.y=element_text(size=7),
+        axis.text.y=element_text(size=5),
         panel.grid.major.x=element_blank(),
-        panel.spacing=unit(0.38, "lines"),
+        panel.spacing=unit(0.35, "lines"),
         plot.margin=margin(10, 10, 0, 10, unit="pt"))
 
 #Colour strip labels according to lifestyle
@@ -2918,7 +2915,7 @@ for (i in seq_along(gg.s.genes.grob.strips)) {
 
 #Write codon optimisation by lifestyle plots to file (Figure 4)
 #tiff(file=paste0("Fig4-", Sys.Date(), ".tiff"),
-#     height=4, width=3.4, unit="in", res=600, compression="lzw")
+#     height=4, width=3.25, unit="in", res=600, compression="lzw")
 plot_grid(gg.s.lifestyle, gg.s.genes.grob, rel_heights=c(0.8, 1), ncol=1, labels="AUTO", label_size=10)
 #dev.off()
 
@@ -3007,11 +3004,11 @@ gg.range <- ggplot(range.s.df, aes(x=range, y=S)) +
   coord_cartesian(clip="off") +
   theme_minimal() +
   theme(legend.position="none",
-        axis.text.x=element_text(size=5, face="bold"),
+        axis.text.x=element_text(size=7, face="bold"),
         axis.ticks.x=element_blank(),
-        axis.title.x=element_text(size=6, margin=margin(12, 0, 0, 0)),
-        axis.title.y=element_text(size=6),
-        axis.text.y=element_text(size=4),
+        axis.title.x=element_text(size=7, margin=margin(12, 0, 0, 0)),
+        axis.title.y=element_text(size=7),
+        axis.text.y=element_text(size=5),
         plot.margin=margin(10, 10, 0, 10, unit="pt"))
 
 #Write range plot to file (Supplementary Figure 8)
@@ -3103,7 +3100,7 @@ gg.pca <- ggplot(pca.centroids.df,
                      inherit.aes=FALSE) +
   geom_point(size=1.5, stroke=0.5, position=position_jitter(width=0.05, height=0.05, seed=1)) +
   scale_shape_manual(values=c(1:13)) +
-  annotate("text", x=-1.2, y=-1.15, label="ordisurf", fontface="bold", size=1.5) +
+  annotate("text", x=-1.2, y=-1.15, label="ordisurf", fontface="bold", size=1.7) +
   geom_text(data=pcalabels.df,
             aes(x=-1.2, y=-1.5, 
                 label=paste0("adj. R=", R,
@@ -3113,7 +3110,7 @@ gg.pca <- ggplot(pca.centroids.df,
   labs(x=paste0("PC1 (", signif(summary(phylpca)$importance[2, 1] * 100, 2), "%)"),
        y=paste0("PC2 (", signif(summary(phylpca)$importance[2, 2] * 100, 2), "%)")) +
   theme_minimal() +
-  theme(strip.text=element_text(size=6, face="bold"),
+  theme(strip.text=element_text(size=7, face="bold"),
         panel.border=element_rect(colour="black", fill=NA, size=0.5),
         axis.text=element_blank(),
         axis.ticks=element_blank(),
@@ -3162,12 +3159,13 @@ if (sgenus.levene$p > 0.05) {
 gg.codongenus <- ggplot(s.df, aes(x=genus, y=S)) +
   geom_violin(colour="grey", lty="dashed", size=0.3) +
   geom_boxplot(width=0.2, size=0.3, outlier.size=0.3) +
-  annotate("text", label=paste0("p=", signif(sgenus.ttest$p, 1)), x=1, y=0.57, size=1.2) +
+  annotate("text", label=paste0("p=", signif(sgenus.ttest$p, 1)), x=1, y=0.57, size=1.5) +
+  scale_x_discrete(labels=c("Allied", "Fus")) +
   coord_cartesian(clip="off") +
   theme_minimal() +
   theme(axis.title=element_blank(),
-        axis.text.y=element_text(size=2.5, margin=margin(0, 0, 0, 0)),
-        axis.text.x=element_text(size=3.5, face=c("plain", "italic"), margin=margin(0, 0, 0, 0)),
+        axis.text.y=element_text(size=4, margin=margin(0, 0, 0, 0)),
+        axis.text.x=element_text(size=5, face=c("plain", "italic"), margin=margin(0, 0, 0, 0)),
         panel.grid.minor=element_blank(),
         panel.grid.major.x=element_blank(),
         plot.tag.position=c(1, 0.7),
@@ -3218,8 +3216,7 @@ colnames(pca.grid.df)[1:6] <- paste0("PC", seq(1:6), "\n(",
                                      signif(summary(phylpca)$importance[2, 1:6] * 100, 2), "%)")
 
 #Plot grid of PCs 1-6
-gg.pca.grid <- 
-  ggplot(pca.grid.df, aes(x=.panel_x, y=.panel_y)) + 
+gg.pca.grid <- ggplot(pca.grid.df, aes(x=.panel_x, y=.panel_y)) + 
   geom_point(aes(colour=speciescomplex.abb, fill=speciescomplex.abb, shape=speciescomplex.abb), 
              size=0.9, stroke=0.3) + 
   facet_matrix(vars(1:6),
@@ -3230,8 +3227,8 @@ gg.pca.grid <-
   scale_shape_manual(values=c(1:13)) +
   coord_cartesian(clip="off") +
   theme_minimal() +
-  theme(strip.text.y=element_text(size=4, face="bold"),
-        strip.text.x=element_text(size=4, face="bold", margin=margin(20, 0, 0, 0)),
+  theme(strip.text.y=element_text(size=7, face="bold"),
+        strip.text.x=element_text(size=7, face="bold", margin=margin(20, 0, 0, 0)),
         strip.placement="outside",
         panel.border=element_rect(colour="black", fill=NA, size=0.4),
         axis.text=element_blank(),
