@@ -2,7 +2,8 @@
  
 ![Pipeline workflow](pipeline.png)
 
-Bioinformatics analysis pipeline for [Hill et al. (2022) Lifestyle transitions in fusarioid fungi are frequent and lack clear genomic signatures. Molecular Biology and Evolution 39(4):msac085](https://doi.org/10.1093/molbev/msac085).
+Bioinformatics analysis pipeline for:
+>Hill et al. (2022) Lifestyle transitions in fusarioid fungi are frequent and lack clear genomic signatures. Molecular Biology and Evolution 39(4):msac085. [doi:10.1093/molbev/msac085](https://doi.org/10.1093/molbev/msac085).
 
 The pipeline was written for and run on Queen Mary University of London's [Apocrita HPC facility](http://doi.org/10.5281/zenodo.438045) which uses the Univa Grid Engine batch-queue system. This means that many of the bash scripts (`.sh` file endings) specify core allocation, run times and memory usage allocation that may need to be adapted for different platforms.
 
@@ -176,3 +177,9 @@ Informed by [this](https://gist.github.com/darencard/bb1001ac1532dd4225b030cf0cd
 ## 9 Statistics and data visualisation
 
 `Rscript stats_and_plots.r`
+
+---
+
+## Citation
+
+>Hill et al. (2022) Lifestyle transitions in fusarioid fungi are frequent and lack clear genomic signatures. Molecular Biology and Evolution 39(4):msac085. [doi:10.1093/molbev/msac085](https://doi.org/10.1093/molbev/msac085).
