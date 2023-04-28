@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use this, please cite it as below."
+authors:
+- family-names: "Hill"
+  given-names: "Rowena"
+  orcid: "https://orcid.org/0000-0002-1046-5528"
+- family-names: "Buggs"
+  given-names: "Richard J. A."
+- family-names: "Vu"
+  given-names: "Dang Toan"
+- family-names: "Gaya"
+  given-names: "Ester"
+title: "Fusarium Lifestyles"
+url: "https://github.com/Rowena-h/FusariumLifestyles"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Hill"
+    given-names: "Rowena"
+    orcid: "https://orcid.org/0000-0002-1046-5528"
+  - family-names: "Buggs"
+    given-names: "Richard J. A."
+  - family-names: "Vu"
+    given-names: "Dang Toan"
+  - family-names: "Gaya"
+    given-names: "Ester"
+  doi: "10.1093/molbev/msac085"
+  journal: "Molecular Biology and Evolution"
+  month: 4
+  start: "msac085" # First page number
+  title: "Lifestyle Transitions in Fusarioid Fungi are Frequent and Lack Clear Genomic Signatures"
+  issue: 4
+  volume: 39
+  year: 2022
